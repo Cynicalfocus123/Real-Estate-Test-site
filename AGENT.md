@@ -63,5 +63,6 @@
 - Changed header logo link to `import.meta.env.BASE_URL` so clicking it always reloads the GitHub Pages homepage.
 - Reduced Top Locations tile height, gaps, and label sizes to make each box smaller.
 - Added supplied Phuket province banner image to Phuket Top Locations tile.
+- Added compatibility copy at `public/province-banners/phuket.png` so Phuket banner works even if an older cached bundle requests the old-style path.
 - Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
 - Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
