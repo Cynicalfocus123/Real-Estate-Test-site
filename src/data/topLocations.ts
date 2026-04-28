@@ -97,6 +97,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#56534e] via-[#383632] to-[#151412]",
+    image: "images/province-banners/samut-sakhon.png",
   },
   {
     id: "samut-prakan",
