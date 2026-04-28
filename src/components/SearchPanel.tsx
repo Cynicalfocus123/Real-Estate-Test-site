@@ -3,7 +3,10 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
 
+const searchTabs = ["All", "For Rent", "For Sale", "Lease to Own", "Senior Nursing Home"];
+
 export function SearchPanel() {
+  const [activeTab, setActiveTab] = useState("All");
   const [provinceOpen, setProvinceOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedProvinces, setSelectedProvinces] = useState<string[]>([]);
@@ -31,18 +34,21 @@ export function SearchPanel() {
       className="mx-auto -mt-20 grid max-w-6xl gap-4 bg-white p-4 shadow-search sm:p-5 lg:grid-cols-[1.1fr_0.8fr_0.8fr_0.8fr_auto]"
     >
       <div className="col-span-full flex flex-wrap gap-2 border-b border-brand-line pb-3">
-        {["All", "For Rent", "For Sale", "Lease to Own", "Senior Nursing Home"].map((item, index) => (
+        {searchTabs.map((item) => (
           <button
             key={item}
             type="button"
+            onClick={() => setActiveTab(item)}
+            aria-pressed={activeTab === item}
             className={`px-4 py-2 text-xs font-bold uppercase sm:px-5 sm:text-sm ${
-              index === 0 ? "bg-brand-red text-white" : "bg-neutral-100 text-brand-dark"
+              activeTab === item ? "bg-brand-red text-white" : "bg-neutral-100 text-brand-dark"
             }`}
           >
             {item}
           </button>
         ))}
       </div>
+      <input type="hidden" name="listingStatus" value={activeTab} />
 
       <label className="col-span-full flex items-center gap-3 border border-brand-line px-4 py-3">
         <Search className="h-5 w-5 text-brand-red" />
