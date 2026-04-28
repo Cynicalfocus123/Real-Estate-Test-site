@@ -30,6 +30,7 @@ export const topLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#547286] via-[#30525e] to-[#171c1c]",
+    image: "images/province-banners/pattaya-chonburi.png",
   },
   {
     id: "bangkok",
