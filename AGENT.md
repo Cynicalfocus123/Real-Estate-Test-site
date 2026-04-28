@@ -95,3 +95,4 @@
 - Reduced hero video white coverage and changed hero copy to bold white text with dark shadow.
 - Updated footer Company links to About Us, Contact Us, and News.
 - Removed the small `Buy Home For Less` eyebrow text above the hero headline.
+- Optimized hero YouTube iframe cover sizing on mobile to remove black letterbox space.
