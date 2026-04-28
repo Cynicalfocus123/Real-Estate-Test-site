@@ -62,6 +62,7 @@ export const topLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#4f526f] via-[#30364f] to-[#141720]",
+    image: "images/province-banners/hua-hin-prachuap-khiri-khan.png",
   },
 ];
 
