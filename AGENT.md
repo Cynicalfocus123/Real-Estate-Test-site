@@ -80,3 +80,4 @@
 - Added supplied Samut Sakhon province banner image with GitHub Pages-safe and compatibility public paths.
 - Added supplied Samut Prakan province banner image with GitHub Pages-safe and compatibility public paths.
 - Added supplied Nan province banner image with GitHub Pages-safe and compatibility public paths.
+- Added supplied Phetchaburi province banner image with GitHub Pages-safe and compatibility public paths.

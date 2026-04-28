@@ -121,6 +121,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#856347] via-[#4a3326] to-[#17100c]",
+    image: "images/province-banners/phetchaburi.png",
   },
   {
     id: "surat-thani",
