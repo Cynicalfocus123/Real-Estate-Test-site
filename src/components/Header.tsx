@@ -46,7 +46,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-brand-line bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-brand-line bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
         <a href={homeUrl} className="flex items-center gap-3" aria-label="Buy Home For Less home">
           <img

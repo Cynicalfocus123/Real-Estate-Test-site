@@ -96,3 +96,4 @@
 - Updated footer Company links to About Us, Contact Us, and News.
 - Removed the small `Buy Home For Less` eyebrow text above the hero headline.
 - Optimized hero YouTube iframe cover sizing on mobile to remove black letterbox space.
+- Made the sticky header fully opaque with a higher z-index so mobile scrolling content does not show behind it.
