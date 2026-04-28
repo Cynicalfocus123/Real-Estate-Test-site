@@ -129,5 +129,6 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#667a6b] via-[#3e5543] to-[#152018]",
+    image: "images/province-banners/surat-thani.png",
   },
 ];
