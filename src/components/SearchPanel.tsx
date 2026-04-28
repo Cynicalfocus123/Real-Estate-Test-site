@@ -98,6 +98,8 @@ export function SearchPanel() {
 
       <select className="border border-brand-line px-4 py-3 text-sm font-medium outline-none" name="propertyType">
         <option>Property Type</option>
+        <option>Apartment</option>
+        <option>Villa</option>
         <option>House</option>
         <option>Condo</option>
         <option>Townhome</option>
