@@ -43,16 +43,16 @@ export function App() {
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
-          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.97)_0%,rgba(255,255,255,0.91)_74%,rgba(255,255,255,0.22)_74%,rgba(0,0,0,0.32)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.94)_74%,rgba(255,255,255,0.28)_74%,rgba(0,0,0,0.4)_100%)]" />
           <div className="relative mx-auto flex max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
-            <div className="max-w-2xl">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
+            <div className="max-w-2xl bg-white/72 px-4 py-5 backdrop-blur-sm sm:px-6 lg:bg-white/60">
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red drop-shadow-sm">
                 Buy Home For Less
               </p>
-              <h1 className="mt-5 text-5xl font-black leading-[1.02] text-brand-dark sm:text-6xl lg:text-7xl">
+              <h1 className="mt-5 text-5xl font-black leading-[1.02] text-brand-dark drop-shadow-[0_2px_0_rgba(255,255,255,0.9)] sm:text-6xl lg:text-7xl">
                 Find your next home for less.
               </h1>
-              <p className="mt-6 max-w-lg text-lg leading-8 text-brand-gray">
+              <p className="mt-6 max-w-lg text-lg font-bold leading-8 text-brand-dark drop-shadow-[0_1px_0_rgba(255,255,255,0.85)]">
                 Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury
                 homes, distressed properties, and exclusive long-term visa packages for foreign buyers.
               </p>
