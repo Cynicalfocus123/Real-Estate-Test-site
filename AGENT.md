@@ -1,0 +1,60 @@
+# Buy Home For Less Site Agent Log
+
+## Project Rules
+- Stack: React + TypeScript + Tailwind CSS frontend.
+- Backend target: GraphQL APIs with future PostgreSQL service.
+- Keep frontend lightweight and API-ready.
+- Header and footer must show `Buy Home For Less` logo.
+- Language control must support EN, RU, ZH, TH, AR, and FA as acronym options.
+- Map search must be prepared for open-source map integration, likely Leaflet + OpenStreetMap.
+- Update this file whenever corrections or fixes are applied.
+
+## 2026-04-28
+- Created first React/Vite frontend scaffold.
+- Added Tailwind CSS setup.
+- Copied supplied logo into `public/buy-home-for-less-logo.png`.
+- Built front page layout: sticky header, hero banner, search panel, featured cards, map-ready section, footer.
+- Added Apollo GraphQL client in `src/services/graphqlClient.ts` with `VITE_GRAPHQL_ENDPOINT` support.
+- Added mock property data and TypeScript property model for later backend connection.
+- Note: user referenced exact sample template link, but no external URL was provided in prompt. Current layout uses visible requirements and logo while waiting for template URL/images.
+- Fix: added Vite client type declaration so `import.meta.env.VITE_GRAPHQL_ENDPOINT` builds in TypeScript.
+- Fix: made header language control toggle EN/TH locally.
+- Fix: search form now prevents page reload and is ready for backend filter wiring.
+- Added GraphQL query contracts for featured properties and map-bounds property search in `src/graphql/propertyQueries.ts`.
+- Added Top Locations section with 6 banner tiles, placeholder imagery, map/search links, and data file for later backend replacement.
+- Changed header language control from EN/TH toggle to dropdown with EN, RU, ZH, TH, AR, and FA options.
+- Changed Top Locations layout to match supplied reference: centered title/description, tall Phuket banner on the left, six smaller banners in a 3-by-2 grid on desktop.
+- Fix: added scroll offset for `#locations` so sticky header does not cover the section title.
+- Fix: added hash-scroll handler so direct links such as `/#locations` scroll correctly after React renders.
+- Fix: added delayed hash-scroll retry for Vite/React initial render timing.
+- Changed listing section heading to `Best Deals`.
+- Moved Best Deals above Top Locations and expanded it to 6 property cards.
+- Restyled property cards with sample-inspired image placeholders, sale labels, save button, location row, price, and property meta.
+- Fix: added scroll offset for `#listings` so Best Deals title is not covered by sticky header.
+- Fix: added longer hash-scroll retries so section links settle after CSS/layout expansion.
+- Changed header nav `Listings` label to `Lease to Home`.
+- Added 8 more location boxes under Top Locations.
+- Added functional mobile menu so header nav labels, including `Lease to Home`, are visible in narrow preview.
+- Updated 8 lower Top Location boxes to match supplied image names/order: Kao Yai, Udon Thani, Nakhon Ratchasima, Samut Sakhon, Samut Prakan, Nan, Phetchaburi, and Surat Thani.
+- Replaced header navigation with Home, For Sale, For Rent, Lease to Home, Financing Available, Immigration Visa, and More.
+- Added Immigration Visa submenu with Retirement Visa and Long Term Visa.
+- Added More submenu with News, Abouts, Contact Us, and FAQ.
+- Changed header submenus to show only after clicking the parent menu item.
+- Updated hero intro text to describe buying, renting, leasing, luxury homes, distressed properties, and long-term visa packages for foreign buyers.
+- Updated search tabs to All, For Rent, For Sale, Lease to Own, and Senior Nursing Home.
+- Changed top header menu label from `Lease to Home` to `Lease to Own`.
+- Copied supplied service icons into `public/service-icons`.
+- Replaced old 3-card service block under search with a `Why Choose Us` section using 8 supplied icons and matching service copy.
+- Removed square card boxes from Why Choose Us items and enlarged service icons.
+- Added animated stats band above Why Choose Us with exact numbers: 2.5B+ Portfolio Value, 850+ Transactions Closed, and 20 Years Active.
+- Removed all text under Why Choose Us icons and enlarged icons to dominate each item.
+- Reduced animated stats number size and band height.
+- Removed `Call Us` button from header.
+- Added keyword search input above province/location field.
+- Replaced location text input with Thailand province multi-select dropdown containing checkboxes and listing counts for all 77 provinces.
+- Replaced single price range dropdown with Min Price and Max Price fields.
+- Added accessible label to province dropdown trigger.
+- Added expandable filter panel with Bedroom options Studio and 1-5+, Bathroom options 1-5+, and Unit Feature checkboxes.
+- Set filter panel open by default so bedroom, bathroom, and unit feature options show immediately.
+- Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
+- Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
