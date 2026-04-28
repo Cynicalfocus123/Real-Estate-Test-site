@@ -1,5 +1,6 @@
 import { ChevronDown, Globe2, Menu } from "lucide-react";
 import { useState } from "react";
+import { assetPath } from "../utils/assets";
 
 type NavItem = {
   label: string;
@@ -48,7 +49,7 @@ export function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
         <a href="/" className="flex items-center gap-3" aria-label="Buy Home For Less home">
           <img
-            src="/buy-home-for-less-logo.png"
+            src={assetPath("images/buy-home-for-less-logo.png")}
             alt="Buy Home For Less"
             className="h-14 w-auto object-contain sm:h-16"
           />

@@ -1,11 +1,16 @@
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { assetPath } from "../utils/assets";
 
 export function Footer() {
   return (
     <footer className="bg-brand-dark text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.2fr_0.8fr_0.8fr_1fr] lg:px-8">
         <div>
-          <img src="/buy-home-for-less-logo.png" alt="Buy Home For Less" className="h-20 w-auto bg-white p-2" />
+          <img
+            src={assetPath("images/buy-home-for-less-logo.png")}
+            alt="Buy Home For Less"
+            className="h-20 w-auto bg-white p-2"
+          />
           <p className="mt-5 max-w-sm text-sm leading-6 text-neutral-300">
             Buy Home For Less by Mstar Capital Group. Real estate search frontend ready for listings,
             GraphQL, maps, and future PostgreSQL backend.

@@ -1,34 +1,36 @@
+import { assetPath } from "../utils/assets";
+
 const services = [
   {
-    icon: "/service-icons/1.png",
+    icon: "images/service-icons/1.png",
     title: "Global Reach",
   },
   {
-    icon: "/service-icons/2.png",
+    icon: "images/service-icons/2.png",
     title: "Expert Guidance",
   },
   {
-    icon: "/service-icons/3.png",
+    icon: "images/service-icons/3.png",
     title: "Specializing in Distressed Properties",
   },
   {
-    icon: "/service-icons/4.png",
+    icon: "images/service-icons/4.png",
     title: "Escrow",
   },
   {
-    icon: "/service-icons/5.png",
+    icon: "images/service-icons/5.png",
     title: "Guarantee Property Condition",
   },
   {
-    icon: "/service-icons/6.png",
+    icon: "images/service-icons/6.png",
     title: "1-Year Home Warranty",
   },
   {
-    icon: "/service-icons/7.png",
+    icon: "images/service-icons/7.png",
     title: "Free or Deeply Discounted Long-Term Stay Visa",
   },
   {
-    icon: "/service-icons/8.png",
+    icon: "images/service-icons/8.png",
     title: "Global Financing for Foreign Buyers",
   },
 ];
@@ -53,7 +55,7 @@ export function WhyChooseUs() {
             className="flex flex-col items-center px-2 text-center"
           >
             <img
-              src={service.icon}
+              src={assetPath(service.icon)}
               alt={service.title}
               className="h-56 w-56 object-contain sm:h-64 sm:w-64 lg:h-72 lg:w-72"
             />

@@ -58,5 +58,6 @@
 - Changed filter panel to start closed and only show after user clicks filter button.
 - Set Vite base path to `/Real-Estate-Test-site/` for GitHub Pages.
 - Added GitHub Actions Pages deployment workflow at `.github/workflows/deploy.yml`.
+- Moved static images under `public/images` and changed image references to use Vite `BASE_URL` so they work on GitHub Pages.
 - Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
 - Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
