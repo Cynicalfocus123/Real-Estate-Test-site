@@ -50,7 +50,7 @@ function AnimatedStat({ stat, active }: { stat: Stat; active: boolean }) {
         {formatNumber(displayValue, stat.decimals)}
         {stat.suffix}
       </div>
-      <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-neutral-200 sm:text-sm">
+      <p className="mt-3 text-xs font-black uppercase tracking-[0.2em] text-neutral-200 sm:text-sm">
         {stat.label}
       </p>
     </div>
@@ -80,8 +80,8 @@ export function StatsBand() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="px-4 py-12 sm:py-14 lg:px-8">
-      <div className="mx-auto grid max-w-5xl gap-8 bg-[#383838] px-6 py-10 md:grid-cols-3 lg:px-10">
+    <section ref={sectionRef} className="bg-[#383838] px-4 py-7 sm:py-8 lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
         {stats.map((stat) => (
           <AnimatedStat key={stat.label} stat={stat} active={active} />
         ))}
