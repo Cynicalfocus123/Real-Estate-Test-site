@@ -67,5 +67,6 @@
 - Added supplied Chiang Mai province banner image with GitHub Pages-safe and compatibility public paths.
 - Removed hero buttons `Browse Listings` and `Search Map`.
 - Added Pattaya / Chonburi province banner image with GitHub Pages-safe and compatibility public paths.
+- Added Bangkok province banner image with GitHub Pages-safe and compatibility public paths.
 - Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
 - Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
