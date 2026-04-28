@@ -84,3 +84,4 @@
 - Added supplied Surat Thani province banner image with GitHub Pages-safe and compatibility public paths.
 - Added Apartment and Villa to the search panel property type dropdown.
 - Reduced Best Deals property card image height and added left/right plus six-dot image slider controls to each card.
+- Reduced animated stats band width so it sits in a narrower centered block.

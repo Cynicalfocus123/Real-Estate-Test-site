@@ -80,8 +80,8 @@ export function StatsBand() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-[#383838] px-4 py-12 sm:py-14 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-3">
+    <section ref={sectionRef} className="px-4 py-12 sm:py-14 lg:px-8">
+      <div className="mx-auto grid max-w-5xl gap-8 bg-[#383838] px-6 py-10 md:grid-cols-3 lg:px-10">
         {stats.map((stat) => (
           <AnimatedStat key={stat.label} stat={stat} active={active} />
         ))}
