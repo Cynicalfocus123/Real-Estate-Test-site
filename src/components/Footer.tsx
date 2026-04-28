@@ -7,9 +7,9 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.2fr_0.8fr_0.8fr_1fr] lg:px-8">
         <div>
           <img
-            src={assetPath("images/buy-home-for-less-logo.png")}
+            src={assetPath("images/buy-home-for-less-footer-logo.png")}
             alt="Buy Home For Less"
-            className="h-20 w-auto bg-white p-2"
+            className="h-24 w-auto object-contain"
           />
           <p className="mt-5 max-w-sm text-sm leading-6 text-neutral-300">
             Buy Home For Less by Mstar Capital Group. Real estate search frontend ready for listings,
