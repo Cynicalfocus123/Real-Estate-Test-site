@@ -39,6 +39,7 @@ const languageOptions = ["EN", "RU", "ZH", "TH", "AR", "FA"];
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const homeUrl = import.meta.env.BASE_URL;
 
   function toggleSubmenu(label: string) {
     setOpenSubmenu((current) => (current === label ? null : label));
@@ -47,7 +48,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-line bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
-        <a href="/" className="flex items-center gap-3" aria-label="Buy Home For Less home">
+        <a href={homeUrl} className="flex items-center gap-3" aria-label="Buy Home For Less home">
           <img
             src={assetPath("images/buy-home-for-less-logo.png")}
             alt="Buy Home For Less"
