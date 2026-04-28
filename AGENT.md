@@ -74,3 +74,6 @@
 - Made search category tabs selectable with active state and hidden form value.
 - Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
 - Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
+- Added supplied Kao Yai province banner image with GitHub Pages-safe and compatibility public paths.
+- Added supplied Udon Thani province banner image with GitHub Pages-safe and compatibility public paths.
+- Added supplied Nakhon Ratchasima province banner image with GitHub Pages-safe and compatibility public paths.

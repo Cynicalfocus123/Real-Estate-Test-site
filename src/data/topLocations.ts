@@ -73,6 +73,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#626f5d] via-[#3b493c] to-[#171b16]",
+    image: "images/province-banners/kao-yai.png",
   },
   {
     id: "udon-thani",
@@ -80,6 +81,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#806866] via-[#50495f] to-[#181824]",
+    image: "images/province-banners/udon-thani.png",
   },
   {
     id: "nakhon-ratchasima",
@@ -87,6 +89,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#715f56] via-[#493c35] to-[#171310]",
+    image: "images/province-banners/nakhon-ratchasima.png",
   },
   {
     id: "samut-sakhon",
