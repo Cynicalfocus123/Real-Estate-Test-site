@@ -113,6 +113,7 @@ export const moreLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#62737a] via-[#40555c] to-[#161d20]",
+    image: "images/province-banners/nan.png",
   },
   {
     id: "phetchaburi",
