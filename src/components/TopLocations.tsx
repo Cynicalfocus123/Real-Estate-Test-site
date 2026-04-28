@@ -1,5 +1,6 @@
 import type { TopLocation } from "../data/topLocations";
 import { moreLocations, topLocations } from "../data/topLocations";
+import { assetPath } from "../utils/assets";
 
 function LocationTile({ location, large = false }: { location: TopLocation; large?: boolean }) {
   return (
@@ -9,7 +10,15 @@ function LocationTile({ location, large = false }: { location: TopLocation; larg
         large ? "lg:min-h-[452px]" : "lg:min-h-[210px]"
       }`}
     >
-      <div className={`absolute inset-0 bg-gradient-to-br ${location.tone}`} />
+      {location.image ? (
+        <img
+          src={assetPath(location.image)}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className={`absolute inset-0 bg-gradient-to-br ${location.tone}`} />
+      )}
       <div
         className={`absolute inset-0 opacity-70 ${
           large

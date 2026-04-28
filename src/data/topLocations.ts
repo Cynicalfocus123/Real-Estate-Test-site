@@ -4,6 +4,7 @@ export type TopLocation = {
   listingCount: number;
   size: "large" | "small";
   tone: string;
+  image?: string;
 };
 
 export const topLocations: TopLocation[] = [
@@ -13,6 +14,7 @@ export const topLocations: TopLocation[] = [
     listingCount: 0,
     size: "large",
     tone: "from-[#92806a] via-[#505437] to-[#1d2118]",
+    image: "images/province-banners/phuket.png",
   },
   {
     id: "chiang-mai",
