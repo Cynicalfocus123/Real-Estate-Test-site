@@ -5,8 +5,8 @@ function LocationTile({ location, large = false }: { location: TopLocation; larg
   return (
     <a
       href={`#location-${location.id}`}
-      className={`group relative min-h-[276px] overflow-hidden bg-neutral-500 ${
-        large ? "lg:min-h-[588px]" : ""
+      className={`group relative min-h-[210px] overflow-hidden bg-neutral-500 ${
+        large ? "lg:min-h-[452px]" : "lg:min-h-[210px]"
       }`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${location.tone}`} />
@@ -18,11 +18,11 @@ function LocationTile({ location, large = false }: { location: TopLocation; larg
         }`}
       />
       <div className="absolute inset-0 bg-black/45 transition-colors duration-500 group-hover:bg-black/34" />
-      <div className={`absolute inset-x-6 bottom-6 text-white ${large ? "lg:bottom-8 lg:left-8" : ""}`}>
-        <h3 className={`font-serif font-bold leading-tight drop-shadow ${location.name.length > 22 ? "text-2xl" : "text-3xl"}`}>
+      <div className={`absolute inset-x-5 bottom-5 text-white ${large ? "lg:bottom-7 lg:left-7" : ""}`}>
+        <h3 className={`font-serif font-bold leading-tight drop-shadow ${location.name.length > 22 ? "text-xl" : "text-2xl"}`}>
           {location.name}
         </h3>
-        <p className="mt-2 text-sm font-black uppercase tracking-[0.16em] text-[#f4c21b]">
+        <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-[#f4c21b]">
           {location.listingCount} Listings
         </p>
       </div>
@@ -46,17 +46,17 @@ export function TopLocations() {
           </p>
         </div>
 
-        <div className="grid gap-7 lg:grid-cols-[0.92fr_3fr]">
+        <div className="grid gap-5 lg:grid-cols-[0.92fr_3fr]">
           <LocationTile location={featuredLocation} large />
 
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {smallLocations.map((location) => (
               <LocationTile key={location.id} location={location} />
             ))}
           </div>
         </div>
 
-        <div className="mt-7 grid gap-7 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {moreLocations.map((location) => (
             <LocationTile key={location.id} location={location} />
           ))}
