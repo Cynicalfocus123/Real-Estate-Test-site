@@ -34,17 +34,16 @@ export function App() {
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
       <main>
-        <section className="relative min-h-[680px] overflow-hidden bg-neutral-100">
-          <div className="absolute inset-0">
-            <div className="h-full w-full bg-[linear-gradient(110deg,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.78)_42%,rgba(23,23,23,0.08)_42%,rgba(23,23,23,0.08)_100%)]" />
-          </div>
-          <div className="absolute right-0 top-0 hidden h-full w-[58%] bg-neutral-300 lg:block">
-            <div className="grid h-full grid-cols-3 gap-3 p-8">
-              <div className="mt-24 bg-neutral-400" />
-              <div className="mb-24 bg-neutral-500" />
-              <div className="mt-44 bg-neutral-600" />
-            </div>
-          </div>
+        <section className="relative min-h-[680px] overflow-hidden bg-neutral-900">
+          <iframe
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[220%] -translate-x-1/2 -translate-y-1/2 sm:w-[170%] lg:h-[145%] lg:w-[115%]"
+            src="https://www.youtube.com/embed/DjHBEF6derw?autoplay=1&mute=1&loop=1&playlist=DjHBEF6derw&controls=0&rel=0&modestbranding=1&playsinline=1"
+            title="Mstar Property Emperor Grand View | Newest Krabi Thailand Luxury Township"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.97)_0%,rgba(255,255,255,0.91)_74%,rgba(255,255,255,0.22)_74%,rgba(0,0,0,0.32)_100%)]" />
           <div className="relative mx-auto flex max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
             <div className="max-w-2xl">
               <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
@@ -53,7 +52,7 @@ export function App() {
               <h1 className="mt-5 text-5xl font-black leading-[1.02] text-brand-dark sm:text-6xl lg:text-7xl">
                 Find your next home for less.
               </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-brand-gray">
+              <p className="mt-6 max-w-lg text-lg leading-8 text-brand-gray">
                 Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury
                 homes, distressed properties, and exclusive long-term visa packages for foreign buyers.
               </p>

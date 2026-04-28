@@ -88,3 +88,4 @@
 - Reduced Why Choose Us heading/copy size and enlarged service icon images for easier reading.
 - Enlarged Why Choose Us service icon images again and widened the section container to keep the grid readable.
 - Updated Best Deals property meta to show `Sq Meter` before the area number beside the ruler icon.
+- Replaced hero placeholder background with a looping muted YouTube embed behind the Find Your Next Home copy.
