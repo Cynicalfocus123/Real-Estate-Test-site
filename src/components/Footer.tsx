@@ -4,7 +4,7 @@ import { assetPath } from "../utils/assets";
 export function Footer() {
   return (
     <footer className="bg-brand-dark text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.2fr_0.8fr_0.8fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.2fr_0.8fr_1fr] lg:px-8">
         <div>
           <img
             src={assetPath("images/buy-home-for-less-footer-logo.png")}
@@ -23,15 +23,6 @@ export function Footer() {
             <li><a href="#rent">Rent</a></li>
             <li><a href="#sell">Sell</a></li>
             <li><a href="#listings">Listings</a></li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-sm font-bold uppercase text-white">Resources</h3>
-          <ul className="mt-5 space-y-3 text-sm text-neutral-300">
-            <li><a href="#map">Map Search</a></li>
-            <li><a href="#agents">Agents</a></li>
-            <li><a href="#contact">Mortgage</a></li>
-            <li><a href="#contact">Help Center</a></li>
           </ul>
         </div>
         <div>

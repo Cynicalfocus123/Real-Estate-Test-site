@@ -91,3 +91,4 @@
 - Replaced hero placeholder background with a looping muted YouTube embed behind the Find Your Next Home copy.
 - Strengthened hero text readability over video with bolder copy, text shadow, and a translucent white backing.
 - Added supplied transparent footer logo asset and removed the footer logo white backing.
+- Removed the footer Resources column containing Map Search, Agents, Mortgage, and Help Center.
