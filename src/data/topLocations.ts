@@ -46,6 +46,7 @@ export const topLocations: TopLocation[] = [
     listingCount: 1,
     size: "small",
     tone: "from-[#61795c] via-[#374f43] to-[#181d16]",
+    image: "images/province-banners/kanchanaburi.png",
   },
   {
     id: "chiang-rai",
