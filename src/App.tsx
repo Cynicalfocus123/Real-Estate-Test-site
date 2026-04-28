@@ -46,10 +46,7 @@ export function App() {
           <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(0,0,0,0.54)_0%,rgba(0,0,0,0.34)_48%,rgba(0,0,0,0.12)_100%)]" />
           <div className="relative mx-auto flex max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
             <div className="max-w-2xl">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-                Buy Home For Less
-              </p>
-              <h1 className="mt-5 text-5xl font-black leading-[1.02] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl">
+              <h1 className="text-5xl font-black leading-[1.02] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl">
                 Find your next home for less.
               </h1>
               <p className="mt-6 max-w-lg text-lg font-extrabold leading-8 text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]">
