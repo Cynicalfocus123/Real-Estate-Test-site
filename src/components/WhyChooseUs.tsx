@@ -38,17 +38,17 @@ const services = [
 export function WhyChooseUs() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-      <div className="mx-auto mb-12 max-w-4xl text-center">
-        <h2 className="font-serif text-5xl font-normal leading-tight text-[#1f1f1f] sm:text-6xl">
+      <div className="mx-auto mb-10 max-w-3xl text-center">
+        <h2 className="font-serif text-4xl font-normal leading-tight text-[#1f1f1f] sm:text-5xl">
           Why Choose Us
         </h2>
-        <p className="mt-5 text-base leading-8 text-brand-gray sm:text-lg">
+        <p className="mt-4 text-sm leading-7 text-brand-gray sm:text-base">
           Buy, rent, or lease premium properties with expert guidance, global reach, and secure
           transactions.
         </p>
       </div>
 
-      <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-x-4 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {services.map((service) => (
           <article
             key={service.title}
@@ -57,7 +57,7 @@ export function WhyChooseUs() {
             <img
               src={assetPath(service.icon)}
               alt={service.title}
-              className="h-56 w-56 object-contain sm:h-64 sm:w-64 lg:h-72 lg:w-72"
+              className="h-64 w-64 max-w-full object-contain sm:h-72 sm:w-72 lg:h-80 lg:w-80"
             />
           </article>
         ))}
