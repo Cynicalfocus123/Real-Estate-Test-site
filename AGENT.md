@@ -93,3 +93,4 @@
 - Added supplied transparent footer logo asset and removed the footer logo white backing.
 - Removed the footer Resources column containing Map Search, Agents, Mortgage, and Help Center.
 - Reduced hero video white coverage and changed hero copy to bold white text with dark shadow.
+- Updated footer Company links to About Us, Contact Us, and News.

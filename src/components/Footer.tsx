@@ -19,10 +19,9 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-bold uppercase text-white">Company</h3>
           <ul className="mt-5 space-y-3 text-sm text-neutral-300">
-            <li><a href="#buy">Buy</a></li>
-            <li><a href="#rent">Rent</a></li>
-            <li><a href="#sell">Sell</a></li>
-            <li><a href="#listings">Listings</a></li>
+            <li><a href="#about-us">About Us</a></li>
+            <li><a href="#contact-us">Contact Us</a></li>
+            <li><a href="#news">News</a></li>
           </ul>
         </div>
         <div>
