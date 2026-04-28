@@ -95,7 +95,7 @@ export function PropertyCard({ property }: { property: Property }) {
           </span>
           <span className="inline-flex items-center gap-2">
             <Ruler className="h-4 w-4" />
-            {property.areaSqFt}
+            Sq Meter {property.areaSqFt}
           </span>
         </div>
       </div>
