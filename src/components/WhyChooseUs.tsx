@@ -37,7 +37,7 @@ const services = [
 
 export function WhyChooseUs() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+    <section className="mx-auto max-w-[1500px] px-4 py-16 lg:px-8">
       <div className="mx-auto mb-10 max-w-3xl text-center">
         <h2 className="font-serif text-4xl font-normal leading-tight text-[#1f1f1f] sm:text-5xl">
           Why Choose Us
@@ -57,7 +57,7 @@ export function WhyChooseUs() {
             <img
               src={assetPath(service.icon)}
               alt={service.title}
-              className="h-64 w-64 max-w-full object-contain sm:h-72 sm:w-72 lg:h-80 lg:w-80"
+              className="h-72 w-72 max-w-full object-contain sm:h-80 sm:w-80 lg:h-88 lg:w-88 xl:h-96 xl:w-96"
             />
           </article>
         ))}

@@ -86,3 +86,4 @@
 - Reduced Best Deals property card image height and added left/right plus six-dot image slider controls to each card.
 - Restored animated stats band to full width and reduced vertical height/padding.
 - Reduced Why Choose Us heading/copy size and enlarged service icon images for easier reading.
+- Enlarged Why Choose Us service icon images again and widened the section container to keep the grid readable.
