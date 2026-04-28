@@ -54,6 +54,7 @@ export const topLocations: TopLocation[] = [
     listingCount: 0,
     size: "small",
     tone: "from-[#8d9aa1] via-[#59656a] to-[#202523]",
+    image: "images/province-banners/chiang-rai.png",
   },
   {
     id: "hua-hin-prachuap-khiri-khan",
