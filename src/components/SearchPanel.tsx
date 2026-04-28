@@ -5,7 +5,7 @@ import { thaiProvinces } from "../data/thaiProvinces";
 
 export function SearchPanel() {
   const [provinceOpen, setProvinceOpen] = useState(false);
-  const [filterOpen, setFilterOpen] = useState(true);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [selectedProvinces, setSelectedProvinces] = useState<string[]>([]);
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
