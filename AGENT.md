@@ -56,5 +56,7 @@
 - Added accessible label to province dropdown trigger.
 - Added expandable filter panel with Bedroom options Studio and 1-5+, Bathroom options 1-5+, and Unit Feature checkboxes.
 - Set filter panel open by default so bedroom, bathroom, and unit feature options show immediately.
+- Set Vite base path to `/Real-Estate-Test-site/` for GitHub Pages.
+- Added GitHub Actions Pages deployment workflow at `.github/workflows/deploy.yml`.
 - Prepared repository for GitHub push with `.gitignore` excluding dependencies, build output, logs, and env files.
 - Kept raw uploaded `site image/` folder out of git; required service icons are copied into `public/service-icons`.
