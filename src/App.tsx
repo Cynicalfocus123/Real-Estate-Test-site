@@ -57,21 +57,6 @@ export function App() {
                 Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury
                 homes, distressed properties, and exclusive long-term visa packages for foreign buyers.
               </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <a
-                  href="#listings"
-                  className="inline-flex items-center gap-2 bg-brand-red px-7 py-4 text-sm font-bold uppercase text-white hover:bg-brand-dark"
-                >
-                  Browse Listings
-                  <ArrowRight className="h-5 w-5" />
-                </a>
-                <a
-                  href="#map"
-                  className="inline-flex items-center gap-2 border border-brand-dark px-7 py-4 text-sm font-bold uppercase text-brand-dark hover:border-brand-red hover:text-brand-red"
-                >
-                  Search Map
-                </a>
-              </div>
             </div>
           </div>
         </section>
