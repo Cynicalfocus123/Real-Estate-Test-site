@@ -12,8 +12,8 @@ export function Footer() {
             className="h-24 w-auto object-contain"
           />
           <p className="mt-5 max-w-sm text-sm leading-6 text-neutral-300">
-            Buy Home For Less by Mstar Capital Group. Real estate search frontend ready for listings,
-            GraphQL, maps, and future PostgreSQL backend.
+            Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury
+            homes, distressed properties, and exclusive long-term visa packages for foreign buyers.
           </p>
         </div>
         <div>

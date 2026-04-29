@@ -108,3 +108,4 @@
 - Reduced Real Estate Laws full banner image size slightly.
 - Added Retirement Visa page with supplied banner image, matching clean page layout, and linked it from the header submenu.
 - Replaced Retirement Visa page text with supplied eligibility, financial, health insurance, and important notes copy.
+- Replaced footer logo description with supplied real estate partner and visa package copy.
