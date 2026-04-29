@@ -147,3 +147,4 @@
 - Added Fixer Upper and Urgent Sale pages with supplied banner images, clean URL routing, and FAQ For Sale card links.
 - Fix: routed footer and Top Locations hash links through `safeHref`, corrected `Financing for Foreigners` submenu spelling, and replaced a non-ASCII footer copyright glyph with `&copy;`.
 - Updated Fixer Upper page with supplied buyer guidance copy and refreshed the supplied Fixer-Upper banner image.
+- Updated Urgent Sale page with supplied urgent property sale copy, sale types, common characteristics, and buyer tips.
