@@ -5,6 +5,7 @@ import { FaqPage } from "./components/FaqPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
 import { FixerUpperPage } from "./components/FixerUpperPage";
 import { ForeignerOwnPropertyPage } from "./components/ForeignerOwnPropertyPage";
+import { ForeignerPropertyTypesPage } from "./components/ForeignerPropertyTypesPage";
 import { ForeclosurePage } from "./components/ForeclosurePage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -38,6 +39,9 @@ export function App() {
   const isForeignerOwnPropertyPage =
     currentPath.endsWith("/foreigner-own-property-thailand") ||
     currentHash === "#/foreigner-own-property-thailand";
+  const isForeignerPropertyTypesPage =
+    currentPath.endsWith("/foreigner-property-types-thailand") ||
+    currentHash === "#/foreigner-property-types-thailand";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -119,6 +123,10 @@ export function App() {
 
   if (isForeignerOwnPropertyPage) {
     return <ForeignerOwnPropertyPage />;
+  }
+
+  if (isForeignerPropertyTypesPage) {
+    return <ForeignerPropertyTypesPage />;
   }
 
   if (isRetirementVisaPage) {

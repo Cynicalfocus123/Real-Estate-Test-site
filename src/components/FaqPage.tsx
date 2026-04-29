@@ -37,8 +37,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "What type of property can foreigners own in Thailand?",
     minutes: "5 min read",
-    image: "images/page-banners/real-estate-laws-for-foreigner.png",
-    href: "#foreigner-property-types",
+    image: "images/page-banners/foreigner-property-types-thailand.png",
+    href: `${import.meta.env.BASE_URL}foreigner-property-types-thailand`,
   },
   {
     title: "Can I obtain a long-term visa after renting property in Thailand?",

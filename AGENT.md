@@ -145,6 +145,7 @@
 - Added Pre-Foreclosure page with supplied banner image, clean URL routing, FAQ For Sale card link, and supplied pre-foreclosure purchasing content.
 - Added Foreigner FAQ section to FAQ page with eight question boxes covering ownership, property types, visas, financing, custom homes, delivery details, warranty duration, and cost of living.
 - Added page for `Is it possible for a foreigner to own property in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied ownership rules content.
+- Added page for `What type of property can foreigners own in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied permitted property types content.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.
 - Added Fixer Upper and Urgent Sale pages with supplied banner images, clean URL routing, and FAQ For Sale card links.
 - Fix: routed footer and Top Locations hash links through `safeHref`, corrected `Financing for Foreigners` submenu spelling, and replaced a non-ASCII footer copyright glyph with `&copy;`.
