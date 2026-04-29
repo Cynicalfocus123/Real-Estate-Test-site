@@ -50,11 +50,11 @@ export function RealEstateLawsPage() {
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
       <main>
-        <section className="bg-brand-dark px-4 py-6 lg:px-8">
+        <section className="px-4 py-6 lg:px-8">
           <img
             src={assetPath("images/page-banners/real-estate-laws-for-foreigner.png")}
             alt="Real estate laws for foreigner"
-            className="mx-auto h-auto max-h-[340px] w-full max-w-5xl object-contain"
+            className="mx-auto h-auto w-full max-w-6xl"
           />
         </section>
 
