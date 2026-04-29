@@ -9,7 +9,7 @@ export function MapPreview() {
           </h2>
         </div>
 
-        <div className="mt-8 overflow-hidden border border-brand-line bg-black shadow-[0_20px_55px_rgba(15,23,42,0.18)]">
+        <div className="mx-auto mt-8 max-w-4xl overflow-hidden border border-brand-line bg-black shadow-[0_20px_55px_rgba(15,23,42,0.18)]">
           <div className="relative aspect-video w-full">
             <iframe
               className="absolute inset-0 h-full w-full"
