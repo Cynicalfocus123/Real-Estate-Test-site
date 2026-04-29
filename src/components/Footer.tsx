@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { assetPath } from "../utils/assets";
 
 export function Footer() {
@@ -32,11 +32,18 @@ export function Footer() {
             <li className="flex gap-3"><Mail className="h-4 w-4 text-brand-red" /> hello@buyhomeforless.com</li>
           </ul>
           <div className="mt-6 flex gap-3">
-            {[Facebook, Instagram, Linkedin].map((Icon, index) => (
-              <a key={index} href="#contact" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
-                <Icon className="h-5 w-5" />
-              </a>
-            ))}
+            <a href="#contact" aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+              <Facebook className="h-5 w-5" />
+            </a>
+            <a href="#contact" aria-label="Instagram" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a href="#contact" aria-label="WhatsApp" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+              <MessageCircle className="h-5 w-5" />
+            </a>
+            <a href="#contact" aria-label="LINE" className="inline-flex h-10 w-10 items-center justify-center bg-white/10 text-[10px] font-black">
+              LINE
+            </a>
           </div>
         </div>
       </div>
