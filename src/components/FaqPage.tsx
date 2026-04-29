@@ -55,8 +55,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Am I allowed to build a custom home in Thailand as a non-Thai national?",
     minutes: "6 min read",
-    image: "images/page-banners/own-property-in-thailand.png",
-    href: "#custom-home-non-thai-national",
+    image: "images/page-banners/custom-home-non-thai-national.png",
+    href: `${import.meta.env.BASE_URL}custom-home-non-thai-national`,
   },
   {
     title: "How can I ensure that the property I receive matches the specified details?",

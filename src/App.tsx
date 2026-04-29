@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CustomHomeNonThaiPage } from "./components/CustomHomeNonThaiPage";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
 import { FaqPage } from "./components/FaqPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
@@ -50,6 +51,9 @@ export function App() {
   const isMortgageFinancingForeignersPage =
     currentPath.endsWith("/mortgage-financing-foreigners-thailand") ||
     currentHash === "#/mortgage-financing-foreigners-thailand";
+  const isCustomHomeNonThaiPage =
+    currentPath.endsWith("/custom-home-non-thai-national") ||
+    currentHash === "#/custom-home-non-thai-national";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -143,6 +147,10 @@ export function App() {
 
   if (isMortgageFinancingForeignersPage) {
     return <MortgageFinancingForeignersPage />;
+  }
+
+  if (isCustomHomeNonThaiPage) {
+    return <CustomHomeNonThaiPage />;
   }
 
   if (isRetirementVisaPage) {
