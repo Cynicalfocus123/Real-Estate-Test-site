@@ -71,7 +71,7 @@ export function Header() {
           <img
             src={assetPath("images/buy-home-for-less-logo.png")}
             alt="Buy Home For Less"
-            className="h-14 w-auto object-contain sm:h-16"
+            className="h-16 w-auto object-contain sm:h-20"
           />
         </a>
 

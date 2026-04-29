@@ -163,3 +163,4 @@
 - Added startup workflow rules to always verify git connection, run security/build checks before commit and push, auto-commit and auto-push finished changes, and open the right-side localhost preview at the start of each new chat.
 - Added FAQ page for `What is the duration of the home warranty provided to homeowners?` with supplied banner image, clean URL routing, FAQ card link, and supplied Thailand home warranty guidance.
 - Added FAQ page for `Cost of living in Thailand` with supplied banner image, clean URL routing, FAQ card link, and supplied Thailand cost-of-living guidance.
+- Increased header logo size for stronger brand visibility in the sticky top navigation.
