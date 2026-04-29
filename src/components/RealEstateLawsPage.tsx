@@ -28,7 +28,7 @@ export function RealEstateLawsPage() {
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
       <main>
-        <section className="relative min-h-[460px] overflow-hidden bg-brand-dark">
+        <section className="relative h-[240px] overflow-hidden bg-brand-dark sm:h-[300px] lg:h-[340px]">
           <img
             src={assetPath("images/page-banners/real-estate-laws-for-foreigner.png")}
             alt="Real estate laws for foreigner"

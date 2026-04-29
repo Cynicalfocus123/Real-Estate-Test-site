@@ -100,3 +100,4 @@
 - Renamed header `Immigration Visa` to `Immigration / Visa` and added `Real Estate Laws for Foreigner` submenu item.
 - Changed header `Financing Available` nav label to `Finacing`.
 - Added separate Real Estate Laws for Foreigner page with supplied banner image and linked it from the header submenu.
+- Reduced Real Estate Laws for Foreigner page banner height.
