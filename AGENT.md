@@ -101,3 +101,4 @@
 - Changed header `Financing Available` nav label to `Finacing`.
 - Added separate Real Estate Laws for Foreigner page with supplied banner image and linked it from the header submenu.
 - Reduced Real Estate Laws for Foreigner page banner height.
+- Replaced all Real Estate Laws for Foreigner page text with the supplied ownership, condominium, leasehold, and legal consideration copy.
