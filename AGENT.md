@@ -132,3 +132,4 @@
 - Added Why Seniorcare.net page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied Senior Care benefits content.
 - Added Lease to Own page from parent header menu with supplied banner image, clean URL routing, and supplied lease-to-own content.
 - Added What Is Lease to Own section below Lease to Own page content with supplied banner image and supplied explanatory text.
+- Added For Sale parent submenu items for Distress Property, Foreclosure, Pre-Foreclosure, Fixer Upper, and Urgent Sales.
