@@ -161,3 +161,4 @@
 - Updated Urgent Sale page with supplied urgent property sale copy, sale types, common characteristics, and buyer tips.
 - Added Rent section to FAQ & Learning Center with a Rent Requirement card, stable `#rent` anchor, and supplied Rent Requirement image.
 - Added startup workflow rules to always verify git connection, run security/build checks before commit and push, auto-commit and auto-push finished changes, and open the right-side localhost preview at the start of each new chat.
+- Added FAQ page for `What is the duration of the home warranty provided to homeowners?` with supplied banner image, clean URL routing, FAQ card link, and supplied Thailand home warranty guidance.

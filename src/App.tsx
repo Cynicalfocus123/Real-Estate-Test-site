@@ -10,6 +10,7 @@ import { ForeignerPropertyTypesPage } from "./components/ForeignerPropertyTypesP
 import { ForeclosurePage } from "./components/ForeclosurePage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { HomeWarrantyDurationPage } from "./components/HomeWarrantyDurationPage";
 import { LeaseToOwnPage } from "./components/LeaseToOwnPage";
 import { LongTermVisaAfterPropertyPage } from "./components/LongTermVisaAfterPropertyPage";
 import { LongTermVisaPage } from "./components/LongTermVisaPage";
@@ -58,6 +59,9 @@ export function App() {
   const isPropertySpecifiedDetailsPage =
     currentPath.endsWith("/property-specified-details") ||
     currentHash === "#/property-specified-details";
+  const isHomeWarrantyDurationPage =
+    currentPath.endsWith("/home-warranty-duration") ||
+    currentHash === "#/home-warranty-duration";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -159,6 +163,10 @@ export function App() {
 
   if (isPropertySpecifiedDetailsPage) {
     return <PropertySpecifiedDetailsPage />;
+  }
+
+  if (isHomeWarrantyDurationPage) {
+    return <HomeWarrantyDurationPage />;
   }
 
   if (isRetirementVisaPage) {

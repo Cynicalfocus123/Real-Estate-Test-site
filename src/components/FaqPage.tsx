@@ -67,8 +67,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "What is the duration of the home warranty provided to homeowners?",
     minutes: "4 min read",
-    image: "images/page-banners/foreclosure.png",
-    href: "#home-warranty-duration",
+    image: "images/page-banners/home-warranty-duration-thailand.png",
+    href: `${import.meta.env.BASE_URL}home-warranty-duration`,
   },
   {
     title: "Cost of living in Thailand",
