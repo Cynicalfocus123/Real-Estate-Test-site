@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "Retirement Visa", href: "#retirement-visa" },
       { label: "Long Term Visa", href: "#long-term-visa" },
-      { label: "Real Estate Laws for Foreigner", href: "#real-estate-laws-for-foreigner" },
+      { label: "Real Estate Laws for Foreigner", href: `${import.meta.env.BASE_URL}#/real-estate-laws-for-foreigner` },
     ],
   },
   {

@@ -1,9 +1,10 @@
 import { ArrowRight } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { MapPreview } from "./components/MapPreview";
 import { PropertyCard } from "./components/PropertyCard";
+import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { SearchPanel } from "./components/SearchPanel";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
@@ -11,10 +12,17 @@ import { WhyChooseUs } from "./components/WhyChooseUs";
 import { featuredProperties } from "./data/mockProperties";
 
 export function App() {
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
+  const isRealEstateLawsPage = currentHash === "#/real-estate-laws-for-foreigner";
+
   useEffect(() => {
+    function syncHash() {
+      setCurrentHash(window.location.hash);
+    }
+
     function scrollToHash() {
       const id = window.location.hash.slice(1);
-      if (!id) return;
+      if (!id || id.startsWith("/")) return;
       const scroll = () => {
         document.getElementById(id)?.scrollIntoView({ block: "start" });
       };
@@ -26,9 +34,17 @@ export function App() {
     }
 
     scrollToHash();
+    window.addEventListener("hashchange", syncHash);
     window.addEventListener("hashchange", scrollToHash);
-    return () => window.removeEventListener("hashchange", scrollToHash);
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("hashchange", scrollToHash);
+    };
   }, []);
+
+  if (isRealEstateLawsPage) {
+    return <RealEstateLawsPage />;
+  }
 
   return (
     <div className="min-h-screen bg-white text-brand-dark">
