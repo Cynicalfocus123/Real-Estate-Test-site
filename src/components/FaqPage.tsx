@@ -14,12 +14,6 @@ type FaqCard = {
 
 const buyingCards: FaqCard[] = [
   {
-    title: "Distressed Property",
-    minutes: "8 min read",
-    image: "images/page-banners/distressed-property.png",
-    href: `${import.meta.env.BASE_URL}distress-property`,
-  },
-  {
     title: "Financing for Foreigners",
     minutes: "7 min read",
     image: "images/page-banners/financing-for-foreigners.png",
@@ -30,6 +24,39 @@ const buyingCards: FaqCard[] = [
     minutes: "9 min read",
     image: "images/page-banners/own-property-in-thailand.png",
     href: `${import.meta.env.BASE_URL}own-property-in-thailand`,
+  },
+];
+
+const forSaleCards: FaqCard[] = [
+  {
+    title: "Distress Property",
+    minutes: "8 min read",
+    image: "images/page-banners/distressed-property.png",
+    href: `${import.meta.env.BASE_URL}distress-property`,
+  },
+  {
+    title: "Foreclosure",
+    minutes: "6 min read",
+    image: "images/page-banners/distressed-property.png",
+    href: "#foreclosure",
+  },
+  {
+    title: "Pre-Foreclosure",
+    minutes: "6 min read",
+    image: "images/page-banners/distressed-property.png",
+    href: "#pre-foreclosure",
+  },
+  {
+    title: "Fixer Upper",
+    minutes: "5 min read",
+    image: "images/page-banners/distressed-property.png",
+    href: "#fixer-upper",
+  },
+  {
+    title: "Urgent Sale",
+    minutes: "5 min read",
+    image: "images/page-banners/distressed-property.png",
+    href: "#urgent-sale",
   },
 ];
 
@@ -108,6 +135,7 @@ export function FaqPage() {
         </section>
 
         <FaqSection title="Lease to Own" cards={leaseToOwnCards} />
+        <FaqSection title="For Sale" cards={forSaleCards} />
         <FaqSection title="Buying" cards={buyingCards} />
         <FaqSection title="Senior Living" cards={retirementCards} />
       </main>
