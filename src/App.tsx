@@ -5,6 +5,7 @@ import { Header } from "./components/Header";
 import { MapPreview } from "./components/MapPreview";
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
+import { RetirementVisaPage } from "./components/RetirementVisaPage";
 import { SearchPanel } from "./components/SearchPanel";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
@@ -17,6 +18,8 @@ export function App() {
   const isRealEstateLawsPage =
     currentPath.endsWith("/real-estate-laws-for-foreigner") ||
     currentHash === "#/real-estate-laws-for-foreigner";
+  const isRetirementVisaPage =
+    currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
 
   useEffect(() => {
     function syncPath() {
@@ -53,6 +56,10 @@ export function App() {
 
   if (isRealEstateLawsPage) {
     return <RealEstateLawsPage />;
+  }
+
+  if (isRetirementVisaPage) {
+    return <RetirementVisaPage />;
   }
 
   return (

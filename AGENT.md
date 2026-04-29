@@ -106,3 +106,4 @@
 - Changed Real Estate Laws for Foreigner banner to show the full image with contained sizing instead of cropping it wide.
 - Removed black banner background around Real Estate Laws image and enlarged the full banner image.
 - Reduced Real Estate Laws full banner image size slightly.
+- Added Retirement Visa page with supplied banner image, matching clean page layout, and linked it from the header submenu.

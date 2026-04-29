@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
     label: "Immigration / Visa",
     href: "#immigration-visa",
     children: [
-      { label: "Retirement Visa", href: "#retirement-visa" },
+      { label: "Retirement Visa", href: `${import.meta.env.BASE_URL}retirement-visa` },
       { label: "Long Term Visa", href: "#long-term-visa" },
       { label: "Real Estate Laws for Foreigner", href: `${import.meta.env.BASE_URL}real-estate-laws-for-foreigner` },
     ],
