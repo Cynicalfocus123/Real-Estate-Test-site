@@ -13,6 +13,7 @@ import { LeaseToOwnPage } from "./components/LeaseToOwnPage";
 import { LongTermVisaAfterPropertyPage } from "./components/LongTermVisaAfterPropertyPage";
 import { LongTermVisaPage } from "./components/LongTermVisaPage";
 import { MapPreview } from "./components/MapPreview";
+import { MortgageFinancingForeignersPage } from "./components/MortgageFinancingForeignersPage";
 import { NursingHomeFacilityPage } from "./components/NursingHomeFacilityPage";
 import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPage";
 import { PreForeclosurePage } from "./components/PreForeclosurePage";
@@ -46,6 +47,9 @@ export function App() {
   const isLongTermVisaAfterPropertyPage =
     currentPath.endsWith("/long-term-visa-after-property-thailand") ||
     currentHash === "#/long-term-visa-after-property-thailand";
+  const isMortgageFinancingForeignersPage =
+    currentPath.endsWith("/mortgage-financing-foreigners-thailand") ||
+    currentHash === "#/mortgage-financing-foreigners-thailand";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -135,6 +139,10 @@ export function App() {
 
   if (isLongTermVisaAfterPropertyPage) {
     return <LongTermVisaAfterPropertyPage />;
+  }
+
+  if (isMortgageFinancingForeignersPage) {
+    return <MortgageFinancingForeignersPage />;
   }
 
   if (isRetirementVisaPage) {

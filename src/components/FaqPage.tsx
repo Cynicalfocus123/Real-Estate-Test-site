@@ -49,8 +49,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Is mortgage financing available to foreigners?",
     minutes: "6 min read",
-    image: "images/page-banners/financing-for-foreigners.png",
-    href: "#foreigner-mortgage-financing",
+    image: "images/page-banners/mortgage-financing-foreigners-thailand.png",
+    href: `${import.meta.env.BASE_URL}mortgage-financing-foreigners-thailand`,
   },
   {
     title: "Am I allowed to build a custom home in Thailand as a non-Thai national?",
