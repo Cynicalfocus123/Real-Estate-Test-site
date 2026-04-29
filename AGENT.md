@@ -164,3 +164,4 @@
 - Added FAQ page for `What is the duration of the home warranty provided to homeowners?` with supplied banner image, clean URL routing, FAQ card link, and supplied Thailand home warranty guidance.
 - Added FAQ page for `Cost of living in Thailand` with supplied banner image, clean URL routing, FAQ card link, and supplied Thailand cost-of-living guidance.
 - Increased header logo size for stronger brand visibility in the sticky top navigation.
+- Replaced home page bottom map placeholder section with embedded YouTube video content about moving to Thailand.
