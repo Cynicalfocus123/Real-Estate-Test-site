@@ -139,4 +139,5 @@
 - Removed Private Villa Nursing Care and Resort Nursing Facility cards from the FAQ Senior Living section.
 - Moved Lease to Own FAQ card out of Buying into its own Lease to Own section.
 - Added For Sale FAQ section with five boxes for Distress Property, Foreclosure, Pre-Foreclosure, Fixer Upper, and Urgent Sale.
+- Added Foreclosure page with supplied banner image, clean URL routing, FAQ For Sale card link, and supplied foreclosure buying content.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.

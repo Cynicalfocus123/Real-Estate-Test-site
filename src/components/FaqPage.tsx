@@ -37,8 +37,8 @@ const forSaleCards: FaqCard[] = [
   {
     title: "Foreclosure",
     minutes: "6 min read",
-    image: "images/page-banners/distressed-property.png",
-    href: "#foreclosure",
+    image: "images/page-banners/foreclosure.png",
+    href: `${import.meta.env.BASE_URL}foreclosure`,
   },
   {
     title: "Pre-Foreclosure",

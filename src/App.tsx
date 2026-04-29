@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
 import { FaqPage } from "./components/FaqPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
+import { ForeclosurePage } from "./components/ForeclosurePage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { LeaseToOwnPage } from "./components/LeaseToOwnPage";
@@ -38,6 +39,8 @@ export function App() {
     currentPath.endsWith("/lease-to-own") || currentHash === "#/lease-to-own";
   const isDistressedPropertyPage =
     currentPath.endsWith("/distress-property") || currentHash === "#/distress-property";
+  const isForeclosurePage =
+    currentPath.endsWith("/foreclosure") || currentHash === "#/foreclosure";
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
@@ -115,6 +118,10 @@ export function App() {
 
   if (isDistressedPropertyPage) {
     return <DistressedPropertyPage />;
+  }
+
+  if (isForeclosurePage) {
+    return <ForeclosurePage />;
   }
 
   if (isFinancingForForeignersPage) {
