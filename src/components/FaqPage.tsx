@@ -12,7 +12,7 @@ type FaqCard = {
   href: string;
 };
 
-const buyingCards: FaqCard[] = [
+const financingCards: FaqCard[] = [
   {
     title: "Financing for Foreigners",
     minutes: "7 min read",
@@ -136,7 +136,7 @@ export function FaqPage() {
 
         <FaqSection title="Lease to Own" cards={leaseToOwnCards} />
         <FaqSection title="For Sale" cards={forSaleCards} />
-        <FaqSection title="Buying" cards={buyingCards} />
+        <FaqSection title="Financing" cards={financingCards} />
         <FaqSection title="Senior Living" cards={retirementCards} />
       </main>
       <Footer />
