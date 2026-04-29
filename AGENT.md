@@ -7,6 +7,7 @@
 - Header and footer must show `Buy Home For Less` logo.
 - Language control must support EN, RU, ZH, TH, AR, and FA as acronym options.
 - Map search must be prepared for open-source map integration, likely Leaflet + OpenStreetMap.
+- During deploy/build checks, show or refresh the local preview in the side browser window at `http://localhost:5173/Real-Estate-Test-site/`.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -110,3 +111,4 @@
 - Replaced Retirement Visa page text with supplied eligibility, financial, health insurance, and important notes copy.
 - Replaced footer logo description with supplied real estate partner and visa package copy.
 - Replaced footer LinkedIn social icon with WhatsApp and LINE social buttons.
+- Preference: always show the local Vite preview in the side browser window for AGENT.md deploy/check work.
