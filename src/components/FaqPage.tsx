@@ -52,18 +52,6 @@ const retirementCards: FaqCard[] = [
     image: "images/page-banners/why-seniorcare-net-best-choice-thailand.png",
     href: `${import.meta.env.BASE_URL}why-seniorcare-net`,
   },
-  {
-    title: "Private Villa Nursing Care",
-    minutes: "6 min read",
-    image: "images/page-banners/private-villa-nursing-care.png",
-    href: `${import.meta.env.BASE_URL}private-villa-nursing-care`,
-  },
-  {
-    title: "Resort Nursing Facility",
-    minutes: "6 min read",
-    image: "images/page-banners/resort-nursing-facility.png",
-    href: `${import.meta.env.BASE_URL}resort-nursing-facility`,
-  },
 ];
 
 function FaqSection({ cards, title }: { cards: FaqCard[]; title: string }) {
