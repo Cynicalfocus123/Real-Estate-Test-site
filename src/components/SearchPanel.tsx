@@ -2,6 +2,7 @@ import { ChevronDown, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
+import { cleanNumericText, cleanSearchText } from "../utils/security";
 
 const searchTabs = ["All", "For Rent", "For Sale", "Lease to Own", "Senior Nursing Home"];
 
@@ -13,6 +14,14 @@ export function SearchPanel() {
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const keyword = cleanSearchText(formData.get("keyword"));
+    const minPrice = cleanNumericText(formData.get("minPrice"));
+    const maxPrice = cleanNumericText(formData.get("maxPrice"));
+
+    if (keyword.length > 80 || minPrice.length > 12 || maxPrice.length > 12) {
+      return;
+    }
   }
 
   function toggleProvince(name: string) {
@@ -54,6 +63,8 @@ export function SearchPanel() {
         <Search className="h-5 w-5 text-brand-red" />
         <input
           className="w-full text-sm outline-none"
+          autoComplete="off"
+          maxLength={80}
           placeholder="Search by keyword, property name, or listing ID"
           name="keyword"
         />
@@ -109,14 +120,18 @@ export function SearchPanel() {
       <input
         className="border border-brand-line px-4 py-3 text-sm font-medium outline-none"
         inputMode="numeric"
+        maxLength={12}
         name="minPrice"
+        pattern="[0-9]*"
         placeholder="Min Price"
       />
 
       <input
         className="border border-brand-line px-4 py-3 text-sm font-medium outline-none"
         inputMode="numeric"
+        maxLength={12}
         name="maxPrice"
+        pattern="[0-9]*"
         placeholder="Max Price"
       />
 

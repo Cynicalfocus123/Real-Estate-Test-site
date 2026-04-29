@@ -1,6 +1,7 @@
 import { ChevronDown, Globe2, Menu } from "lucide-react";
 import { useState } from "react";
 import { assetPath } from "../utils/assets";
+import { safeHref } from "../utils/security";
 
 type NavItem = {
   label: string;
@@ -65,7 +66,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-brand-line bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
-        <a href={homeUrl} className="flex items-center gap-3" aria-label="Buy Home For Less home">
+        <a href={safeHref(homeUrl)} className="flex items-center gap-3" aria-label="Buy Home For Less home">
           <img
             src={assetPath("images/buy-home-for-less-logo.png")}
             alt="Buy Home For Less"
@@ -87,7 +88,7 @@ export function Header() {
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               ) : (
-                <a href={item.href} className="inline-flex items-center gap-1 py-3 hover:text-brand-red">
+                <a href={safeHref(item.href)} className="inline-flex items-center gap-1 py-3 hover:text-brand-red">
                   {item.label}
                 </a>
               )}
@@ -97,7 +98,7 @@ export function Header() {
                     {item.children.map((child) => (
                       <a
                         key={child.label}
-                        href={child.href}
+                        href={safeHref(child.href)}
                         className="block px-4 py-3 text-xs font-bold uppercase tracking-wide text-brand-dark hover:bg-neutral-100 hover:text-brand-red"
                       >
                         {child.label}
@@ -153,14 +154,14 @@ export function Header() {
                     <ChevronDown className="h-4 w-4" />
                   </button>
                 ) : (
-                  <a href={item.href} className="block py-2 hover:text-brand-red">
+                  <a href={safeHref(item.href)} className="block py-2 hover:text-brand-red">
                     {item.label}
                   </a>
                 )}
                 {item.children && openSubmenu === item.label ? (
                   <div className="ml-4 grid gap-1 border-l border-brand-line pl-4">
                     {item.children.map((child) => (
-                      <a key={child.label} href={child.href} className="block py-2 text-xs text-brand-gray hover:text-brand-red">
+                      <a key={child.label} href={safeHref(child.href)} className="block py-2 text-xs text-brand-gray hover:text-brand-red">
                         {child.label}
                       </a>
                     ))}

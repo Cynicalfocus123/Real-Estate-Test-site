@@ -9,6 +9,7 @@
 - Map search must be prepared for open-source map integration, likely Leaflet + OpenStreetMap.
 - During deploy/build checks, show or refresh the local preview in the side browser window at `http://localhost:5173/Real-Estate-Test-site/`.
 - All code, page creation, and website changes must be security hardened, with specific care to prevent XSS/cross-site scripting by avoiding unsafe HTML injection, sanitizing any future user/API content before render, validating inputs, and keeping external embeds/scripts tightly controlled.
+- Before every update and push, do a security pass limited to XSS, unsafe HTML rendering, unsafe image URLs, unsafe href/src values, unsafe search input, unsafe URL params, missing `rel="noopener noreferrer"`, missing validation, missing security headers, and vulnerable dependencies. Make safe code changes without changing the design, then report what was fixed and what still needs manual review.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -121,3 +122,4 @@
 - Added `Senior Nursing Home` submenu items: Nursing Home Facility, Private Villa Nursing Care, and Resort Nursing Facility.
 - Added Nursing Home Facility page with supplied banner image, clean URL routing, and Senior Nursing Home submenu link.
 - Security rule added: future code and page creation must tighten XSS/cross-site scripting defenses across the whole website.
+- Added pre-push security pass requirement and applied XSS hardening helpers, CSP/referrer meta tags, safer iframe permissions, validated asset/href/GraphQL URLs, and search input limits.
