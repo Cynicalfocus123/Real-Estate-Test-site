@@ -141,4 +141,5 @@
 - Added For Sale FAQ section with five boxes for Distress Property, Foreclosure, Pre-Foreclosure, Fixer Upper, and Urgent Sale.
 - Added Foreclosure page with supplied banner image, clean URL routing, FAQ For Sale card link, and supplied foreclosure buying content.
 - Moved Financing for Foreigners and Own Property in Thailand FAQ cards into a new Financing section.
+- Added Pre-Foreclosure page with supplied banner image, clean URL routing, FAQ For Sale card link, and supplied pre-foreclosure purchasing content.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.

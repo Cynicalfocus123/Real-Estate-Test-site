@@ -11,6 +11,7 @@ import { LongTermVisaPage } from "./components/LongTermVisaPage";
 import { MapPreview } from "./components/MapPreview";
 import { NursingHomeFacilityPage } from "./components/NursingHomeFacilityPage";
 import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPage";
+import { PreForeclosurePage } from "./components/PreForeclosurePage";
 import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
@@ -41,6 +42,8 @@ export function App() {
     currentPath.endsWith("/distress-property") || currentHash === "#/distress-property";
   const isForeclosurePage =
     currentPath.endsWith("/foreclosure") || currentHash === "#/foreclosure";
+  const isPreForeclosurePage =
+    currentPath.endsWith("/pre-foreclosure") || currentHash === "#/pre-foreclosure";
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
@@ -122,6 +125,10 @@ export function App() {
 
   if (isForeclosurePage) {
     return <ForeclosurePage />;
+  }
+
+  if (isPreForeclosurePage) {
+    return <PreForeclosurePage />;
   }
 
   if (isFinancingForForeignersPage) {
