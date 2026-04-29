@@ -10,6 +10,9 @@
 - During deploy/build checks, show or refresh the local preview in the side browser window at `http://localhost:5173/Real-Estate-Test-site/`.
 - All code, page creation, and website changes must be security hardened, with specific care to prevent XSS/cross-site scripting by avoiding unsafe HTML injection, sanitizing any future user/API content before render, validating inputs, and keeping external embeds/scripts tightly controlled.
 - Before every update and push, do a security pass limited to XSS, unsafe HTML rendering, unsafe image URLs, unsafe href/src values, unsafe search input, unsafe URL params, missing `rel="noopener noreferrer"`, missing validation, missing security headers, and vulnerable dependencies. Make safe code changes without changing the design, then report what was fixed and what still needs manual review.
+- At the start of every new chat/session, first confirm the git repo is connected and working, keep git connected throughout the session, and commit plus push every completed change automatically unless the user explicitly says not to.
+- At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
+- At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -157,3 +160,4 @@
 - Updated Fixer Upper page with supplied buyer guidance copy and refreshed the supplied Fixer-Upper banner image.
 - Updated Urgent Sale page with supplied urgent property sale copy, sale types, common characteristics, and buyer tips.
 - Added Rent section to FAQ & Learning Center with a Rent Requirement card, stable `#rent` anchor, and supplied Rent Requirement image.
+- Added startup workflow rules to always verify git connection, run security/build checks before commit and push, auto-commit and auto-push finished changes, and open the right-side localhost preview at the start of each new chat.
