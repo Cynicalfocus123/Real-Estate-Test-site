@@ -93,6 +93,30 @@ export function LeaseToOwnPage() {
             </article>
           </div>
         </section>
+
+        <section className="mx-auto max-w-5xl border-t border-brand-line px-4 py-14 lg:px-8">
+          <img
+            src={assetPath("images/page-banners/what-is-lease-to-own.png")}
+            alt="What is lease to own"
+            className="h-auto w-full"
+          />
+
+          <div className="mt-10 max-w-3xl">
+            <h2 className="font-serif text-4xl font-normal leading-tight text-brand-dark sm:text-5xl">
+              What Is Lease to Own?
+            </h2>
+            <p className="mt-6 text-lg font-semibold leading-8 text-brand-gray">
+              Lease-to-own is an arrangement where a tenant rents a property with the option to
+              purchase it later. During the lease period, part of the rent, and often an upfront fee,
+              goes toward the future purchase price.
+            </p>
+            <p className="mt-5 text-base leading-8 text-brand-gray">
+              At the end of the agreed term, the tenant can choose to buy the property at a
+              pre-agreed price or walk away, usually forfeiting any extra payments made toward the
+              purchase.
+            </p>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
