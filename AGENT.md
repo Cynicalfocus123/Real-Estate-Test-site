@@ -130,3 +130,4 @@
 - Removed Senior Nursing Home eyebrow separators from Why Retire in Thailand page sections and tightened reason-card spacing so headings sit closer to their supporting text.
 - Added `Why Seniorcare.net?` submenu item under Senior Nursing Home.
 - Added Why Seniorcare.net page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied Senior Care benefits content.
+- Added Lease to Own page from parent header menu with supplied banner image, clean URL routing, and supplied lease-to-own content.

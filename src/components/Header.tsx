@@ -13,7 +13,7 @@ const navItems: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "For Sale", href: "#for-sale" },
   { label: "For Rent", href: "#for-rent" },
-  { label: "Lease to Own", href: "#lease-to-own" },
+  { label: "Lease to Own", href: `${import.meta.env.BASE_URL}lease-to-own` },
   {
     label: "Senior Nursing Home",
     href: "#senior-nursing-home",

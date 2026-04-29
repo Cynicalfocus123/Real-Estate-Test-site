@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { LeaseToOwnPage } from "./components/LeaseToOwnPage";
 import { LongTermVisaPage } from "./components/LongTermVisaPage";
 import { MapPreview } from "./components/MapPreview";
 import { NursingHomeFacilityPage } from "./components/NursingHomeFacilityPage";
@@ -30,6 +31,8 @@ export function App() {
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
     currentPath.endsWith("/long-term-visa") || currentHash === "#/long-term-visa";
+  const isLeaseToOwnPage =
+    currentPath.endsWith("/lease-to-own") || currentHash === "#/lease-to-own";
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
@@ -95,6 +98,10 @@ export function App() {
 
   if (isLongTermVisaPage) {
     return <LongTermVisaPage />;
+  }
+
+  if (isLeaseToOwnPage) {
+    return <LeaseToOwnPage />;
   }
 
   if (isFinancingForForeignersPage) {
