@@ -13,7 +13,15 @@ const navItems: NavItem[] = [
   { label: "For Sale", href: "#for-sale" },
   { label: "For Rent", href: "#for-rent" },
   { label: "Lease to Own", href: "#lease-to-own" },
-  { label: "Senior Nursing Home", href: "#senior-nursing-home" },
+  {
+    label: "Senior Nursing Home",
+    href: "#senior-nursing-home",
+    children: [
+      { label: "Nursing Home Facility", href: "#nursing-home-facility" },
+      { label: "Private Villa Nursing Care", href: "#private-villa-nursing-care" },
+      { label: "Resort Nursing Facility", href: "#resort-nursing-facility" },
+    ],
+  },
   {
     label: "Financing",
     href: "#financing",
