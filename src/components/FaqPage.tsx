@@ -27,6 +27,15 @@ const financingCards: FaqCard[] = [
   },
 ];
 
+const rentCards: FaqCard[] = [
+  {
+    title: "Rent Requirement",
+    minutes: "5 min read",
+    image: "images/page-banners/rent-requirement.png",
+    href: "#rent",
+  },
+];
+
 const forSaleCards: FaqCard[] = [
   {
     title: "Distress Property",
@@ -84,9 +93,9 @@ const retirementCards: FaqCard[] = [
   },
 ];
 
-function FaqSection({ cards, title }: { cards: FaqCard[]; title: string }) {
+function FaqSection({ cards, id, title }: { cards: FaqCard[]; id?: string; title: string }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+    <section id={id} className="mx-auto max-w-7xl scroll-mt-28 px-4 py-10 lg:px-8">
       <div className="mb-8 flex items-center justify-between gap-4">
         <h2 className="text-3xl font-black text-[#003c96]">{title}</h2>
         <a href={safeHref("#top")} className="text-base font-black text-[#0047d9] hover:text-brand-red">
@@ -134,6 +143,7 @@ export function FaqPage() {
           </p>
         </section>
 
+        <FaqSection id="rent" title="Rent" cards={rentCards} />
         <FaqSection title="Lease to Own" cards={leaseToOwnCards} />
         <FaqSection title="For Sale" cards={forSaleCards} />
         <FaqSection title="Financing" cards={financingCards} />
