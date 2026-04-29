@@ -116,3 +116,4 @@
 - Added Financing for Foreigners page with supplied banner image, clean URL routing, and Finacing header submenu link.
 - Added Own Property in Thailand page with supplied banner image, clean URL routing, and Finacing header submenu link.
 - Fixed parent header label typo from `Finacing` to `Financing`.
+- Added `Senior Nursing Home` parent header menu item between `Lease to Own` and `Financing`.
