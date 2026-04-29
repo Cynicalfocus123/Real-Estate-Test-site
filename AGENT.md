@@ -137,3 +137,4 @@
 - Reduced Distress Property banner max width so the page hero image appears smaller.
 - Added FAQ & Learning Center page under More menu with Zillow Learn-inspired small article banner cards and included Lease to Own as one of the Buying cards.
 - Removed Private Villa Nursing Care and Resort Nursing Facility cards from the FAQ Senior Living section.
+- Moved Lease to Own FAQ card out of Buying into its own Lease to Own section.

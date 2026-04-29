@@ -14,12 +14,6 @@ type FaqCard = {
 
 const buyingCards: FaqCard[] = [
   {
-    title: "Lease to Own",
-    minutes: "6 min read",
-    image: "images/page-banners/lease-to-own.png",
-    href: `${import.meta.env.BASE_URL}lease-to-own`,
-  },
-  {
     title: "Distressed Property",
     minutes: "8 min read",
     image: "images/page-banners/distressed-property.png",
@@ -36,6 +30,15 @@ const buyingCards: FaqCard[] = [
     minutes: "9 min read",
     image: "images/page-banners/own-property-in-thailand.png",
     href: `${import.meta.env.BASE_URL}own-property-in-thailand`,
+  },
+];
+
+const leaseToOwnCards: FaqCard[] = [
+  {
+    title: "Lease to Own",
+    minutes: "6 min read",
+    image: "images/page-banners/lease-to-own.png",
+    href: `${import.meta.env.BASE_URL}lease-to-own`,
   },
 ];
 
@@ -104,6 +107,7 @@ export function FaqPage() {
           </p>
         </section>
 
+        <FaqSection title="Lease to Own" cards={leaseToOwnCards} />
         <FaqSection title="Buying" cards={buyingCards} />
         <FaqSection title="Senior Living" cards={retirementCards} />
       </main>
