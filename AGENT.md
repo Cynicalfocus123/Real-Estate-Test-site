@@ -129,3 +129,4 @@
 - Added Why Thailand Is the Leading Nursing Home Facility in Asia section below Why Retire in Thailand with supplied banner image and supplied senior living content.
 - Removed Senior Nursing Home eyebrow separators from Why Retire in Thailand page sections and tightened reason-card spacing so headings sit closer to their supporting text.
 - Added `Why Seniorcare.net?` submenu item under Senior Nursing Home.
+- Added Why Seniorcare.net page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied Senior Care benefits content.
