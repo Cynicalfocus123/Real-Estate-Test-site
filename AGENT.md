@@ -118,3 +118,4 @@
 - Fixed parent header label typo from `Finacing` to `Financing`.
 - Added `Senior Nursing Home` parent header menu item between `Lease to Own` and `Financing`.
 - Added `Senior Nursing Home` submenu items: Nursing Home Facility, Private Villa Nursing Care, and Resort Nursing Facility.
+- Added Nursing Home Facility page with supplied banner image, clean URL routing, and Senior Nursing Home submenu link.
