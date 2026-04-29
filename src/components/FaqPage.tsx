@@ -27,6 +27,57 @@ const financingCards: FaqCard[] = [
   },
 ];
 
+const foreignerFaqCards: FaqCard[] = [
+  {
+    title: "Is it possible for a foreigner to own property in Thailand?",
+    minutes: "5 min read",
+    image: "images/page-banners/own-property-in-thailand.png",
+    href: "#foreigner-own-property",
+  },
+  {
+    title: "What type of property can foreigners own in Thailand?",
+    minutes: "5 min read",
+    image: "images/page-banners/real-estate-laws-for-foreigner.png",
+    href: "#foreigner-property-types",
+  },
+  {
+    title: "Can I obtain a long-term visa after renting property in Thailand?",
+    minutes: "6 min read",
+    image: "images/page-banners/long-term-visa.png",
+    href: "#long-term-visa-after-renting",
+  },
+  {
+    title: "Is mortgage financing available to foreigners?",
+    minutes: "6 min read",
+    image: "images/page-banners/financing-for-foreigners.png",
+    href: "#foreigner-mortgage-financing",
+  },
+  {
+    title: "Am I allowed to build a custom home in Thailand as a non-Thai national?",
+    minutes: "6 min read",
+    image: "images/page-banners/own-property-in-thailand.png",
+    href: "#custom-home-non-thai-national",
+  },
+  {
+    title: "How can I ensure that the property I receive matches the specified details?",
+    minutes: "5 min read",
+    image: "images/page-banners/lease-to-own.png",
+    href: "#property-specified-details",
+  },
+  {
+    title: "What is the duration of the home warranty provided to homeowners?",
+    minutes: "4 min read",
+    image: "images/page-banners/foreclosure.png",
+    href: "#home-warranty-duration",
+  },
+  {
+    title: "Cost of living in Thailand",
+    minutes: "5 min read",
+    image: "images/page-banners/why-retire-in-thailand.png",
+    href: "#cost-of-living-thailand",
+  },
+];
+
 const rentCards: FaqCard[] = [
   {
     title: "Rent Requirement",
@@ -143,6 +194,7 @@ export function FaqPage() {
           </p>
         </section>
 
+        <FaqSection title="Foreigner FAQ" cards={foreignerFaqCards} />
         <FaqSection id="rent" title="Rent" cards={rentCards} />
         <FaqSection title="Lease to Own" cards={leaseToOwnCards} />
         <FaqSection title="For Sale" cards={forSaleCards} />
