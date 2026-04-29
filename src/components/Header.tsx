@@ -11,19 +11,8 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Home", href: "/" },
-  {
-    label: "For Sale",
-    href: "#for-sale",
-    children: [
-      { label: "Distress Property", href: `${import.meta.env.BASE_URL}distress-property` },
-      { label: "Foreclosure", href: "#foreclosure" },
-      { label: "Pre-Foreclosure", href: "#pre-foreclosure" },
-      { label: "Fixer Upper", href: "#fixer-upper" },
-      { label: "Urgent Sales", href: "#urgent-sales" },
-    ],
-  },
+  { label: "For Sale", href: "#for-sale" },
   { label: "For Rent", href: "#for-rent" },
-  { label: "Lease to Own", href: `${import.meta.env.BASE_URL}lease-to-own` },
   {
     label: "Senior Nursing Home",
     href: "#senior-nursing-home",
