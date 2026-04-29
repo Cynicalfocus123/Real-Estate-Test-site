@@ -118,10 +118,7 @@ export function WhyRetireInThailandPage() {
 
         <section className="mx-auto max-w-5xl px-4 py-14 lg:px-8">
           <div className="max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
-              Senior Nursing Home
-            </p>
-            <h1 className="mt-4 font-serif text-4xl font-normal leading-tight text-brand-dark sm:text-5xl">
+            <h1 className="font-serif text-4xl font-normal leading-tight text-brand-dark sm:text-5xl">
               Why Retire in Thailand
             </h1>
             <p className="mt-6 text-lg font-semibold leading-8 text-brand-gray">
@@ -144,7 +141,7 @@ export function WhyRetireInThailandPage() {
                   {String(index + 1).padStart(2, "0")}
                 </p>
                 <h2 className="mt-3 text-xl font-black text-brand-dark">{reason.title}</h2>
-                <ul className="mt-5 space-y-4 text-base leading-7 text-brand-gray">
+                <ul className="mt-3 space-y-4 text-base leading-7 text-brand-gray">
                   {reason.points.map((point) => (
                     <li key={point} className="flex gap-3">
                       <span className="mt-2 h-2 w-2 shrink-0 bg-brand-red" />
@@ -159,10 +156,7 @@ export function WhyRetireInThailandPage() {
 
         <section className="mx-auto max-w-5xl border-t border-brand-line px-4 py-14 lg:px-8">
           <div className="max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
-              Senior Nursing Home
-            </p>
-            <h2 className="mt-4 font-serif text-4xl font-normal leading-tight text-brand-dark sm:text-5xl">
+            <h2 className="font-serif text-4xl font-normal leading-tight text-brand-dark sm:text-5xl">
               Why Thailand Is the Leading Nursing Home Facility in Asia
             </h2>
           </div>
