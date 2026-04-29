@@ -124,3 +124,4 @@
 - Security rule added: future code and page creation must tighten XSS/cross-site scripting defenses across the whole website.
 - Added pre-push security pass requirement and applied XSS hardening helpers, CSP/referrer meta tags, safer iframe permissions, validated asset/href/GraphQL URLs, and search input limits.
 - Added Private Villa Nursing Care page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied private villa nursing care content.
+- Added Resort Nursing Facility page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied resort nursing facility content.

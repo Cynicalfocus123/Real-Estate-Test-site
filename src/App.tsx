@@ -11,6 +11,7 @@ import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCar
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
+import { ResortNursingFacilityPage } from "./components/ResortNursingFacilityPage";
 import { SearchPanel } from "./components/SearchPanel";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
@@ -39,6 +40,9 @@ export function App() {
   const isPrivateVillaNursingCarePage =
     currentPath.endsWith("/private-villa-nursing-care") ||
     currentHash === "#/private-villa-nursing-care";
+  const isResortNursingFacilityPage =
+    currentPath.endsWith("/resort-nursing-facility") ||
+    currentHash === "#/resort-nursing-facility";
 
   useEffect(() => {
     function syncPath() {
@@ -99,6 +103,10 @@ export function App() {
 
   if (isPrivateVillaNursingCarePage) {
     return <PrivateVillaNursingCarePage />;
+  }
+
+  if (isResortNursingFacilityPage) {
+    return <ResortNursingFacilityPage />;
   }
 
   return (
