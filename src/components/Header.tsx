@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
     href: "#financing",
     children: [
       { label: "Finacing for Foreigners", href: `${import.meta.env.BASE_URL}financing-for-foreigners` },
+      { label: "Own Property in Thailand", href: `${import.meta.env.BASE_URL}own-property-in-thailand` },
     ],
   },
   {

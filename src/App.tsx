@@ -5,6 +5,7 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { LongTermVisaPage } from "./components/LongTermVisaPage";
 import { MapPreview } from "./components/MapPreview";
+import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPage";
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
@@ -27,6 +28,9 @@ export function App() {
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
+  const isOwnPropertyInThailandPage =
+    currentPath.endsWith("/own-property-in-thailand") ||
+    currentHash === "#/own-property-in-thailand";
 
   useEffect(() => {
     function syncPath() {
@@ -75,6 +79,10 @@ export function App() {
 
   if (isFinancingForForeignersPage) {
     return <FinancingForForeignersPage />;
+  }
+
+  if (isOwnPropertyInThailandPage) {
+    return <OwnPropertyInThailandPage />;
   }
 
   return (
