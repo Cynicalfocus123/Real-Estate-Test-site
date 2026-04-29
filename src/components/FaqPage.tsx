@@ -43,8 +43,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Can I obtain a long-term visa after renting property in Thailand?",
     minutes: "6 min read",
-    image: "images/page-banners/long-term-visa.png",
-    href: "#long-term-visa-after-renting",
+    image: "images/page-banners/long-term-visa-after-property-thailand.png",
+    href: `${import.meta.env.BASE_URL}long-term-visa-after-property-thailand`,
   },
   {
     title: "Is mortgage financing available to foreigners?",

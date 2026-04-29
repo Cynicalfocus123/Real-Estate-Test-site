@@ -146,6 +146,7 @@
 - Added Foreigner FAQ section to FAQ page with eight question boxes covering ownership, property types, visas, financing, custom homes, delivery details, warranty duration, and cost of living.
 - Added page for `Is it possible for a foreigner to own property in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied ownership rules content.
 - Added page for `What type of property can foreigners own in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied permitted property types content.
+- Added page for `Can I obtain a long-term visa after renting property in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied visa/property explanation content.
 - Removed all `See all` text links from FAQ page section headers.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.
 - Added Fixer Upper and Urgent Sale pages with supplied banner images, clean URL routing, and FAQ For Sale card links.
