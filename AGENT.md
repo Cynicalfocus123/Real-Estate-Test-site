@@ -8,6 +8,7 @@
 - Language control must support EN, RU, ZH, TH, AR, and FA as acronym options.
 - Map search must be prepared for open-source map integration, likely Leaflet + OpenStreetMap.
 - During deploy/build checks, show or refresh the local preview in the side browser window at `http://localhost:5173/Real-Estate-Test-site/`.
+- All code, page creation, and website changes must be security hardened, with specific care to prevent XSS/cross-site scripting by avoiding unsafe HTML injection, sanitizing any future user/API content before render, validating inputs, and keeping external embeds/scripts tightly controlled.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -119,3 +120,4 @@
 - Added `Senior Nursing Home` parent header menu item between `Lease to Own` and `Financing`.
 - Added `Senior Nursing Home` submenu items: Nursing Home Facility, Private Villa Nursing Care, and Resort Nursing Facility.
 - Added Nursing Home Facility page with supplied banner image, clean URL routing, and Senior Nursing Home submenu link.
+- Security rule added: future code and page creation must tighten XSS/cross-site scripting defenses across the whole website.
