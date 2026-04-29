@@ -73,8 +73,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Cost of living in Thailand",
     minutes: "5 min read",
-    image: "images/page-banners/why-retire-in-thailand.png",
-    href: "#cost-of-living-thailand",
+    image: "images/page-banners/cost-of-living-thailand.png",
+    href: `${import.meta.env.BASE_URL}cost-of-living-thailand`,
   },
 ];
 

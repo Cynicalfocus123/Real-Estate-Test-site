@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CostOfLivingThailandPage } from "./components/CostOfLivingThailandPage";
 import { CustomHomeNonThaiPage } from "./components/CustomHomeNonThaiPage";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
 import { FaqPage } from "./components/FaqPage";
@@ -62,6 +63,9 @@ export function App() {
   const isHomeWarrantyDurationPage =
     currentPath.endsWith("/home-warranty-duration") ||
     currentHash === "#/home-warranty-duration";
+  const isCostOfLivingThailandPage =
+    currentPath.endsWith("/cost-of-living-thailand") ||
+    currentHash === "#/cost-of-living-thailand";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -167,6 +171,10 @@ export function App() {
 
   if (isHomeWarrantyDurationPage) {
     return <HomeWarrantyDurationPage />;
+  }
+
+  if (isCostOfLivingThailandPage) {
+    return <CostOfLivingThailandPage />;
   }
 
   if (isRetirementVisaPage) {
