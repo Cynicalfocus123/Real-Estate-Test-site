@@ -15,11 +15,12 @@ const navItems: NavItem[] = [
   { label: "Lease to Own", href: "#lease-to-own" },
   { label: "Financing Available", href: "#financing-available" },
   {
-    label: "Immigration Visa",
+    label: "Immigration / Visa",
     href: "#immigration-visa",
     children: [
       { label: "Retirement Visa", href: "#retirement-visa" },
       { label: "Long Term Visa", href: "#long-term-visa" },
+      { label: "Real Estate Laws for Foreigner", href: "#real-estate-laws-for-foreigner" },
     ],
   },
   {

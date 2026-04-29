@@ -97,3 +97,4 @@
 - Removed the small `Buy Home For Less` eyebrow text above the hero headline.
 - Optimized hero YouTube iframe cover sizing on mobile to remove black letterbox space.
 - Made the sticky header fully opaque with a higher z-index so mobile scrolling content does not show behind it.
+- Renamed header `Immigration Visa` to `Immigration / Visa` and added `Real Estate Laws for Foreigner` submenu item.
