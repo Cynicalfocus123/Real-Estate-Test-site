@@ -133,3 +133,4 @@
 - Added Lease to Own page from parent header menu with supplied banner image, clean URL routing, and supplied lease-to-own content.
 - Added What Is Lease to Own section below Lease to Own page content with supplied banner image and supplied explanatory text.
 - Added For Sale parent submenu items for Distress Property, Foreclosure, Pre-Foreclosure, Fixer Upper, and Urgent Sales.
+- Added Distress Property page with supplied banner image, clean URL routing, For Sale submenu link, and supplied distressed property content.

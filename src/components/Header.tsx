@@ -15,7 +15,7 @@ const navItems: NavItem[] = [
     label: "For Sale",
     href: "#for-sale",
     children: [
-      { label: "Distress Property", href: "#distress-property" },
+      { label: "Distress Property", href: `${import.meta.env.BASE_URL}distress-property` },
       { label: "Foreclosure", href: "#foreclosure" },
       { label: "Pre-Foreclosure", href: "#pre-foreclosure" },
       { label: "Fixer Upper", href: "#fixer-upper" },

@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -33,6 +34,8 @@ export function App() {
     currentPath.endsWith("/long-term-visa") || currentHash === "#/long-term-visa";
   const isLeaseToOwnPage =
     currentPath.endsWith("/lease-to-own") || currentHash === "#/lease-to-own";
+  const isDistressedPropertyPage =
+    currentPath.endsWith("/distress-property") || currentHash === "#/distress-property";
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
@@ -102,6 +105,10 @@ export function App() {
 
   if (isLeaseToOwnPage) {
     return <LeaseToOwnPage />;
+  }
+
+  if (isDistressedPropertyPage) {
+    return <DistressedPropertyPage />;
   }
 
   if (isFinancingForForeignersPage) {
