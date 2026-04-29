@@ -19,6 +19,7 @@ import { NursingHomeFacilityPage } from "./components/NursingHomeFacilityPage";
 import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPage";
 import { PreForeclosurePage } from "./components/PreForeclosurePage";
 import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
+import { PropertySpecifiedDetailsPage } from "./components/PropertySpecifiedDetailsPage";
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
@@ -54,6 +55,9 @@ export function App() {
   const isCustomHomeNonThaiPage =
     currentPath.endsWith("/custom-home-non-thai-national") ||
     currentHash === "#/custom-home-non-thai-national";
+  const isPropertySpecifiedDetailsPage =
+    currentPath.endsWith("/property-specified-details") ||
+    currentHash === "#/property-specified-details";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -151,6 +155,10 @@ export function App() {
 
   if (isCustomHomeNonThaiPage) {
     return <CustomHomeNonThaiPage />;
+  }
+
+  if (isPropertySpecifiedDetailsPage) {
+    return <PropertySpecifiedDetailsPage />;
   }
 
   if (isRetirementVisaPage) {

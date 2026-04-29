@@ -149,6 +149,7 @@
 - Added page for `Can I obtain a long-term visa after renting property in Thailand?` with supplied banner image, clean URL routing, FAQ card link, and supplied visa/property explanation content.
 - Added page for `Is mortgage financing available to foreigners?` with supplied banner image, clean URL routing, FAQ card link, and supplied mortgage financing content.
 - Added page for `Am I allowed to build a custom home in Thailand as a non-Thai national?` with supplied banner image, clean URL routing, FAQ card link, and supplied custom home ownership content.
+- Added page for `How can I ensure that the property I receive matches the specified details?` with supplied banner image, clean URL routing, FAQ card link, and supplied due diligence content.
 - Removed all `See all` text links from FAQ page section headers.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.
 - Added Fixer Upper and Urgent Sale pages with supplied banner images, clean URL routing, and FAQ For Sale card links.

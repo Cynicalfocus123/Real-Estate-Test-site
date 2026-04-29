@@ -61,8 +61,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "How can I ensure that the property I receive matches the specified details?",
     minutes: "5 min read",
-    image: "images/page-banners/lease-to-own.png",
-    href: "#property-specified-details",
+    image: "images/page-banners/property-specified-details.png",
+    href: `${import.meta.env.BASE_URL}property-specified-details`,
   },
   {
     title: "What is the duration of the home warranty provided to homeowners?",
