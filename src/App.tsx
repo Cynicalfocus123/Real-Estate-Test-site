@@ -16,6 +16,7 @@ import { SearchPanel } from "./components/SearchPanel";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
 import { WhyChooseUs } from "./components/WhyChooseUs";
+import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { featuredProperties } from "./data/mockProperties";
 
 export function App() {
@@ -43,6 +44,9 @@ export function App() {
   const isResortNursingFacilityPage =
     currentPath.endsWith("/resort-nursing-facility") ||
     currentHash === "#/resort-nursing-facility";
+  const isWhyRetireInThailandPage =
+    currentPath.endsWith("/why-retire-in-thailand") ||
+    currentHash === "#/why-retire-in-thailand";
 
   useEffect(() => {
     function syncPath() {
@@ -107,6 +111,10 @@ export function App() {
 
   if (isResortNursingFacilityPage) {
     return <ResortNursingFacilityPage />;
+  }
+
+  if (isWhyRetireInThailandPage) {
+    return <WhyRetireInThailandPage />;
   }
 
   return (

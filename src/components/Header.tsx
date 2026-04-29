@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
     label: "Senior Nursing Home",
     href: "#senior-nursing-home",
     children: [
+      { label: "Why Retire in Thailand", href: `${import.meta.env.BASE_URL}why-retire-in-thailand` },
       { label: "Nursing Home Facility", href: `${import.meta.env.BASE_URL}nursing-home-facility` },
       { label: "Private Villa Nursing Care", href: `${import.meta.env.BASE_URL}private-villa-nursing-care` },
       { label: "Resort Nursing Facility", href: `${import.meta.env.BASE_URL}resort-nursing-facility` },
