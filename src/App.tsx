@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
+import { FaqPage } from "./components/FaqPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -28,6 +29,7 @@ export function App() {
   const isRealEstateLawsPage =
     currentPath.endsWith("/real-estate-laws-for-foreigner") ||
     currentHash === "#/real-estate-laws-for-foreigner";
+  const isFaqPage = currentPath.endsWith("/faq") || currentHash === "#/faq";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -93,6 +95,10 @@ export function App() {
 
   if (isRealEstateLawsPage) {
     return <RealEstateLawsPage />;
+  }
+
+  if (isFaqPage) {
+    return <FaqPage />;
   }
 
   if (isRetirementVisaPage) {

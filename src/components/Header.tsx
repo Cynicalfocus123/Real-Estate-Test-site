@@ -59,7 +59,7 @@ const navItems: NavItem[] = [
       { label: "News", href: "#news" },
       { label: "Abouts", href: "#abouts" },
       { label: "Contact Us", href: "#contact-us" },
-      { label: "FAQ", href: "#faq" },
+      { label: "FAQ", href: `${import.meta.env.BASE_URL}faq` },
     ],
   },
 ];
