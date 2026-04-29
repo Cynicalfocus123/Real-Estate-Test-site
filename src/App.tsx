@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { LongTermVisaPage } from "./components/LongTermVisaPage";
@@ -23,6 +24,9 @@ export function App() {
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
     currentPath.endsWith("/long-term-visa") || currentHash === "#/long-term-visa";
+  const isFinancingForForeignersPage =
+    currentPath.endsWith("/financing-for-foreigners") ||
+    currentHash === "#/financing-for-foreigners";
 
   useEffect(() => {
     function syncPath() {
@@ -67,6 +71,10 @@ export function App() {
 
   if (isLongTermVisaPage) {
     return <LongTermVisaPage />;
+  }
+
+  if (isFinancingForForeignersPage) {
+    return <FinancingForForeignersPage />;
   }
 
   return (

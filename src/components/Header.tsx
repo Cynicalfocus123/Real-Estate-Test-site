@@ -13,7 +13,13 @@ const navItems: NavItem[] = [
   { label: "For Sale", href: "#for-sale" },
   { label: "For Rent", href: "#for-rent" },
   { label: "Lease to Own", href: "#lease-to-own" },
-  { label: "Finacing", href: "#financing" },
+  {
+    label: "Finacing",
+    href: "#financing",
+    children: [
+      { label: "Finacing for Foreigners", href: `${import.meta.env.BASE_URL}financing-for-foreigners` },
+    ],
+  },
   {
     label: "Immigration / Visa",
     href: "#immigration-visa",
