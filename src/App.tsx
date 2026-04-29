@@ -7,6 +7,7 @@ import { LongTermVisaPage } from "./components/LongTermVisaPage";
 import { MapPreview } from "./components/MapPreview";
 import { NursingHomeFacilityPage } from "./components/NursingHomeFacilityPage";
 import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPage";
+import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
 import { PropertyCard } from "./components/PropertyCard";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
@@ -35,6 +36,9 @@ export function App() {
   const isNursingHomeFacilityPage =
     currentPath.endsWith("/nursing-home-facility") ||
     currentHash === "#/nursing-home-facility";
+  const isPrivateVillaNursingCarePage =
+    currentPath.endsWith("/private-villa-nursing-care") ||
+    currentHash === "#/private-villa-nursing-care";
 
   useEffect(() => {
     function syncPath() {
@@ -91,6 +95,10 @@ export function App() {
 
   if (isNursingHomeFacilityPage) {
     return <NursingHomeFacilityPage />;
+  }
+
+  if (isPrivateVillaNursingCarePage) {
+    return <PrivateVillaNursingCarePage />;
   }
 
   return (

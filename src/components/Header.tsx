@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
     href: "#senior-nursing-home",
     children: [
       { label: "Nursing Home Facility", href: `${import.meta.env.BASE_URL}nursing-home-facility` },
-      { label: "Private Villa Nursing Care", href: "#private-villa-nursing-care" },
+      { label: "Private Villa Nursing Care", href: `${import.meta.env.BASE_URL}private-villa-nursing-care` },
       { label: "Resort Nursing Facility", href: "#resort-nursing-facility" },
     ],
   },
