@@ -5,35 +5,22 @@ import { assetPath } from "../utils/assets";
 
 const retirementSections = [
   {
-    title: "Retirement Visa Overview",
+    title: "Eligibility and Requirements",
     items: [
-      "Thailand retirement visa options are designed for foreign nationals who want to stay in Thailand long term after retirement.",
-      "Applicants commonly prepare proof of age, passport validity, financial qualification, Thai address details, and health or insurance documents when required.",
-      "Visa rules and document requirements can change, so applicants should confirm current requirements before submitting an application.",
-    ],
-  },
-  {
-    title: "Common Requirements",
-    items: [
-      "Applicants are generally expected to meet the minimum age requirement for retirement visa categories.",
-      "Financial proof may include Thai bank deposits, monthly income, pension documentation, or a combination that meets the required threshold.",
-      "A valid passport, application forms, photographs, and local address documents are usually required.",
-    ],
-  },
-  {
-    title: "Property and Long-Term Stay Planning",
-    items: [
-      "Many retirees combine visa planning with condominium purchases, long-term rentals, or leasehold homes.",
-      "Housing choice should match lifestyle needs, medical access, transportation, budget, and long-term renewal plans.",
-      "Foreign buyers should review ownership rules, lease terms, and transfer documentation before committing funds.",
+      "Age: You must be 50 years of age or older.",
+      "Financial Requirements: You must meet one of the following: maintain a deposit of at least 800,000 Thai Baht (THB) in a Thai bank account for at least 2 months before applying; demonstrate a monthly income of at least 65,000 THB; or show a combination of bank deposit and yearly income totaling 800,000 THB.",
+      "Health Insurance: You need to provide proof of health insurance with coverage that meets the Thai government's criteria, including inpatient coverage of at least 400,000 THB and outpatient coverage of at least 40,000 THB.",
+      "Other Requirements: A valid passport, a police clearance certificate from your home country, and proof of residence in Thailand, such as a lease agreement.",
+      "Visa Type: The retirement visa is known as a Non-Immigrant OA (Long Stay) Visa.",
     ],
   },
   {
     title: "Important Notes",
     items: [
-      "Retirement visa holders may need to complete periodic reporting, renewal filings, or address notifications.",
-      "Professional legal and immigration advice can help reduce delays, missing documents, and compliance issues.",
-      "Buy Home For Less can help connect property search, long-term stay planning, and local service support.",
+      "Employment of any kind is strictly prohibited while holding this visa.",
+      "The visa is typically valid for one year and can be renewed annually, provided you continue to meet the requirements.",
+      "You can apply for the visa in Thailand or at a Royal Thai Embassy or Consulate outside of Thailand.",
+      "The process for applying for the visa can be complex, so it's advisable to seek guidance from legal Planets.",
     ],
   },
 ];
@@ -64,8 +51,12 @@ export function RetirementVisaPage() {
               Retirement Visa
             </h1>
             <p className="mt-6 text-lg font-semibold leading-8 text-brand-gray">
-              Thailand offers long-term stay options for foreign retirees who want a comfortable base
-              for property ownership planning, rentals, healthcare access, and everyday living.
+              To obtain a retirement visa in Thailand, you must be at least 50 years old and meet
+              specific financial requirements, including a minimum deposit in a Thai bank account or a
+              regular monthly income, along with proof of health insurance.
+            </p>
+            <p className="mt-5 text-base font-semibold leading-7 text-brand-dark">
+              Here's a more detailed breakdown:
             </p>
           </div>
 
