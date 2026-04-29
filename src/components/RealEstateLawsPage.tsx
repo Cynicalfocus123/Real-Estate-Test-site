@@ -54,7 +54,7 @@ export function RealEstateLawsPage() {
           <img
             src={assetPath("images/page-banners/real-estate-laws-for-foreigner.png")}
             alt="Real estate laws for foreigner"
-            className="mx-auto h-auto w-full max-w-6xl"
+            className="mx-auto h-auto w-full max-w-5xl"
           />
         </section>
 
