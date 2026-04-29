@@ -102,3 +102,4 @@
 - Added separate Real Estate Laws for Foreigner page with supplied banner image and linked it from the header submenu.
 - Reduced Real Estate Laws for Foreigner page banner height.
 - Replaced all Real Estate Laws for Foreigner page text with the supplied ownership, condominium, leasehold, and legal consideration copy.
+- Changed Real Estate Laws for Foreigner page to clean URL routing and added GitHub Pages SPA fallback.

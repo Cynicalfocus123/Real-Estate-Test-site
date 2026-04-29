@@ -13,9 +13,16 @@ import { featuredProperties } from "./data/mockProperties";
 
 export function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
-  const isRealEstateLawsPage = currentHash === "#/real-estate-laws-for-foreigner";
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const isRealEstateLawsPage =
+    currentPath.endsWith("/real-estate-laws-for-foreigner") ||
+    currentHash === "#/real-estate-laws-for-foreigner";
 
   useEffect(() => {
+    function syncPath() {
+      setCurrentPath(window.location.pathname);
+    }
+
     function syncHash() {
       setCurrentHash(window.location.hash);
     }
@@ -34,9 +41,11 @@ export function App() {
     }
 
     scrollToHash();
+    window.addEventListener("popstate", syncPath);
     window.addEventListener("hashchange", syncHash);
     window.addEventListener("hashchange", scrollToHash);
     return () => {
+      window.removeEventListener("popstate", syncPath);
       window.removeEventListener("hashchange", syncHash);
       window.removeEventListener("hashchange", scrollToHash);
     };
