@@ -147,11 +147,8 @@ const retirementCards: FaqCard[] = [
 function FaqSection({ cards, id, title }: { cards: FaqCard[]; id?: string; title: string }) {
   return (
     <section id={id} className="mx-auto max-w-7xl scroll-mt-28 px-4 py-10 lg:px-8">
-      <div className="mb-8 flex items-center justify-between gap-4">
+      <div className="mb-8">
         <h2 className="text-3xl font-black text-[#003c96]">{title}</h2>
-        <a href={safeHref("#top")} className="text-base font-black text-[#0047d9] hover:text-brand-red">
-          See all
-        </a>
       </div>
       <div className="grid gap-7 lg:grid-cols-2">
         {cards.map((card) => (
