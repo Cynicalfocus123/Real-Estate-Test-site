@@ -126,3 +126,4 @@
 - Added Private Villa Nursing Care page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied private villa nursing care content.
 - Added Resort Nursing Facility page with supplied banner image, clean URL routing, Senior Nursing Home submenu link, and supplied resort nursing facility content.
 - Added Why Retire in Thailand Senior Nursing Home submenu page with supplied banner image, clean URL routing, and supplied retirement destination content.
+- Added Why Thailand Is the Leading Nursing Home Facility in Asia section below Why Retire in Thailand with supplied banner image and supplied senior living content.
