@@ -31,8 +31,8 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Is it possible for a foreigner to own property in Thailand?",
     minutes: "5 min read",
-    image: "images/page-banners/own-property-in-thailand.png",
-    href: "#foreigner-own-property",
+    image: "images/page-banners/foreigner-own-property-thailand.png",
+    href: `${import.meta.env.BASE_URL}foreigner-own-property-thailand`,
   },
   {
     title: "What type of property can foreigners own in Thailand?",
