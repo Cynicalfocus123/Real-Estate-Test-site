@@ -115,3 +115,4 @@
 - Added Long Term Visa page with supplied banner image, clean URL routing, header submenu link, and supplied LTR visa content.
 - Added Financing for Foreigners page with supplied banner image, clean URL routing, and Finacing header submenu link.
 - Added Own Property in Thailand page with supplied banner image, clean URL routing, and Finacing header submenu link.
+- Fixed parent header label typo from `Finacing` to `Financing`.

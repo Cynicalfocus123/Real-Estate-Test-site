@@ -14,7 +14,7 @@ const navItems: NavItem[] = [
   { label: "For Rent", href: "#for-rent" },
   { label: "Lease to Own", href: "#lease-to-own" },
   {
-    label: "Finacing",
+    label: "Financing",
     href: "#financing",
     children: [
       { label: "Finacing for Foreigners", href: `${import.meta.env.BASE_URL}financing-for-foreigners` },
