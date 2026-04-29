@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
 import { FaqPage } from "./components/FaqPage";
 import { FinancingForForeignersPage } from "./components/FinancingForForeignersPage";
+import { FixerUpperPage } from "./components/FixerUpperPage";
 import { ForeclosurePage } from "./components/ForeclosurePage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -20,6 +21,7 @@ import { ResortNursingFacilityPage } from "./components/ResortNursingFacilityPag
 import { SearchPanel } from "./components/SearchPanel";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
+import { UrgentSalePage } from "./components/UrgentSalePage";
 import { WhyChooseUs } from "./components/WhyChooseUs";
 import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { WhySeniorcarePage } from "./components/WhySeniorcarePage";
@@ -44,6 +46,10 @@ export function App() {
     currentPath.endsWith("/foreclosure") || currentHash === "#/foreclosure";
   const isPreForeclosurePage =
     currentPath.endsWith("/pre-foreclosure") || currentHash === "#/pre-foreclosure";
+  const isFixerUpperPage =
+    currentPath.endsWith("/fixer-upper") || currentHash === "#/fixer-upper";
+  const isUrgentSalePage =
+    currentPath.endsWith("/urgent-sale") || currentHash === "#/urgent-sale";
   const isFinancingForForeignersPage =
     currentPath.endsWith("/financing-for-foreigners") ||
     currentHash === "#/financing-for-foreigners";
@@ -129,6 +135,14 @@ export function App() {
 
   if (isPreForeclosurePage) {
     return <PreForeclosurePage />;
+  }
+
+  if (isFixerUpperPage) {
+    return <FixerUpperPage />;
+  }
+
+  if (isUrgentSalePage) {
+    return <UrgentSalePage />;
   }
 
   if (isFinancingForForeignersPage) {

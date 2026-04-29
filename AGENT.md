@@ -114,6 +114,7 @@
 - Replaced footer logo description with supplied real estate partner and visa package copy.
 - Replaced footer LinkedIn social icon with WhatsApp and LINE social buttons.
 - Preference: always show the local Vite preview in the side browser window for AGENT.md deploy/check work.
+- User standing instruction: after every future code, content, asset, or website change, automatically run the required checks, commit the changes, and push to GitHub without asking again.
 - Added Long Term Visa page with supplied banner image, clean URL routing, header submenu link, and supplied LTR visa content.
 - Added Financing for Foreigners page with supplied banner image, clean URL routing, and Finacing header submenu link.
 - Added Own Property in Thailand page with supplied banner image, clean URL routing, and Finacing header submenu link.
@@ -143,3 +144,6 @@
 - Moved Financing for Foreigners and Own Property in Thailand FAQ cards into a new Financing section.
 - Added Pre-Foreclosure page with supplied banner image, clean URL routing, FAQ For Sale card link, and supplied pre-foreclosure purchasing content.
 - Removed For Sale header submenu items and removed Lease to Own from the top header navigation.
+- Added Fixer Upper and Urgent Sale pages with supplied banner images, clean URL routing, and FAQ For Sale card links.
+- Fix: routed footer and Top Locations hash links through `safeHref`, corrected `Financing for Foreigners` submenu spelling, and replaced a non-ASCII footer copyright glyph with `&copy;`.
+- Updated Fixer Upper page with supplied buyer guidance copy and refreshed the supplied Fixer-Upper banner image.

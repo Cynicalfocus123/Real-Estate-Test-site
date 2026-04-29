@@ -49,14 +49,14 @@ const forSaleCards: FaqCard[] = [
   {
     title: "Fixer Upper",
     minutes: "5 min read",
-    image: "images/page-banners/distressed-property.png",
-    href: "#fixer-upper",
+    image: "images/page-banners/fixer-upper.png",
+    href: `${import.meta.env.BASE_URL}fixer-upper`,
   },
   {
     title: "Urgent Sale",
     minutes: "5 min read",
-    image: "images/page-banners/distressed-property.png",
-    href: "#urgent-sale",
+    image: "images/page-banners/urgent-sale.png",
+    href: `${import.meta.env.BASE_URL}urgent-sale`,
   },
 ];
 

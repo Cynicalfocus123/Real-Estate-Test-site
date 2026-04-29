@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { assetPath } from "../utils/assets";
+import { safeHref } from "../utils/security";
 
 export function Footer() {
   return (
@@ -19,9 +20,9 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-bold uppercase text-white">Company</h3>
           <ul className="mt-5 space-y-3 text-sm text-neutral-300">
-            <li><a href="#about-us">About Us</a></li>
-            <li><a href="#contact-us">Contact Us</a></li>
-            <li><a href="#news">News</a></li>
+            <li><a href={safeHref("#about-us")}>About Us</a></li>
+            <li><a href={safeHref("#contact-us")}>Contact Us</a></li>
+            <li><a href={safeHref("#news")}>News</a></li>
           </ul>
         </div>
         <div>
@@ -32,23 +33,23 @@ export function Footer() {
             <li className="flex gap-3"><Mail className="h-4 w-4 text-brand-red" /> hello@buyhomeforless.com</li>
           </ul>
           <div className="mt-6 flex gap-3">
-            <a href="#contact" aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+            <a href={safeHref("#contact")} aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
               <Facebook className="h-5 w-5" />
             </a>
-            <a href="#contact" aria-label="Instagram" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+            <a href={safeHref("#contact")} aria-label="Instagram" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
               <Instagram className="h-5 w-5" />
             </a>
-            <a href="#contact" aria-label="WhatsApp" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
+            <a href={safeHref("#contact")} aria-label="WhatsApp" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
               <MessageCircle className="h-5 w-5" />
             </a>
-            <a href="#contact" aria-label="LINE" className="inline-flex h-10 w-10 items-center justify-center bg-white/10 text-[10px] font-black">
+            <a href={safeHref("#contact")} aria-label="LINE" className="inline-flex h-10 w-10 items-center justify-center bg-white/10 text-[10px] font-black">
               LINE
             </a>
           </div>
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs uppercase tracking-wide text-neutral-400">
-        © 2026 Buy Home For Less. All rights reserved.
+        &copy; 2026 Buy Home For Less. All rights reserved.
       </div>
     </footer>
   );

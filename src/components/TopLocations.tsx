@@ -1,11 +1,12 @@
 import type { TopLocation } from "../data/topLocations";
 import { moreLocations, topLocations } from "../data/topLocations";
 import { assetPath } from "../utils/assets";
+import { safeHref } from "../utils/security";
 
 function LocationTile({ location, large = false }: { location: TopLocation; large?: boolean }) {
   return (
     <a
-      href={`#location-${location.id}`}
+      href={safeHref(`#location-${location.id}`)}
       className={`group relative min-h-[210px] overflow-hidden bg-neutral-500 ${
         large ? "lg:min-h-[452px]" : "lg:min-h-[210px]"
       }`}
