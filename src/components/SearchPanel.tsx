@@ -781,7 +781,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
                           step={priceStep}
                           value={minPrice}
                           onChange={(event) => handleMinPriceChange(Number(event.target.value))}
-                          className="pointer-events-auto absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+                          className="price-range-input absolute inset-x-0 top-0 z-20 h-9 w-full appearance-none bg-transparent"
                         />
                         <input
                           type="range"
@@ -790,7 +790,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
                           step={priceStep}
                           value={maxPrice}
                           onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
-                          className="pointer-events-auto absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+                          className="price-range-input absolute inset-x-0 top-0 z-30 h-9 w-full appearance-none bg-transparent"
                         />
                       </div>
                     </div>

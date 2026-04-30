@@ -223,3 +223,4 @@
 - Added inline clear `X` buttons to the home-page and listing-page search fields so typed search text can be erased directly from the right side of the input.
 - Corrected the home hero `Sell` mode so it routes to the `For Sale` listings page, while `Buy` continues to route to the separate `/buy` listings page.
 - Changed the home hero `Senior Home` mode to open the shared property listings page instead of the static nursing-home content page.
+- Fixed the stacked dual-handle price sliders so the left minimum-price thumb is draggable on mobile by giving the hidden range inputs thumb-only pointer events instead of letting the top input block touches across the full track.
