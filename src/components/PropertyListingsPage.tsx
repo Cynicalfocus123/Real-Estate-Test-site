@@ -748,19 +748,28 @@ export function PropertyListingsPage({
                 </label>
 
               <div ref={quickFilterRef} className="relative mt-4">
-                <div className="mx-auto mb-3 grid w-full max-w-[700px] gap-2 sm:grid-cols-2">
+                <div className="flex flex-wrap justify-center gap-2 pb-1">
+                  <button
+                    type="button"
+                    onClick={openFilter}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                    aria-expanded={filterOpen}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filters
+                  </button>
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("city")}
-                      className={`relative flex w-full items-center rounded-xl border bg-white px-4 py-3 pr-12 text-left text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveCityFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "city" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
                       }`}
                       aria-expanded={activeQuickFilter === "city"}
                     >
-                      <span className="truncate">{getSingleFilterLabel("Cities", selectedCity)}</span>
+                      <span className="max-w-[110px] truncate">{getSingleFilterLabel("Cities", selectedCity)}</span>
                       {activeQuickFilter === "city" ? (
                         <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
                       ) : (
@@ -782,14 +791,14 @@ export function PropertyListingsPage({
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("province")}
-                      className={`relative flex w-full items-center rounded-xl border bg-white px-4 py-3 pr-12 text-left text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveProvinceFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "province" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
                       }`}
                       aria-expanded={activeQuickFilter === "province"}
                     >
-                      <span className="truncate">{getSingleFilterLabel("Province", selectedProvince)}</span>
+                      <span className="max-w-[110px] truncate">{getSingleFilterLabel("Province", selectedProvince)}</span>
                       {activeQuickFilter === "province" ? (
                         <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
                       ) : (
@@ -807,17 +816,6 @@ export function PropertyListingsPage({
                       </button>
                     ) : null}
                   </div>
-                </div>
-                <div className="flex flex-wrap justify-center gap-2 pb-1">
-                  <button
-                    type="button"
-                    onClick={openFilter}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
-                    aria-expanded={filterOpen}
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    Filters
-                  </button>
                   <div className="relative">
                     <button
                       type="button"
