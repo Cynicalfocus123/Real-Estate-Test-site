@@ -216,3 +216,4 @@
 - Added a top-level `Buy` item before `For Sale` in the header menu and added a `Buy` button beside `Sale` above the listing-page search bar, with both `Buy` and `Sale` targeting the sale listings view.
 - Split `Buy` and `For Sale` into separate sale-page URLs so only the active page highlights in red: `Buy` now uses `/buy`, `For Sale` stays on `/properties-for-sale`, and the listing-page top toggle highlights by current page instead of by shared sale mode.
 - Replaced the home-page hero video with the supplied YouTube embed `83po-NExIPU` while keeping the existing full-bleed slider sizing and overlay layout unchanged.
+- Increased the home hero iframe zoom/crop for the `83po-NExIPU` video so the section stays full-bleed without black bars at the top or bottom across screen sizes.
