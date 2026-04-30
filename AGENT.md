@@ -208,3 +208,4 @@
 - Changed the home-page `Best Deals` layout to a single wide column so the price label and other card text no longer get squeezed on desktop.
 - Tuned the home-page `Best Deals` card rail to a centered max width so cards stay readable without stretching too wide across the page.
 - Rebuilt the home-page search panel to match the listing-page toolbar style, removed the `Lease to Own` and `Senior Nursing Home` tabs, and passed the home search query plus quick filters into the listing page URL.
+- Tightened the home-page search shell by reducing its side padding and max width so the search tabs and toolbar sit closer together horizontally.

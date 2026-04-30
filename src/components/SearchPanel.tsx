@@ -359,9 +359,9 @@ export function SearchPanel() {
   return (
     <form
       onSubmit={handleSearchSubmit}
-      className="mx-auto -mt-20 max-w-6xl rounded-[28px] border border-[#eee6df] bg-white px-4 py-5 shadow-search sm:px-6 sm:py-6"
+      className="mx-auto -mt-20 max-w-5xl rounded-[28px] border border-[#eee6df] bg-white px-3 py-5 shadow-search sm:px-4 sm:py-6"
     >
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-[920px]">
         <div className="flex flex-wrap justify-center gap-2 pb-3">
           {modeOptions.map((option) => (
             <button
