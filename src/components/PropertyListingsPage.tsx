@@ -960,18 +960,6 @@ export function PropertyListingsPage() {
                         </div>
                       </section>
 
-                      <section className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-5">
-                        <h3 className="text-base font-black text-brand-dark">New Projects Only</h3>
-                        <button
-                          type="button"
-                          className="relative h-7 w-16 rounded-full border border-brand-dark bg-white text-xs font-semibold text-brand-dark"
-                          aria-label="New projects only"
-                        >
-                          <span className="absolute left-0 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border border-brand-dark bg-white shadow-sm" />
-                          <span className="absolute right-2 top-1/2 -translate-y-1/2">Off</span>
-                        </button>
-                      </section>
-
                       <section className="border-b border-[#eeeeee] px-5 py-5">
                         <div className="flex items-center justify-between">
                           <h3 className="text-base font-black text-brand-dark">Land Size</h3>
