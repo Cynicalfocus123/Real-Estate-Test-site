@@ -468,7 +468,7 @@ export function PropertyListingsPage() {
                     onChange={(event) => setQuery(cleanSearchText(event.target.value))}
                     className="w-full text-base font-medium outline-none"
                     maxLength={80}
-                    placeholder='Try "800k 4bd 2ba with a fenced yard and a pool"'
+                    placeholder="search location, property types"
                   />
                 </label>
 
