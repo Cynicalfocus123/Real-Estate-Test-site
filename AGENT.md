@@ -194,3 +194,4 @@
 - Corrected the listing-page layout by centering the top search bar and quick-filter buttons, centering the quick-filter popovers, and making the main Filters modal use a sticky visible footer with stronger `Clear All` and `Submit` actions so the bottom controls do not get cut off.
 - Removed the `New Projects Only` row from the listing-page Filters modal.
 - Wired the header `For Rent` menu to the shared listing page route and made the listing page auto-open in Rent mode with clean default filters when entered through the rent URL.
+- Updated the listing-page sale price filter to show `Min 0` and `Max 500 MB`, and increased the sale-mode price range cap to 500,000,000.

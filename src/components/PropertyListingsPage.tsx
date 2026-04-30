@@ -67,6 +67,8 @@ const filterModeOptions = [
   { label: "Rent", value: "rent" },
   { label: "Option To Buy", value: "sale" },
 ] as const;
+const SALE_MAX_PRICE_LIMIT = 500000000;
+const RENT_MAX_PRICE_LIMIT = 100000;
 const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
 const listingSlideImages = [
   "images/province-banners/bangkok.png",
@@ -308,7 +310,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   const [mode, setMode] = useState<ListingMode>(initialMode);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(30000000);
+  const [maxPrice, setMaxPrice] = useState(SALE_MAX_PRICE_LIMIT);
   const [priceQuickView, setPriceQuickView] = useState<PriceQuickView>("list-price");
   const [downPaymentOption, setDownPaymentOption] = useState<DownPaymentOption>("amount");
   const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
@@ -349,7 +351,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setMinLandSize("");
     setMaxLandSize("");
     setMinPrice(0);
-    setMaxPrice(initialMode === "rent" ? 100000 : 30000000);
+    setMaxPrice(initialMode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT);
     setPriceQuickView("list-price");
     setDownPaymentOption("amount");
     setSortBy("recommended");
@@ -417,8 +419,8 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
 
   const sanitizedQuery = cleanSearchText(query);
   const minPriceLimit = mode === "rent" ? 0 : 0;
-  const maxPriceLimit = mode === "rent" ? 100000 : 30000000;
-  const priceStep = mode === "rent" ? 1000 : 500000;
+  const maxPriceLimit = mode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT;
+  const priceStep = mode === "rent" ? 1000 : 1000000;
   const minValue = minPrice > minPriceLimit ? minPrice : null;
   const maxValue = maxPrice < maxPriceLimit ? maxPrice : null;
   const minLandValue = minLandSize ? Number(minLandSize) : null;
@@ -506,7 +508,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   function handleModeChange(nextMode: ListingMode) {
     setMode(nextMode);
     setMinPrice(0);
-    setMaxPrice(nextMode === "rent" ? 100000 : 30000000);
+    setMaxPrice(nextMode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT);
     setPriceQuickView("list-price");
     setDownPaymentOption("amount");
     setSelectedCategories([]);
@@ -715,7 +717,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                               inputMode="numeric"
                               value={getPriceInputValue(minPrice, minPriceLimit)}
                               onChange={(event) => handleMinPriceInputChange(event.target.value)}
-                              placeholder="No min"
+                              placeholder="Min 0"
                               aria-label="Minimum price"
                               className="w-full bg-transparent text-brand-dark outline-none placeholder:text-[#7c6f66]"
                             />
@@ -727,7 +729,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                               inputMode="numeric"
                               value={getPriceInputValue(maxPrice, maxPriceLimit)}
                               onChange={(event) => handleMaxPriceInputChange(event.target.value)}
-                              placeholder="No max"
+                              placeholder={mode === "rent" ? "Max 100K" : "Max 500 MB"}
                               aria-label="Maximum price"
                               className="w-full bg-transparent text-brand-dark outline-none placeholder:text-[#7c6f66]"
                             />
