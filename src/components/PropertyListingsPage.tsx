@@ -30,9 +30,27 @@ import { cleanNumericText, cleanSearchText } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-type QuickFilter = "price" | "rooms" | "homeType" | "province" | "city";
+type QuickFilter = "price" | "rooms" | "homeType" | "province";
 type PriceQuickView = "list-price" | "monthly-payment";
 type DownPaymentOption = "amount" | "percentage";
+type ThailandLocationSuggestion = {
+  id: string;
+  label: string;
+};
+type PhotonFeatureProperties = {
+  country?: string;
+  countrycode?: string;
+  name?: string;
+  city?: string;
+  district?: string;
+  county?: string;
+  state?: string;
+};
+type PhotonResponse = {
+  features?: Array<{
+    properties?: PhotonFeatureProperties;
+  }>;
+};
 
 const modeOptions: ListingMode[] = ["sale", "rent"];
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
@@ -70,6 +88,7 @@ const filterModeOptions = [
 ] as const;
 const SALE_MAX_PRICE_LIMIT = 500000000;
 const RENT_MAX_PRICE_LIMIT = 100000;
+const PHOTON_THAILAND_API_URL = "https://photon.komoot.io/api/";
 const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
 const listingSlideImages = [
   "images/province-banners/bangkok.png",
@@ -144,6 +163,39 @@ function getPriceInputValue(value: number, limit: number) {
 
 function getSingleFilterLabel(defaultLabel: string, selectedValue: string) {
   return selectedValue || defaultLabel;
+}
+
+function normalizeSearchValue(value: string) {
+  return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+function buildThailandLocationSuggestion(
+  properties: PhotonFeatureProperties,
+  index: number,
+): ThailandLocationSuggestion | null {
+  const countryCode = properties.countrycode?.toLowerCase();
+  const country = properties.country?.toLowerCase();
+
+  if (countryCode && countryCode !== "th") return null;
+  if (!countryCode && country && !country.includes("thailand")) return null;
+
+  const locality = [properties.name, properties.city, properties.district, properties.county]
+    .map((value) => value?.trim() ?? "")
+    .find(Boolean);
+  const province = [properties.state, properties.county]
+    .map((value) => value?.trim() ?? "")
+    .find((value) => Boolean(value) && value !== locality);
+
+  if (!locality) return null;
+
+  const labelParts = Array.from(new Set([locality, province].filter(Boolean)));
+
+  if (labelParts.length === 0) return null;
+
+  return {
+    id: `${labelParts.join("-")}-${index}`,
+    label: labelParts.join(", "),
+  };
 }
 
 function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
@@ -323,6 +375,9 @@ export function PropertyListingsPage({
     : "";
   const [mode, setMode] = useState<ListingMode>(initialMode);
   const [query, setQuery] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState<ThailandLocationSuggestion[]>([]);
+  const [locationSuggestionsOpen, setLocationSuggestionsOpen] = useState(false);
+  const [locationSuggestionsLoading, setLocationSuggestionsLoading] = useState(false);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(SALE_MAX_PRICE_LIMIT);
   const [priceQuickView, setPriceQuickView] = useState<PriceQuickView>("list-price");
@@ -331,12 +386,10 @@ export function PropertyListingsPage({
   const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
   const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>("Any");
   const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>("Any");
   const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>("Any");
   const [draftQuickProvince, setDraftQuickProvince] = useState("");
-  const [draftQuickCity, setDraftQuickCity] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
@@ -353,8 +406,15 @@ export function PropertyListingsPage({
   const [filterMounted, setFilterMounted] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilter | null>(null);
   const [mountedQuickFilter, setMountedQuickFilter] = useState<QuickFilter | null>(null);
+  const searchBoxRef = useRef<HTMLDivElement | null>(null);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const quickFilterRef = useRef<HTMLDivElement | null>(null);
+  const lastPickedSuggestionRef = useRef("");
+  const sanitizedQuery = cleanSearchText(query);
+  const searchTokens = useMemo(
+    () => normalizeSearchValue(sanitizedQuery).split(" ").filter(Boolean),
+    [sanitizedQuery],
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -364,15 +424,16 @@ export function PropertyListingsPage({
     setMode(initialMode);
     setDraftMode(initialMode);
     setQuery("");
+    setLocationSuggestions([]);
+    setLocationSuggestionsOpen(false);
+    setLocationSuggestionsLoading(false);
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
     setSelectedProvince(validatedInitialProvince);
-    setSelectedCity("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
     setDraftQuickProvince(validatedInitialProvince);
-    setDraftQuickCity("");
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSelectedHomeType("Any");
@@ -386,6 +447,7 @@ export function PropertyListingsPage({
     setSortOpen(false);
     setFilterOpen(false);
     setActiveQuickFilter(null);
+    lastPickedSuggestionRef.current = "";
   }, [initialMode, validatedInitialProvince]);
 
   useEffect(() => {
@@ -395,6 +457,9 @@ export function PropertyListingsPage({
       }
       if (!quickFilterRef.current?.contains(event.target as Node)) {
         setActiveQuickFilter(null);
+      }
+      if (!searchBoxRef.current?.contains(event.target as Node)) {
+        setLocationSuggestionsOpen(false);
       }
     }
 
@@ -428,6 +493,60 @@ export function PropertyListingsPage({
     return () => window.clearTimeout(timeout);
   }, [activeQuickFilter]);
 
+  useEffect(() => {
+    const trimmedQuery = sanitizedQuery.trim();
+
+    if (!trimmedQuery || trimmedQuery.length < 2 || trimmedQuery === lastPickedSuggestionRef.current) {
+      setLocationSuggestions([]);
+      setLocationSuggestionsOpen(false);
+      setLocationSuggestionsLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setLocationSuggestionsLoading(true);
+
+      try {
+        const response = await fetch(
+          `${PHOTON_THAILAND_API_URL}?q=${encodeURIComponent(`${trimmedQuery} Thailand`)}&limit=6&lang=en`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Thailand location search failed");
+        }
+
+        const payload = (await response.json()) as PhotonResponse;
+        const nextSuggestions = (payload.features ?? [])
+          .map((feature, index) => buildThailandLocationSuggestion(feature.properties ?? {}, index))
+          .filter((suggestion): suggestion is ThailandLocationSuggestion => Boolean(suggestion))
+          .filter(
+            (suggestion, index, collection) =>
+              collection.findIndex((candidate) => candidate.label === suggestion.label) === index,
+          )
+          .slice(0, 6);
+
+        setLocationSuggestions(nextSuggestions);
+        setLocationSuggestionsOpen(nextSuggestions.length > 0);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
+        setLocationSuggestions([]);
+        setLocationSuggestionsOpen(false);
+      } finally {
+        setLocationSuggestionsLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [sanitizedQuery]);
+
   const modeListings = useMemo(
     () => propertyListings.filter((listing) => listing.mode === mode),
     [mode],
@@ -435,10 +554,6 @@ export function PropertyListingsPage({
   const draftModeListings = useMemo(
     () => propertyListings.filter((listing) => listing.mode === draftMode),
     [draftMode],
-  );
-  const cityOptions = useMemo(
-    () => Array.from(new Set(modeListings.map((listing) => listing.city))).sort(),
-    [modeListings],
   );
   const amenityOptions = useMemo(
     () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
@@ -449,7 +564,6 @@ export function PropertyListingsPage({
     [draftModeListings],
   );
 
-  const sanitizedQuery = cleanSearchText(query);
   const minPriceLimit = mode === "rent" ? 0 : 0;
   const maxPriceLimit = mode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT;
   const priceStep = mode === "rent" ? 1000 : 1000000;
@@ -464,18 +578,17 @@ export function PropertyListingsPage({
   const hasActiveRoomFilter = selectedBedroom !== "Any" || selectedBathroom !== "Any";
   const hasActiveHomeTypeFilter = selectedHomeType !== "Any";
   const hasActiveProvinceFilter = Boolean(selectedProvince);
-  const hasActiveCityFilter = Boolean(selectedCity);
 
   const filteredListings = modeListings
     .filter((listing) => {
-      const searchableText = `${listing.title} ${listing.city} ${listing.province} ${listing.homeType} ${listing.nearby.join(" ")}`
-        .toLowerCase();
-      const matchesQuery = !sanitizedQuery || searchableText.includes(sanitizedQuery.toLowerCase());
+      const searchableText = normalizeSearchValue(
+        `${listing.title} ${listing.city} ${listing.province} ${listing.homeType} ${listing.nearby.join(" ")}`,
+      );
+      const matchesQuery = searchTokens.length === 0 || searchTokens.every((token) => searchableText.includes(token));
       const matchesMin = minValue === null || listing.priceValue >= minValue;
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
       const matchesType = selectedHomeType === "Any" || listing.homeType === selectedHomeType;
       const matchesProvince = !selectedProvince || listing.province === selectedProvince;
-      const matchesCity = !selectedCity || listing.city === selectedCity;
       const matchesMinLand = minLandValue === null || listing.areaSqm >= minLandValue;
       const matchesMaxLand = maxLandValue === null || listing.areaSqm <= maxLandValue;
       const matchesAmenities =
@@ -492,7 +605,6 @@ export function PropertyListingsPage({
         matchesMax &&
         matchesType &&
         matchesProvince &&
-        matchesCity &&
         matchesMinLand &&
         matchesMaxLand &&
         matchesAmenities &&
@@ -528,12 +640,10 @@ export function PropertyListingsPage({
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
     setSelectedProvince("");
-    setSelectedCity("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
     setDraftQuickProvince("");
-    setDraftQuickCity("");
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
@@ -543,6 +653,10 @@ export function PropertyListingsPage({
     setSortOpen(false);
     setFilterOpen(false);
     setActiveQuickFilter(null);
+    setLocationSuggestions([]);
+    setLocationSuggestionsOpen(false);
+    setLocationSuggestionsLoading(false);
+    lastPickedSuggestionRef.current = "";
   }
 
   function resetDraftFilters() {
@@ -562,11 +676,10 @@ export function PropertyListingsPage({
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSelectedProvince("");
-    setSelectedCity("");
     setDraftQuickProvince("");
-    setDraftQuickCity("");
     setSortOpen(false);
     setActiveQuickFilter(null);
+    setLocationSuggestionsOpen(false);
   }
 
   function handleDraftModeChange(nextMode: ListingMode) {
@@ -612,9 +725,6 @@ export function PropertyListingsPage({
     if (filter === "province") {
       setDraftQuickProvince(selectedProvince);
     }
-    if (filter === "city") {
-      setDraftQuickCity(selectedCity);
-    }
     setActiveQuickFilter((current) => (current === filter ? null : filter));
   }
 
@@ -631,11 +741,6 @@ export function PropertyListingsPage({
 
   function applyProvinceQuickFilter() {
     setSelectedProvince(draftQuickProvince);
-    setActiveQuickFilter(null);
-  }
-
-  function applyCityQuickFilter() {
-    setSelectedCity(draftQuickCity);
     setActiveQuickFilter(null);
   }
 
@@ -665,10 +770,16 @@ export function PropertyListingsPage({
     setActiveQuickFilter((current) => (current === "province" ? null : current));
   }
 
-  function resetCityQuickFilter() {
-    setSelectedCity("");
-    setDraftQuickCity("");
-    setActiveQuickFilter((current) => (current === "city" ? null : current));
+  function handleQueryChange(value: string) {
+    lastPickedSuggestionRef.current = "";
+    setQuery(cleanSearchText(value));
+  }
+
+  function applyLocationSuggestion(suggestion: ThailandLocationSuggestion) {
+    lastPickedSuggestionRef.current = suggestion.label;
+    setQuery(suggestion.label);
+    setLocationSuggestions([]);
+    setLocationSuggestionsOpen(false);
   }
 
   function handleMinPriceChange(value: number) {
@@ -736,16 +847,48 @@ export function PropertyListingsPage({
                 ))}
               </div>
 
-              <label className="mx-auto flex w-full items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)] lg:max-w-[700px]">
-                  <Search className="h-5 w-5 text-brand-dark" />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(cleanSearchText(event.target.value))}
-                    className="w-full text-base font-medium outline-none"
-                    maxLength={80}
-                    placeholder="search location, property types"
-                  />
-                </label>
+              <div ref={searchBoxRef} className="relative mx-auto w-full lg:max-w-[700px]">
+                <label className="flex w-full items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
+                    <Search className="h-5 w-5 text-brand-dark" />
+                    <input
+                      value={query}
+                      onChange={(event) => handleQueryChange(event.target.value)}
+                      onFocus={() => {
+                        if (locationSuggestions.length > 0) {
+                          setLocationSuggestionsOpen(true);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") {
+                          setLocationSuggestionsOpen(false);
+                        }
+                      }}
+                      className="w-full text-base font-medium outline-none"
+                      maxLength={80}
+                      autoComplete="off"
+                      placeholder="search Thailand cities, towns, property types"
+                    />
+                  </label>
+                {locationSuggestionsLoading || locationSuggestionsOpen ? (
+                  <div className="absolute inset-x-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-[24px] border border-[#d8d2cc] bg-white shadow-[0_22px_60px_rgba(15,23,42,0.18)]">
+                    {locationSuggestionsLoading ? (
+                      <p className="px-5 py-4 text-sm font-semibold text-brand-gray">Searching Thailand locations...</p>
+                    ) : (
+                      locationSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion.id}
+                          type="button"
+                          onClick={() => applyLocationSuggestion(suggestion)}
+                          className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-5 py-4 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:bg-[#faf7f3] hover:text-brand-red"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-brand-red" />
+                          <span>{suggestion.label}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                ) : null}
+              </div>
 
               <div ref={quickFilterRef} className="relative mt-4">
                 <div className="flex flex-wrap justify-center gap-2 pb-1">
@@ -758,35 +901,6 @@ export function PropertyListingsPage({
                     <SlidersHorizontal className="h-4 w-4" />
                     Filters
                   </button>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleQuickFilter("city")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
-                        hasActiveCityFilter ? "pr-20" : ""
-                      } ${
-                        activeQuickFilter === "city" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
-                      aria-expanded={activeQuickFilter === "city"}
-                    >
-                      <span className="max-w-[110px] truncate">{getSingleFilterLabel("Cities", selectedCity)}</span>
-                      {activeQuickFilter === "city" ? (
-                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
-                      ) : (
-                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
-                      )}
-                    </button>
-                    {hasActiveCityFilter ? (
-                      <button
-                        type="button"
-                        onClick={resetCityQuickFilter}
-                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
-                        aria-label="Clear city filter"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    ) : null}
-                  </div>
                   <div className="relative">
                     <button
                       type="button"
@@ -919,9 +1033,7 @@ export function PropertyListingsPage({
                             ? "Room"
                             : mountedQuickFilter === "homeType"
                               ? "Home type"
-                              : mountedQuickFilter === "city"
-                                ? "Cities"
-                                : "Province"}
+                              : "Province"}
                       </h2>
                     </div>
 
@@ -1152,39 +1264,6 @@ export function PropertyListingsPage({
                           <button
                             type="button"
                             onClick={applyHomeTypeQuickFilter}
-                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
-                          >
-                            Done
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {mountedQuickFilter === "city" ? (
-                      <div className="space-y-5">
-                        <div className="max-h-[360px] overflow-y-auto pr-1">
-                          {cityOptions.map((city) => (
-                            <button
-                              key={city}
-                              type="button"
-                              onClick={() => setDraftQuickCity(city)}
-                              className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
-                            >
-                              <span
-                                className={`h-5 w-5 rounded-full border transition-all duration-300 ${
-                                  draftQuickCity === city
-                                    ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
-                                    : "border-brand-muted bg-white"
-                                }`}
-                              />
-                              {city}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="flex justify-end">
-                          <button
-                            type="button"
-                            onClick={applyCityQuickFilter}
                             className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
                           >
                             Done
