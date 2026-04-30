@@ -83,6 +83,27 @@ function getBathroomLabel(baths: number) {
   return `${baths} Bath`;
 }
 
+function getBedroomOptionLabel(option: string) {
+  if (option === "Any") return "Any bed";
+  if (option === "Studio") return "Studio";
+  return `${option} bed`;
+}
+
+function getBathroomOptionLabel(option: string) {
+  return option === "Any" ? "Any bath" : `${option} bath`;
+}
+
+function getRoomFilterLabel(selectedBedroom: string, selectedBathroom: string) {
+  if (selectedBedroom === "Any" && selectedBathroom === "Any") return "Room";
+  if (selectedBedroom !== "Any" && selectedBathroom !== "Any") {
+    return `${getBedroomOptionLabel(selectedBedroom)}, ${getBathroomOptionLabel(selectedBathroom)}`;
+  }
+
+  return selectedBedroom !== "Any"
+    ? getBedroomOptionLabel(selectedBedroom)
+    : getBathroomOptionLabel(selectedBathroom);
+}
+
 function getMinimumFilterValue(option: string) {
   if (option === "Studio") return 0;
   if (option === "5+") return 5;
@@ -530,7 +551,7 @@ export function PropertyListingsPage() {
                     }`}
                     aria-expanded={activeQuickFilter === "rooms"}
                   >
-                    Rooms
+                    {getRoomFilterLabel(selectedBedroom, selectedBathroom)}
                     {activeQuickFilter === "rooms" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   </button>
                   <button
@@ -575,7 +596,7 @@ export function PropertyListingsPage() {
                   >
                     <div className="mb-4 flex items-center justify-between">
                       <h2 className="text-lg font-black text-brand-dark">
-                        {mountedQuickFilter === "price" ? "Price" : mountedQuickFilter === "rooms" ? "Rooms" : "Home type"}
+                        {mountedQuickFilter === "price" ? "Price" : mountedQuickFilter === "rooms" ? "Room" : "Home type"}
                       </h2>
                       <button
                         type="button"
@@ -683,7 +704,7 @@ export function PropertyListingsPage() {
                                     : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
                                 }`}
                               >
-                                {option}
+                                {getBedroomOptionLabel(option)}
                               </button>
                             ))}
                           </div>
@@ -702,7 +723,7 @@ export function PropertyListingsPage() {
                                     : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
                                 }`}
                               >
-                                {option}
+                                {getBathroomOptionLabel(option)}
                               </button>
                             ))}
                           </div>

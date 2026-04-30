@@ -180,3 +180,4 @@
 - Compressed listing search area into a Realtor-style horizontal toolbar with a long search pill and compact filter chips to reduce vertical whitespace.
 - Updated listing page search placeholder to `search location, property types`.
 - Changed listing Price, Rooms, and Home type toolbar chips to open their own smooth animated dropdown panels instead of always opening the full filter modal.
+- Changed listing bedroom and bathroom quick controls into one Room toolbar button with a shared smooth dropdown for bed and bath choices.
