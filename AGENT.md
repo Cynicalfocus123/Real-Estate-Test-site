@@ -210,3 +210,4 @@
 - Rebuilt the home-page search panel to match the listing-page toolbar style, removed the `Lease to Own` and `Senior Nursing Home` tabs, and passed the home search query plus quick filters into the listing page URL.
 - Tightened the home-page search shell by reducing its side padding and max width so the search tabs and toolbar sit closer together horizontally.
 - Removed the standalone front-page search block, moved the home search into the center of the hero video area, changed the top mode controls to text-only `Buy`, `Rent`, `Sell`, and `Senior Home`, and moved the search label plus icon to the right side of the hero search field while keeping the sanitized listing-style query flow.
+- Brightened the hero video search bar to a solid white treatment with a stronger outline and shadow so it stands out clearly against the video background.

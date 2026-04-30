@@ -397,7 +397,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
         </div>
 
         <div ref={searchBoxRef} className="relative mt-8 w-full max-w-3xl">
-          <label className="flex w-full items-center gap-4 rounded-full border border-white/35 bg-white/96 px-6 py-3 shadow-[0_20px_60px_rgba(15,23,42,0.22)] backdrop-blur-sm transition-shadow duration-300 focus-within:shadow-[0_26px_70px_rgba(15,23,42,0.28)] sm:px-7 sm:py-4">
+          <label className="flex w-full items-center gap-4 rounded-full border border-white bg-white px-6 py-3 shadow-[0_24px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/85 transition-shadow duration-300 focus-within:shadow-[0_28px_78px_rgba(0,0,0,0.34)] sm:px-7 sm:py-4">
             <input
               value={query}
               onChange={(event) => handleQueryChange(event.target.value)}
