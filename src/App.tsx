@@ -293,9 +293,9 @@ export function App() {
         <section className="relative min-h-[720px] overflow-hidden bg-neutral-900">
           <iframe
             className="pointer-events-none absolute left-1/2 top-1/2 h-[145%] w-[360%] -translate-x-1/2 -translate-y-1/2 sm:w-[240%] md:w-[180%] lg:h-[145%] lg:w-[115%]"
-            src="https://www.youtube.com/embed/DjHBEF6derw?autoplay=1&mute=1&loop=1&playlist=DjHBEF6derw&controls=0&rel=0&modestbranding=1&playsinline=1"
-            title="Mstar Property Emperor Grand View | Newest Krabi Thailand Luxury Township"
-            allow="autoplay; encrypted-media; picture-in-picture"
+            src="https://www.youtube.com/embed/83po-NExIPU?autoplay=1&mute=1&loop=1&playlist=83po-NExIPU&controls=0&rel=0&modestbranding=1&playsinline=1"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allowFullScreen

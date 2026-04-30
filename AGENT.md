@@ -215,3 +215,4 @@
 - Changed the hero video mode labels so clicking `Buy` goes straight to the sale listings page, clicking `Rent` goes straight to the rent listings page, and clicking `Senior Home` goes straight to the senior home page while carrying the current search query in the URL when present.
 - Added a top-level `Buy` item before `For Sale` in the header menu and added a `Buy` button beside `Sale` above the listing-page search bar, with both `Buy` and `Sale` targeting the sale listings view.
 - Split `Buy` and `For Sale` into separate sale-page URLs so only the active page highlights in red: `Buy` now uses `/buy`, `For Sale` stays on `/properties-for-sale`, and the listing-page top toggle highlights by current page instead of by shared sale mode.
+- Replaced the home-page hero video with the supplied YouTube embed `83po-NExIPU` while keeping the existing full-bleed slider sizing and overlay layout unchanged.
