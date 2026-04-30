@@ -191,9 +191,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5f2] text-brand-dark">
-      <div className="hidden md:block">
-        <Header />
-      </div>
+      <Header logoClassName="h-20 w-auto object-contain sm:h-24 md:h-20" />
       <main className="overflow-x-hidden pb-16 md:pb-20">
         <section className="mx-auto w-full max-w-7xl overflow-hidden px-4 pb-8 pt-0 md:pt-8 lg:px-8">
           <div className="md:hidden -mx-4 mb-5">

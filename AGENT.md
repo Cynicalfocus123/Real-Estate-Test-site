@@ -237,3 +237,4 @@
 - Tightened the mobile property detail sections so details, bio, amenities, FAQ, and similar properties stay within the phone width, removed the lower hero side arrows, and made similar properties finger-scrollable with visible left/right controls.
 - Removed the mobile property gallery's top-right agent profile/avatar circle while keeping the back, save, share, and more action controls visible.
 - Converted the property detail facts and amenities from boxed mobile cards into modern text/icon rows, moved the mobile agent contact buttons directly below the property details, removed the duplicate mini fact boxes under the price, and deleted the sticky bottom contact/request-call bar.
+- Restored a visible header above every property detail page on mobile, using the shared site navigation with a larger logo and hamburger menu before the gallery.

@@ -56,7 +56,11 @@ const navItems: NavItem[] = [
 
 const languageOptions = ["EN", "RU", "ZH", "TH", "AR", "FA"];
 
-export function Header() {
+type HeaderProps = {
+  logoClassName?: string;
+};
+
+export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }: HeaderProps = {}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const homeUrl = import.meta.env.BASE_URL;
@@ -84,7 +88,7 @@ export function Header() {
           <img
             src={assetPath("images/buy-home-for-less-logo.png")}
             alt="Buy Home For Less"
-            className="h-16 w-auto object-contain sm:h-20"
+            className={logoClassName}
           />
         </a>
 
