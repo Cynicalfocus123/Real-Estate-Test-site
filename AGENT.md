@@ -227,3 +227,4 @@
 - Changed the header `More` submenu label from `Abouts` to `About Us` and added a dedicated `About Us` page at `/about-us` using the supplied company profile copy.
 - Restyled the `About Us` page copy into a single flowing text section instead of separate boxed paragraphs.
 - Linked the footer `About Us` item to the real `/about-us` page instead of the old hash anchor.
+- Fixed the listing-page mobile sort control so the button aligns to the right edge, the label no longer gets clipped, and the dropdown opens from the correct mobile anchor width.

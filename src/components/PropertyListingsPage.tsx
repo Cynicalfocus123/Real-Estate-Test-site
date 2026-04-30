@@ -1400,23 +1400,23 @@ export function PropertyListingsPage({
                 {filteredListings.length} homes across {provinceCount} provinces
               </h2>
             </div>
-            <div ref={sortMenuRef} className="relative w-fit">
+            <div ref={sortMenuRef} className="relative ml-auto w-full max-w-[220px] self-end sm:ml-0 sm:w-fit sm:max-w-none sm:self-auto">
               <button
                 type="button"
                 onClick={() => setSortOpen((current) => !current)}
-                className="flex w-fit items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-4 py-3 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                className="flex w-full items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-4 py-3 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)] sm:w-fit"
                 aria-expanded={sortOpen}
                 aria-label="Recommended sort menu"
               >
-                <span className="inline-flex items-center gap-3">
-                  <ArrowUpDown className="h-4 w-4" />
-                  <span>{getCompactSortLabel(sortBy)}</span>
+                <span className="inline-flex min-w-0 items-center gap-3">
+                  <ArrowUpDown className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{getCompactSortLabel(sortBy)}</span>
                 </span>
-                <ChevronDown className={`h-4 w-4 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 shrink-0 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
               </button>
 
               <div
-                className={`absolute right-0 top-[calc(100%+10px)] z-20 min-w-[220px] overflow-hidden rounded-[28px] border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)] transition-all duration-300 ${
+                className={`absolute right-0 top-[calc(100%+10px)] z-20 w-full min-w-[220px] overflow-hidden rounded-[28px] border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)] transition-all duration-300 sm:w-auto ${
                   sortOpen
                     ? "pointer-events-auto translate-y-0 opacity-100"
                     : "pointer-events-none translate-y-2 opacity-0"
