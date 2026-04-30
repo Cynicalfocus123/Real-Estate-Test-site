@@ -604,27 +604,6 @@ export function PropertyListingsPage() {
                     Home type
                     {activeQuickFilter === "homeType" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   </button>
-                  <button
-                    type="button"
-                    onClick={openFilter}
-                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
-                  >
-                    New construction
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openFilter}
-                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
-                  >
-                    Min {formatPriceValue(minPrice, mode)}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openFilter}
-                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
-                  >
-                    Hide pending / contingent
-                  </button>
                 </div>
 
                 {mountedQuickFilter ? (
