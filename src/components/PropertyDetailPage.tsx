@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
+import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref } from "../utils/security";
 import { Footer } from "./Footer";
@@ -56,7 +57,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
           className="h-full w-full object-cover transition duration-500 hover:scale-105"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.05)_0%,rgba(15,23,42,0.32)_100%)]" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
+        <span className={`absolute left-4 top-4 rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] ${getPropertyBadgeClasses(listing.propertyTypeLabel)}`}>
           {listing.propertyTypeLabel}
         </span>
       </div>
@@ -222,8 +223,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   </button>
                 </div>
               </div>
-              <div className="absolute left-4 bottom-20 rounded-2xl bg-[rgba(17,24,39,0.72)] px-4 py-3 text-sm font-black text-white backdrop-blur">
-                {listing.propertyTypeLabel}
+              <div className="absolute left-4 top-20 z-10 flex max-w-[74%] flex-wrap gap-2">
+                <span className={`rounded-full px-4 py-2.5 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(`for ${listing.mode}`)}`}>
+                  For {listing.mode}
+                </span>
+                <span className={`rounded-full px-4 py-2.5 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.propertyTypeLabel)}`}>
+                  {listing.propertyTypeLabel}
+                </span>
+                {listing.propertyTypeLabel !== listing.statusLabel ? (
+                  <span className={`rounded-full px-4 py-2.5 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.statusLabel)}`}>
+                    {listing.statusLabel}
+                  </span>
+                ) : null}
               </div>
               <div className="absolute inset-x-4 bottom-6 flex items-center gap-2">
                 {previewImages.map((_, index) => (
@@ -274,12 +285,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
           <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
             <div>
               <div className="hidden flex-wrap gap-3 md:flex">
-                <span className="rounded-full bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-brand-dark shadow-sm">
+                <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(`for ${listing.mode}`)}`}>
                   For {listing.mode}
                 </span>
-                <span className="rounded-full bg-brand-red px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white shadow-sm">
+                <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.propertyTypeLabel)}`}>
                   {listing.propertyTypeLabel}
                 </span>
+                {listing.propertyTypeLabel !== listing.statusLabel ? (
+                  <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.statusLabel)}`}>
+                    {listing.statusLabel}
+                  </span>
+                ) : null}
               </div>
 
               <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -310,8 +326,15 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       alt={`${listing.title} main photo`}
                       className="h-full w-full object-cover"
                     />
-                    <div className="absolute left-4 top-4 rounded-full bg-white/96 px-4 py-2 text-sm font-black text-brand-dark shadow-sm">
-                      {listing.statusLabel}
+                    <div className="absolute left-4 top-4 z-10 flex max-w-[76%] flex-wrap gap-2">
+                      <span className={`rounded-full px-4 py-2 text-sm font-black uppercase tracking-[0.18em] ${getPropertyBadgeClasses(listing.propertyTypeLabel)}`}>
+                        {listing.propertyTypeLabel}
+                      </span>
+                      {listing.propertyTypeLabel !== listing.statusLabel ? (
+                        <span className={`rounded-full px-4 py-2 text-sm font-black uppercase tracking-[0.18em] ${getPropertyBadgeClasses(listing.statusLabel)}`}>
+                          {listing.statusLabel}
+                        </span>
+                      ) : null}
                     </div>
                     <button
                       type="button"

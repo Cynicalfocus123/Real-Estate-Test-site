@@ -11,6 +11,7 @@ import {
 import { useMemo, useState } from "react";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
+import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref } from "../utils/security";
 
@@ -68,11 +69,11 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
           </div>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.12)_40%,rgba(0,0,0,0.55)_100%)]" />
           <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
-            <span className="rounded-full bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
+            <span className={`rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] ${getPropertyBadgeClasses(listing.statusLabel)}`}>
               {listing.statusLabel}
             </span>
             {listing.specialCategory ? (
-              <span className="rounded-full bg-brand-red px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white">
+              <span className={`rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] ${getPropertyBadgeClasses(listing.specialCategory)}`}>
                 {listing.specialCategory}
               </span>
             ) : null}
