@@ -4,6 +4,7 @@ import {
   BedDouble,
   CalendarRange,
   ChevronDown,
+  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Heart,
@@ -56,6 +57,11 @@ const saleCategoryOptions: ListingSpecialCategory[] = [
   "Fixer Upper",
   "Urgent Sale",
 ];
+const filterModeOptions = [
+  { label: "Buy", value: "sale" },
+  { label: "Rent", value: "rent" },
+  { label: "Option To Buy", value: "sale" },
+] as const;
 const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
 const listingSlideImages = [
   "images/province-banners/bangkok.png",
@@ -379,6 +385,10 @@ export function PropertyListingsPage() {
     setSortOpen(false);
   }
 
+  function applyFilters() {
+    setFilterOpen(false);
+  }
+
   function handleMinPriceChange(value: number) {
     setMinPrice(Math.min(value, maxPrice - priceStep));
   }
@@ -542,82 +552,187 @@ export function PropertyListingsPage() {
                 }`}
               >
                 <div className="min-h-0">
-              <div className="flex flex-wrap items-start gap-4 border-t border-[#e3ddd8] pt-4">
-                <div className="min-w-[220px] flex-1">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Home Type</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {homeTypeOptions.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => setSelectedHomeType(option)}
-                        className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
-                          selectedHomeType === option
-                            ? "bg-brand-red text-white shadow-[0_12px_24px_rgba(163,28,36,0.2)]"
-                            : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="min-w-[220px] flex-1">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Amenities</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {amenityOptions.map((amenity) => (
-                      <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => toggleAmenity(amenity)}
-                        className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
-                          selectedAmenities.includes(amenity)
-                            ? "bg-brand-dark text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
-                            : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
-                        }`}
-                      >
-                        {amenity}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {mode === "sale" ? (
-                  <div className="min-w-[240px] flex-1">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">
-                      Special Listings
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {saleCategoryOptions.map((category) => (
+                  <div className="overflow-hidden rounded-[28px] border border-[#e3ddd8] bg-white shadow-[0_20px_46px_rgba(15,23,42,0.08)]">
+                    <div className="grid grid-cols-3 border-b border-[#d9d9d9] text-center text-sm font-black text-[#9b9b9b] sm:text-base">
+                      {filterModeOptions.map((option) => (
                         <button
-                          key={category}
+                          key={option.label}
                           type="button"
-                          onClick={() => toggleCategory(category)}
-                          className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
-                            selectedCategories.includes(category)
-                              ? "bg-[#1f2937] text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
-                              : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
+                          onClick={() => handleModeChange(option.value)}
+                          className={`relative px-3 py-4 transition-colors duration-300 ${
+                            mode === option.value && option.label !== "Option To Buy"
+                              ? "text-brand-dark"
+                              : "hover:text-brand-dark"
                           }`}
                         >
-                          {category}
+                          {option.label}
+                          {mode === option.value && option.label !== "Option To Buy" ? (
+                            <span className="absolute inset-x-0 bottom-[-1px] h-0.5 bg-brand-red" />
+                          ) : null}
                         </button>
                       ))}
                     </div>
-                  </div>
-                ) : null}
 
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={resetFilters}
-                    className="inline-flex items-center gap-2 rounded-full border border-brand-line bg-white px-5 py-2.5 text-sm font-black uppercase tracking-[0.18em] text-brand-dark transition-all duration-300 hover:border-brand-red hover:text-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
-                  >
-                    <Undo2 className="h-4 w-4" />
-                    Reset
-                  </button>
-                </div>
-              </div>
+                    <div className="max-h-[620px] overflow-y-auto">
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Home Type</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 grid gap-1">
+                          {homeTypeOptions.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => setSelectedHomeType(option)}
+                              className="flex items-center gap-4 border-b border-[#eeeeee] px-1 py-3 text-left text-base font-semibold text-brand-dark last:border-b-0"
+                            >
+                              <span
+                                className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+                                  selectedHomeType === option ? "border-brand-red" : "border-brand-dark"
+                                }`}
+                              >
+                                {selectedHomeType === option ? <span className="h-3 w-3 rounded-full bg-brand-red" /> : null}
+                              </span>
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-5">
+                        <h3 className="text-base font-black text-brand-dark">New Projects Only</h3>
+                        <button
+                          type="button"
+                          className="relative h-7 w-16 rounded-full border border-brand-dark bg-white text-xs font-semibold text-brand-dark"
+                          aria-label="New projects only"
+                        >
+                          <span className="absolute left-0 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border border-brand-dark bg-white shadow-sm" />
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2">Off</span>
+                        </button>
+                      </section>
+
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Price</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Minimum</span>
+                            <div className="mt-2 flex overflow-hidden rounded-lg border border-[#d0d0d0] bg-white">
+                              <span className="flex w-11 items-center justify-center border-r border-[#d0d0d0] bg-[#f4f4f4] font-bold">
+                                B
+                              </span>
+                              <div className="flex-1 px-4 py-3 text-base font-semibold text-[#9b9b9b]">
+                                {formatPriceValue(minPrice, mode)}
+                              </div>
+                            </div>
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Maximum</span>
+                            <div className="mt-2 flex overflow-hidden rounded-lg border border-[#d0d0d0] bg-white">
+                              <span className="flex w-11 items-center justify-center border-r border-[#d0d0d0] bg-[#f4f4f4] font-bold">
+                                B
+                              </span>
+                              <div className="flex-1 px-4 py-3 text-base font-semibold text-[#9b9b9b]">
+                                {formatPriceValue(maxPrice, mode)}
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </section>
+
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Bedroom</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          {bedroomOptions.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => setSelectedBedroom(option)}
+                              className={`min-w-[76px] rounded-xl border px-5 py-3 text-base font-semibold transition ${
+                                selectedBedroom === option
+                                  ? "border-brand-red bg-brand-red text-white"
+                                  : "border-[#b7b7b7] bg-white text-brand-dark"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Amenities</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          {amenityOptions.map((amenity) => (
+                            <button
+                              key={amenity}
+                              type="button"
+                              onClick={() => toggleAmenity(amenity)}
+                              className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+                                selectedAmenities.includes(amenity)
+                                  ? "bg-brand-dark text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
+                                  : "border border-brand-line bg-white text-brand-dark hover:border-brand-red"
+                              }`}
+                            >
+                              {amenity}
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      {mode === "sale" ? (
+                        <section className="px-5 py-5">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-base font-black text-brand-dark">Special Listings</h3>
+                            <ChevronUp className="h-5 w-5 text-brand-dark" />
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-3">
+                            {saleCategoryOptions.map((category) => (
+                              <button
+                                key={category}
+                                type="button"
+                                onClick={() => toggleCategory(category)}
+                                className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+                                  selectedCategories.includes(category)
+                                    ? "bg-[#1f2937] text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
+                                    : "border border-brand-line bg-white text-brand-dark hover:border-brand-red"
+                                }`}
+                              >
+                                {category}
+                              </button>
+                            ))}
+                          </div>
+                        </section>
+                      ) : null}
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-[#eeeeee] bg-white px-5 py-4">
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="inline-flex items-center gap-2 text-sm font-black text-brand-red"
+                      >
+                        <Undo2 className="h-4 w-4" />
+                        Clear All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyFilters}
+                        className="rounded-xl bg-brand-red px-7 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(163,28,36,0.24)] transition hover:bg-brand-dark"
+                      >
+                        Apply Filter
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

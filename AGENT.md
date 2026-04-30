@@ -173,3 +173,4 @@
 - Changed property listings to a single vertical list with smaller DDProperty-inspired compact rows and reduced built-year styling for mobile-friendly scanning.
 - Increased listing image area while narrowing the overall product list width for a closer DDProperty-style row proportion.
 - Replaced min/max price inputs on the listing page with a price range slider, histogram-style price graph, and minimum/maximum value boxes underneath.
+- Restyled listing filter dropdown into a modern panel with buy/rent tabs, radio-style home type rows, price boxes, bedroom pills, amenities, special listings, and sticky Clear All/Apply Filter actions.
