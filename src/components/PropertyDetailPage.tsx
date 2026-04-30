@@ -48,7 +48,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
   return (
     <a
       href={safeHref(propertyDetailHref(listing.id))}
-      className="flex w-[285px] shrink-0 flex-col overflow-hidden rounded-[28px] border border-[#e8e1db] bg-white shadow-[0_16px_35px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(15,23,42,0.12)]"
+      className="flex w-[78vw] max-w-[285px] shrink-0 snap-start flex-col overflow-hidden rounded-[22px] border border-[#e8e1db] bg-white shadow-[0_16px_35px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(15,23,42,0.12)] md:w-[285px] md:rounded-[28px]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
@@ -61,13 +61,13 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
           {listing.propertyTypeLabel}
         </span>
       </div>
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex min-w-0 flex-1 flex-col p-4 md:p-5">
         <p className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gray">
           <MapPin className="h-4 w-4 text-brand-red" />
-          {listing.city}, {listing.province}
+          <span className="min-w-0 break-words">{listing.city}, {listing.province}</span>
         </p>
-        <h3 className="mt-3 line-clamp-2 text-lg font-black leading-snug text-brand-dark">{listing.title}</h3>
-        <p className="mt-3 text-xl font-black text-brand-red">{listing.priceLabel}</p>
+        <h3 className="mt-3 line-clamp-2 break-words text-base font-black leading-snug text-brand-dark md:text-lg">{listing.title}</h3>
+        <p className="mt-3 break-words text-lg font-black text-brand-red md:text-xl">{listing.priceLabel}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-brand-dark">
           <span className="rounded-full bg-[#f7f3ef] px-3 py-2">{getBedroomLabel(listing.beds)}</span>
           <span className="rounded-full bg-[#f7f3ef] px-3 py-2">{getBathroomLabel(listing.baths)}</span>
@@ -194,8 +194,8 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       <div className="hidden md:block">
         <Header />
       </div>
-      <main className="pb-28 md:pb-20">
-        <section className="mx-auto max-w-7xl px-4 pb-8 pt-0 md:pt-8 lg:px-8">
+      <main className="overflow-x-hidden pb-28 md:pb-20">
+        <section className="mx-auto w-full max-w-7xl overflow-hidden px-4 pb-8 pt-0 md:pt-8 lg:px-8">
           <div className="md:hidden -mx-4 mb-5">
             <div className="relative aspect-[4/5] overflow-hidden bg-brand-dark">
               <img
@@ -282,14 +282,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 <ChevronRight className="h-5 w-5" />
               </button>
               <div className="absolute inset-x-4 bottom-6 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={showPreviousPreview}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-[rgba(17,24,39,0.58)] text-white backdrop-blur"
-                  aria-label={`Show previous mobile image for ${listing.title}`}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
                 {previewImages.map((_, index) => (
                   <button
                     key={`${listing.id}-mobile-progress-${index}`}
@@ -302,14 +294,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     aria-pressed={activePreviewIndex === index}
                   />
                 ))}
-                <button
-                  type="button"
-                  onClick={showNextPreview}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-[rgba(17,24,39,0.58)] text-white backdrop-blur"
-                  aria-label={`Show next mobile image for ${listing.title}`}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
               </div>
             </div>
             <div className="border-b border-[#e6ddd7] bg-white px-4 py-4">
@@ -343,8 +327,8 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
             Back to listings
           </a>
 
-          <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div>
+          <div className="mt-6 grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0">
               <div className="hidden">
                 <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(`for ${listing.mode}`)}`}>
                   For {listing.mode}
@@ -519,28 +503,28 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </button>
               </div>
 
-              <div className="mt-5 rounded-[28px] border border-[#e7dcd5] bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
+              <div className="mt-5 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e7dcd5] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-[22px] bg-[#f5f4f8] px-4 py-4">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Type</p>
-                    <p className="mt-2 text-lg font-black leading-tight text-brand-dark">{listing.homeType}</p>
+                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.homeType}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] px-4 py-4">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Built</p>
-                    <p className="mt-2 text-lg font-black leading-tight text-brand-dark">{listing.builtYear}</p>
+                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.builtYear}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] px-4 py-4">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Garage</p>
-                    <p className="mt-2 text-lg font-black leading-tight text-brand-dark">{listing.garageSpaces} spaces</p>
+                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.garageSpaces} spaces</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] px-4 py-4">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Floor</p>
-                    <p className="mt-2 text-lg font-black leading-tight text-brand-dark">{listing.floorCount || "N/A"}</p>
+                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.floorCount || "N/A"}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-[28px] border border-[#e7dcd5] bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
+              <div className="mt-5 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e7dcd5] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gray">BuyHomeForLess Agent</p>
                 <div className="mt-3 flex items-start gap-4">
                   <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-red text-lg font-black text-white">
@@ -582,57 +566,57 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 ) : null}
               </div>
 
-              <div className="mt-6 rounded-[28px] border border-[#e8ded7] bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px] md:p-6">
-                <h2 className="text-[1.9rem] font-black leading-tight text-brand-dark md:text-2xl">Property Details</h2>
+              <div className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px] md:p-6">
+                <h2 className="break-words text-2xl font-black leading-tight text-brand-dark md:text-2xl">Property Details</h2>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 md:mt-6 md:gap-4">
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <BedDouble className="h-4 w-4 text-brand-red" />
                       Bedrooms
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{getBedroomLabel(listing.beds)}</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{getBedroomLabel(listing.beds)}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <Bath className="h-4 w-4 text-brand-red" />
                       Bathrooms
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{getBathroomLabel(listing.baths)}</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{getBathroomLabel(listing.baths)}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <Building2 className="h-4 w-4 text-brand-red" />
                       Floors
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{listing.floorCount || "N/A"}</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.floorCount || "N/A"}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <Warehouse className="h-4 w-4 text-brand-red" />
                       Garage
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{listing.garageSpaces || "N/A"}</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.garageSpaces || "N/A"}</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <Square className="h-4 w-4 text-brand-red" />
                       Living Area
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{listing.areaSqm} sqm</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.areaSqm} sqm</p>
                   </div>
-                  <div className="rounded-[22px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
+                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
                     <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
                       <Building2 className="h-4 w-4 text-brand-red" />
                       Property Type
                     </p>
-                    <p className="mt-3 text-xl font-black text-brand-dark md:text-2xl">{listing.propertyTypeLabel}</p>
+                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.propertyTypeLabel}</p>
                   </div>
                 </div>
 
                 <div className="mt-8 grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
                   <div>
-                    <h3 className="text-[2rem] font-black leading-tight text-brand-dark md:text-lg">What's Special</h3>
-                    <p className="mt-4 text-[1.05rem] leading-8 text-brand-gray md:text-base">{listing.description}</p>
+                    <h3 className="break-words text-2xl font-black leading-tight text-brand-dark md:text-lg">What's Special</h3>
+                    <p className="mt-4 break-words text-base leading-7 text-brand-gray md:text-base">{listing.description}</p>
                   </div>
                   <div>
                     <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>
@@ -650,25 +634,25 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
               </div>
 
-              <section className="mt-8 rounded-[32px] border border-[#e8ded7] bg-white p-6 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8">
-                <h2 className="text-2xl font-black text-brand-dark">Amenities</h2>
+              <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
+                <h2 className="break-words text-2xl font-black text-brand-dark">Amenities</h2>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {listing.amenities.map((amenity) => (
                     <div
                       key={`${listing.id}-amenity-${amenity}`}
-                      className="rounded-[22px] border border-[#ece2da] bg-[#fffaf6] px-5 py-4 text-sm font-bold text-brand-dark"
+                      className="min-w-0 rounded-[18px] border border-[#ece2da] bg-[#fffaf6] px-4 py-4 text-sm font-bold text-brand-dark md:rounded-[22px] md:px-5"
                     >
-                      {amenity}
+                      <span className="break-words">{amenity}</span>
                     </div>
                   ))}
                 </div>
               </section>
 
-              <section className="mt-8 rounded-[32px] border border-[#e8ded7] bg-white p-6 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8">
+              <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <h2 className="text-2xl font-black text-brand-dark">FAQ</h2>
-                    <p className="mt-2 text-sm leading-6 text-brand-gray">
+                    <h2 className="break-words text-2xl font-black text-brand-dark">FAQ</h2>
+                    <p className="mt-2 break-words text-sm leading-6 text-brand-gray">
                       This section already reads from structured property FAQ data so backend-written answers can plug in per listing later.
                     </p>
                   </div>
@@ -682,13 +666,13 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                           <button
                             type="button"
                             onClick={() => setOpenFaqIndex(open ? -1 : index)}
-                            className="flex w-full items-center justify-between gap-4 bg-white px-5 py-4 text-left"
+                            className="flex w-full min-w-0 items-start justify-between gap-3 bg-white px-4 py-4 text-left md:px-5"
                           >
-                            <span className="text-base font-black text-brand-dark">{faq.question}</span>
+                            <span className="min-w-0 break-words text-sm font-black leading-6 text-brand-dark md:text-base">{faq.question}</span>
                             <ChevronRight className={`h-5 w-5 shrink-0 text-brand-red transition ${open ? "rotate-90" : ""}`} />
                           </button>
                           {open ? (
-                            <div className="border-t border-[#eee4dd] bg-[#fffaf6] px-5 py-4 text-sm leading-7 text-brand-gray">
+                            <div className="break-words border-t border-[#eee4dd] bg-[#fffaf6] px-4 py-4 text-sm leading-7 text-brand-gray md:px-5">
                               {faq.answer}
                             </div>
                           ) : null}
@@ -703,19 +687,19 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
               </section>
 
-              <section className="mt-8 rounded-[32px] border border-[#e8ded7] bg-white p-6 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8">
+              <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
                 <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-black text-brand-dark">Similar Properties</h2>
-                    <p className="mt-2 text-sm leading-6 text-brand-gray">
+                  <div className="min-w-0">
+                    <h2 className="break-words text-2xl font-black text-brand-dark">Similar Properties</h2>
+                    <p className="mt-2 break-words text-sm leading-6 text-brand-gray">
                       More homes matched from the same province first, with fallback listings from the same sale or rent channel.
                     </p>
                   </div>
-                  <div className="hidden items-center gap-3 md:flex">
+                  <div className="flex shrink-0 items-center gap-2 md:gap-3">
                     <button
                       type="button"
                       onClick={() => scrollSimilar("left")}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dfd5ce] bg-white text-brand-dark transition hover:border-brand-red"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dfd5ce] bg-white text-brand-dark transition hover:border-brand-red md:h-11 md:w-11"
                       aria-label="Scroll similar properties left"
                     >
                       <ChevronLeft className="h-5 w-5" />
@@ -723,7 +707,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <button
                       type="button"
                       onClick={() => scrollSimilar("right")}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#dfd5ce] bg-white text-brand-dark transition hover:border-brand-red"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#dfd5ce] bg-white text-brand-dark transition hover:border-brand-red md:h-11 md:w-11"
                       aria-label="Scroll similar properties right"
                     >
                       <ChevronRight className="h-5 w-5" />
@@ -732,7 +716,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
                 <div
                   ref={similarScrollRef}
-                  className="mt-6 flex gap-5 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  className="-mx-4 mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden md:mx-0 md:gap-5 md:px-0"
                 >
                   {similarProperties.map((candidate) => (
                     <SimilarPropertyCard key={candidate.id} listing={candidate} />
