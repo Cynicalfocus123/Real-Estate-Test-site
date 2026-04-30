@@ -79,6 +79,8 @@ export function App() {
     currentHash === "#/cost-of-living-thailand";
   const isPropertyListingsSalePage =
     currentPath.endsWith("/properties-for-sale") || currentHash === "#/properties-for-sale";
+  const isPropertyListingsBuyPage =
+    currentPath.endsWith("/buy") || currentHash === "#/buy";
   const isPropertyListingsRentPage =
     currentPath.endsWith("/properties-for-rent") || currentHash === "#/properties-for-rent";
   const isRetirementVisaPage =
@@ -192,10 +194,11 @@ export function App() {
     return <CostOfLivingThailandPage />;
   }
 
-  if (isPropertyListingsSalePage) {
+  if (isPropertyListingsSalePage || isPropertyListingsBuyPage) {
     return (
       <PropertyListingsPage
         initialMode="sale"
+        pageVariant={isPropertyListingsBuyPage ? "buy" : "sale"}
         initialProvince={listingProvince}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}
@@ -211,6 +214,7 @@ export function App() {
     return (
       <PropertyListingsPage
         initialMode="rent"
+        pageVariant="rent"
         initialProvince={listingProvince}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}

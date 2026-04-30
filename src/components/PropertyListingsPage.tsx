@@ -37,9 +37,19 @@ type PhotonResponse = {
 
 const modeOptions: ListingMode[] = ["sale", "rent"];
 const listingToolbarModeOptions = [
-  { label: "Buy", value: "sale" as ListingMode },
-  { label: "Sale", value: "sale" as ListingMode },
-  { label: "Rent", value: "rent" as ListingMode },
+  { label: "Buy", value: "sale" as ListingMode, href: `${import.meta.env.BASE_URL}buy`, pageVariant: "buy" as const },
+  {
+    label: "Sale",
+    value: "sale" as ListingMode,
+    href: `${import.meta.env.BASE_URL}properties-for-sale`,
+    pageVariant: "sale" as const,
+  },
+  {
+    label: "Rent",
+    value: "rent" as ListingMode,
+    href: `${import.meta.env.BASE_URL}properties-for-rent`,
+    pageVariant: "rent" as const,
+  },
 ] as const;
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
 const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
@@ -191,6 +201,7 @@ function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
 
 export function PropertyListingsPage({
   initialMode = "sale",
+  pageVariant = "sale",
   initialProvince,
   initialQuery = "",
   initialHomeType,
@@ -200,6 +211,7 @@ export function PropertyListingsPage({
   initialMaxPrice,
 }: {
   initialMode?: ListingMode;
+  pageVariant?: "buy" | "sale" | "rent";
   initialProvince?: string;
   initialQuery?: string;
   initialHomeType?: string;
@@ -266,6 +278,7 @@ export function PropertyListingsPage({
   const [filterMounted, setFilterMounted] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilter | null>(null);
   const [mountedQuickFilter, setMountedQuickFilter] = useState<QuickFilter | null>(null);
+  const currentPageVariant = pageVariant;
   const searchBoxRef = useRef<HTMLDivElement | null>(null);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const quickFilterRef = useRef<HTMLDivElement | null>(null);
@@ -701,18 +714,17 @@ export function PropertyListingsPage({
             <div className="mx-auto mt-5 max-w-5xl">
               <div className="flex flex-wrap justify-center gap-2 pb-3">
                 {listingToolbarModeOptions.map((option) => (
-                  <button
+                  <a
                     key={option.label}
-                    type="button"
-                    onClick={() => handleModeChange(option.value)}
+                    href={option.href}
                     className={`rounded-full px-5 py-2.5 text-sm font-black uppercase tracking-[0.14em] transition-all duration-300 ${
-                      mode === option.value
+                      currentPageVariant === option.pageVariant
                         ? "bg-brand-red text-white shadow-[0_14px_28px_rgba(163,28,36,0.22)]"
                         : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
                     }`}
                   >
                     {option.label}
-                  </button>
+                  </a>
                 ))}
               </div>
 

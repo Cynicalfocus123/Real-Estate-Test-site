@@ -352,7 +352,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
     if (normalizedQuery) params.set("q", sanitizedQuery);
 
     const path = `${import.meta.env.BASE_URL}${
-      nextMode === "rent" ? "properties-for-rent" : "properties-for-sale"
+      nextMode === "rent" ? "properties-for-rent" : "buy"
     }`;
     const queryString = params.toString();
     return queryString ? `${path}?${queryString}` : path;

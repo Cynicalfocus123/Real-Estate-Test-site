@@ -10,8 +10,8 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "Buy", href: `${import.meta.env.BASE_URL}properties-for-sale` },
+  { label: "Home", href: import.meta.env.BASE_URL },
+  { label: "Buy", href: `${import.meta.env.BASE_URL}buy` },
   { label: "For Sale", href: `${import.meta.env.BASE_URL}properties-for-sale` },
   { label: "For Rent", href: `${import.meta.env.BASE_URL}properties-for-rent` },
   {
@@ -60,9 +60,21 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const homeUrl = import.meta.env.BASE_URL;
+  const currentPath = window.location.pathname;
 
   function toggleSubmenu(label: string) {
     setOpenSubmenu((current) => (current === label ? null : label));
+  }
+
+  function isActiveLink(href: string) {
+    const normalizedHref = new URL(href, window.location.origin).pathname;
+    const normalizedHome = new URL(homeUrl, window.location.origin).pathname;
+
+    if (normalizedHref === normalizedHome) {
+      return currentPath === normalizedHome;
+    }
+
+    return currentPath === normalizedHref;
   }
 
   return (
@@ -90,7 +102,12 @@ export function Header() {
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               ) : (
-                <a href={safeHref(item.href)} className="inline-flex items-center gap-1 py-3 hover:text-brand-red">
+                <a
+                  href={safeHref(item.href)}
+                  className={`inline-flex items-center gap-1 py-3 hover:text-brand-red ${
+                    isActiveLink(item.href) ? "text-brand-red" : ""
+                  }`}
+                >
                   {item.label}
                 </a>
               )}
@@ -156,7 +173,10 @@ export function Header() {
                     <ChevronDown className="h-4 w-4" />
                   </button>
                 ) : (
-                  <a href={safeHref(item.href)} className="block py-2 hover:text-brand-red">
+                  <a
+                    href={safeHref(item.href)}
+                    className={`block py-2 hover:text-brand-red ${isActiveLink(item.href) ? "text-brand-red" : ""}`}
+                  >
                     {item.label}
                   </a>
                 )}
