@@ -4,9 +4,11 @@ import { assetPath } from "../utils/assets";
 import { safeHref } from "../utils/security";
 
 function LocationTile({ location, large = false }: { location: TopLocation; large?: boolean }) {
+  const listingHref = `${import.meta.env.BASE_URL}properties-for-sale?province=${encodeURIComponent(location.province)}`;
+
   return (
     <a
-      href={safeHref(`#location-${location.id}`)}
+      href={safeHref(listingHref)}
       className={`group relative min-h-[210px] overflow-hidden bg-neutral-500 ${
         large ? "lg:min-h-[452px]" : "lg:min-h-[210px]"
       }`}

@@ -199,3 +199,4 @@
 - Added large clear `X` actions beside the listing-page `Price`, `Room`, and `Home type` quick-filter buttons whenever those filters are active; clicking each `X` resets that specific filter and removes its selected state.
 - Refined the listing-page quick-filter clear controls so each active `X` now sits inside its own `Price`, `Room`, or `Home type` chip instead of appearing outside the button box.
 - Added two new listing-page quick-filter boxes directly under the search bar: `Cities`, populated from the current listing dataset, and `Province`, populated from the Thailand province list; both apply their selection only after the user clicks `Done`.
+- Connected the home-page `Top Locations` banners to province-filtered listing URLs so clicking a location tile opens the product listing page with that banner's mapped province already selected.

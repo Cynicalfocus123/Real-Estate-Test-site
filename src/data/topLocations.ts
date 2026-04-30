@@ -1,6 +1,7 @@
 export type TopLocation = {
   id: string;
   name: string;
+  province: string;
   listingCount: number;
   size: "large" | "small";
   tone: string;
@@ -11,6 +12,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "phuket",
     name: "Phuket",
+    province: "Phuket",
     listingCount: 0,
     size: "large",
     tone: "from-[#92806a] via-[#505437] to-[#1d2118]",
@@ -19,6 +21,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "chiang-mai",
     name: "Chiang Mai",
+    province: "Chiang Mai",
     listingCount: 0,
     size: "small",
     tone: "from-[#6e6a58] via-[#4a4f48] to-[#161814]",
@@ -27,6 +30,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "pattaya-chonburi",
     name: "Pattaya / Chonburi",
+    province: "Chonburi",
     listingCount: 0,
     size: "small",
     tone: "from-[#547286] via-[#30525e] to-[#171c1c]",
@@ -35,6 +39,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "bangkok",
     name: "Bangkok",
+    province: "Bangkok",
     listingCount: 0,
     size: "small",
     tone: "from-[#77614d] via-[#473f3a] to-[#171411]",
@@ -43,6 +48,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "kanchanaburi",
     name: "Kanchanaburi",
+    province: "Kanchanaburi",
     listingCount: 1,
     size: "small",
     tone: "from-[#61795c] via-[#374f43] to-[#181d16]",
@@ -51,6 +57,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "chiang-rai",
     name: "Chiang Rai",
+    province: "Chiang Rai",
     listingCount: 0,
     size: "small",
     tone: "from-[#8d9aa1] via-[#59656a] to-[#202523]",
@@ -59,6 +66,7 @@ export const topLocations: TopLocation[] = [
   {
     id: "hua-hin-prachuap-khiri-khan",
     name: "Hua Hin / Prachuap Khiri Khan",
+    province: "Prachuap Khiri Khan",
     listingCount: 0,
     size: "small",
     tone: "from-[#4f526f] via-[#30364f] to-[#141720]",
@@ -70,6 +78,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "kao-yai",
     name: "Kao Yai",
+    province: "Nakhon Ratchasima",
     listingCount: 0,
     size: "small",
     tone: "from-[#626f5d] via-[#3b493c] to-[#171b16]",
@@ -78,6 +87,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "udon-thani",
     name: "Udon Thani",
+    province: "Udon Thani",
     listingCount: 0,
     size: "small",
     tone: "from-[#806866] via-[#50495f] to-[#181824]",
@@ -86,6 +96,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "nakhon-ratchasima",
     name: "Nakhon Ratchasima",
+    province: "Nakhon Ratchasima",
     listingCount: 0,
     size: "small",
     tone: "from-[#715f56] via-[#493c35] to-[#171310]",
@@ -94,6 +105,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "samut-sakhon",
     name: "Samut Sakhon",
+    province: "Samut Sakhon",
     listingCount: 0,
     size: "small",
     tone: "from-[#56534e] via-[#383632] to-[#151412]",
@@ -102,6 +114,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "samut-prakan",
     name: "Samut Prakan",
+    province: "Samut Prakan",
     listingCount: 0,
     size: "small",
     tone: "from-[#6c6f48] via-[#454a2f] to-[#171b10]",
@@ -110,6 +123,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "nan",
     name: "Nan",
+    province: "Nan",
     listingCount: 0,
     size: "small",
     tone: "from-[#62737a] via-[#40555c] to-[#161d20]",
@@ -118,6 +132,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "phetchaburi",
     name: "Phetchaburi",
+    province: "Phetchaburi",
     listingCount: 0,
     size: "small",
     tone: "from-[#856347] via-[#4a3326] to-[#17100c]",
@@ -126,6 +141,7 @@ export const moreLocations: TopLocation[] = [
   {
     id: "surat-thani",
     name: "Surat Thani",
+    province: "Surat Thani",
     listingCount: 0,
     size: "small",
     tone: "from-[#667a6b] via-[#3e5543] to-[#152018]",

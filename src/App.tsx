@@ -39,6 +39,7 @@ import { featuredProperties } from "./data/mockProperties";
 export function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const listingProvince = new URLSearchParams(window.location.search).get("province") ?? undefined;
   const isRealEstateLawsPage =
     currentPath.endsWith("/real-estate-laws-for-foreigner") ||
     currentHash === "#/real-estate-laws-for-foreigner";
@@ -183,11 +184,11 @@ export function App() {
   }
 
   if (isPropertyListingsSalePage) {
-    return <PropertyListingsPage initialMode="sale" />;
+    return <PropertyListingsPage initialMode="sale" initialProvince={listingProvince} />;
   }
 
   if (isPropertyListingsRentPage) {
-    return <PropertyListingsPage initialMode="rent" />;
+    return <PropertyListingsPage initialMode="rent" initialProvince={listingProvince} />;
   }
 
   if (isRetirementVisaPage) {

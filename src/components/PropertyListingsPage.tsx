@@ -311,7 +311,16 @@ function ListingCard({ listing, mode }: { listing: PropertyListing; mode: Listin
   );
 }
 
-export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: ListingMode }) {
+export function PropertyListingsPage({
+  initialMode = "sale",
+  initialProvince,
+}: {
+  initialMode?: ListingMode;
+  initialProvince?: string;
+}) {
+  const validatedInitialProvince = initialProvince && thaiProvinces.some((province) => province.name === initialProvince)
+    ? initialProvince
+    : "";
   const [mode, setMode] = useState<ListingMode>(initialMode);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState(0);
@@ -357,12 +366,12 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setQuery("");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
-    setSelectedProvince("");
+    setSelectedProvince(validatedInitialProvince);
     setSelectedCity("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
-    setDraftQuickProvince("");
+    setDraftQuickProvince(validatedInitialProvince);
     setDraftQuickCity("");
     setSelectedCategories([]);
     setSelectedAmenities([]);
@@ -377,7 +386,7 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setSortOpen(false);
     setFilterOpen(false);
     setActiveQuickFilter(null);
-  }, [initialMode]);
+  }, [initialMode, validatedInitialProvince]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
