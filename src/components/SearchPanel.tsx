@@ -340,11 +340,27 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
     setMaxPrice(nextValue);
   }
 
-  function buildListingUrl() {
-    if (isHeroVariant && heroMode === "senior") {
+  function buildHeroModeUrl(nextMode: HeroSearchMode) {
+    const normalizedQuery = normalizeSearchValue(sanitizedQuery);
+
+    if (nextMode === "senior") {
       const path = `${import.meta.env.BASE_URL}nursing-home-facility`;
-      const queryString = sanitizedQuery ? `?q=${encodeURIComponent(sanitizedQuery)}` : "";
-      return `${path}${queryString}`;
+      return normalizedQuery ? `${path}?q=${encodeURIComponent(sanitizedQuery)}` : path;
+    }
+
+    const params = new URLSearchParams();
+    if (normalizedQuery) params.set("q", sanitizedQuery);
+
+    const path = `${import.meta.env.BASE_URL}${
+      nextMode === "rent" ? "properties-for-rent" : "properties-for-sale"
+    }`;
+    const queryString = params.toString();
+    return queryString ? `${path}?${queryString}` : path;
+  }
+
+  function buildListingUrl() {
+    if (isHeroVariant) {
+      return buildHeroModeUrl(heroMode);
     }
 
     const params = new URLSearchParams();
@@ -381,10 +397,11 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
       <form onSubmit={handleSearchSubmit} className="mx-auto flex w-full max-w-4xl flex-col items-center">
         <div className="flex flex-wrap items-center justify-center gap-5 text-sm font-black uppercase tracking-[0.2em] text-white sm:text-base">
           {heroModeOptions.map((option) => (
-            <button
+            <a
               key={option.value}
-              type="button"
-              onClick={() => setHeroMode(option.value)}
+              href={buildHeroModeUrl(option.value)}
+              onMouseEnter={() => setHeroMode(option.value)}
+              onFocus={() => setHeroMode(option.value)}
               className={`border-b-2 pb-2 transition-colors duration-300 ${
                 heroMode === option.value
                   ? "border-white text-white"
@@ -392,7 +409,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
               }`}
             >
               {option.label}
-            </button>
+            </a>
           ))}
         </div>
 
