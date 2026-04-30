@@ -30,6 +30,12 @@ export function SearchPanel() {
     );
   }
 
+  function handleReset() {
+    setActiveTab("All");
+    setProvinceOpen(false);
+    setSelectedProvinces([]);
+  }
+
   const provinceLabel =
     selectedProvinces.length === 0
       ? "All Provinces"
@@ -210,6 +216,23 @@ export function SearchPanel() {
               ))}
             </div>
           </fieldset>
+
+          <div className="flex flex-col gap-3 border-t border-brand-line pt-5 sm:flex-row sm:items-center sm:justify-between lg:col-span-3">
+            <button
+              type="reset"
+              onClick={handleReset}
+              className="inline-flex items-center justify-center rounded-2xl border border-brand-line px-5 py-3 text-sm font-bold uppercase tracking-[0.12em] text-brand-dark hover:border-brand-red hover:text-brand-red"
+            >
+              Clear Reset
+            </button>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-red px-8 py-3 text-sm font-bold uppercase text-white hover:bg-brand-dark"
+            >
+              <Search className="h-5 w-5" />
+              Search
+            </button>
+          </div>
         </div>
       ) : null}
     </form>
