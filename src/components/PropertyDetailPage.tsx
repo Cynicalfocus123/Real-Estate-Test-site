@@ -81,6 +81,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
 export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [saved, setSaved] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryFocusIndex, setGalleryFocusIndex] = useState<number | null>(null);
   const [contactVisible, setContactVisible] = useState(false);
   const [shareMessage, setShareMessage] = useState("Share");
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
@@ -98,6 +99,12 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   useEffect(() => {
     setActivePreviewIndex(0);
   }, [listing.id]);
+
+  useEffect(() => {
+    if (!galleryOpen) {
+      setGalleryFocusIndex(null);
+    }
+  }, [galleryOpen]);
 
   const similarProperties = useMemo(() => {
     const sameProvince = propertyListings.filter(
@@ -160,8 +167,30 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     });
   }
 
+  function showPreviousPreview() {
+    setActivePreviewIndex((current) => (current === 0 ? previewImages.length - 1 : current - 1));
+  }
+
+  function showNextPreview() {
+    setActivePreviewIndex((current) => (current === previewImages.length - 1 ? 0 : current + 1));
+  }
+
+  function showPreviousGalleryImage() {
+    setGalleryFocusIndex((current) => {
+      if (current === null) return 0;
+      return current === 0 ? listing.galleryImages.length - 1 : current - 1;
+    });
+  }
+
+  function showNextGalleryImage() {
+    setGalleryFocusIndex((current) => {
+      if (current === null) return 0;
+      return current === listing.galleryImages.length - 1 ? 0 : current + 1;
+    });
+  }
+
   return (
-    <div className="min-h-screen bg-[#f8f5f2] text-brand-dark">
+    <div className="min-h-screen overflow-x-hidden bg-[#f8f5f2] text-brand-dark">
       <div className="hidden md:block">
         <Header />
       </div>
@@ -178,18 +207,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
                 <a
                   href={safeHref(buildListingHref(listing.mode))}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/94 text-brand-dark shadow-[0_10px_24px_rgba(15,23,42,0.18)]"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(17,24,39,0.78)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur"
                   aria-label="Back to listings"
                 >
                   <ChevronLeft className="h-7 w-7" />
                 </a>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 rounded-full bg-white/94 px-3 py-2 shadow-[0_10px_24px_rgba(15,23,42,0.18)]">
+                  <div className="flex items-center gap-1 rounded-full bg-[rgba(17,24,39,0.78)] px-2 py-2 text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur">
                     <button
                       type="button"
                       onClick={() => setSaved((current) => !current)}
                       className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
-                        saved ? "text-brand-red" : "text-brand-dark"
+                        saved ? "bg-white text-brand-red" : "text-white"
                       }`}
                       aria-label={`${saved ? "Unsave" : "Save"} ${listing.title}`}
                       aria-pressed={saved}
@@ -199,7 +228,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-dark transition"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
                       aria-label={`Share ${listing.title}`}
                     >
                       <Share2 className="h-6 w-6" />
@@ -207,7 +236,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <button
                       type="button"
                       onClick={() => setContactVisible((current) => !current)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-brand-dark transition"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
                       aria-label="More property actions"
                     >
                       <MoreHorizontal className="h-6 w-6" />
@@ -236,7 +265,31 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   </span>
                 ) : null}
               </div>
+              <button
+                type="button"
+                onClick={showPreviousPreview}
+                className="absolute left-4 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.78)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur"
+                aria-label={`Previous image for ${listing.title}`}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={showNextPreview}
+                className="absolute right-4 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.78)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur"
+                aria-label={`Next image for ${listing.title}`}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
               <div className="absolute inset-x-4 bottom-6 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={showPreviousPreview}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-[rgba(17,24,39,0.58)] text-white backdrop-blur"
+                  aria-label={`Show previous mobile image for ${listing.title}`}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
                 {previewImages.map((_, index) => (
                   <button
                     key={`${listing.id}-mobile-progress-${index}`}
@@ -249,6 +302,14 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     aria-pressed={activePreviewIndex === index}
                   />
                 ))}
+                <button
+                  type="button"
+                  onClick={showNextPreview}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-[rgba(17,24,39,0.58)] text-white backdrop-blur"
+                  aria-label={`Show next mobile image for ${listing.title}`}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             </div>
             <div className="border-b border-[#e6ddd7] bg-white px-4 py-4">
@@ -303,13 +364,13 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   <p className="md:hidden text-[11px] font-black uppercase tracking-[0.22em] text-brand-red">
                     For {listing.mode} • {listing.statusLabel}
                   </p>
-                  <h1 className="max-w-4xl text-[2rem] font-black leading-[1.04] text-brand-dark sm:text-5xl">
+                  <h1 className="max-w-full break-words text-[1.65rem] font-black leading-[1.08] text-brand-dark sm:text-5xl">
                     {listing.title}
                   </h1>
-                  <p className="mt-3 text-lg font-black text-brand-dark md:hidden">{metricSummary}</p>
-                  <p className="mt-3 inline-flex items-center gap-2 text-base font-semibold text-brand-gray md:mt-4">
+                  <p className="mt-3 break-words text-base font-black leading-7 text-brand-dark md:hidden">{metricSummary}</p>
+                  <p className="mt-3 flex min-w-0 items-start gap-2 break-words text-sm font-semibold leading-6 text-brand-gray md:mt-4 md:inline-flex md:text-base">
                     <MapPin className="h-5 w-5 text-brand-red" />
-                    {listing.city}, {listing.province}
+                    <span className="min-w-0 break-words">{listing.city}, {listing.province}</span>
                   </p>
                   <p className="mt-3 text-[2.05rem] font-black leading-none text-brand-dark">
                     {listing.priceLabel}
@@ -342,6 +403,22 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     >
                       See all {listing.galleryImages.length} photos
                     </button>
+                    <button
+                      type="button"
+                      onClick={showPreviousPreview}
+                      className="absolute left-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.72)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] backdrop-blur"
+                      aria-label={`Previous image for ${listing.title}`}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={showNextPreview}
+                      className="absolute right-4 top-1/2 z-10 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.72)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] backdrop-blur"
+                      aria-label={`Next image for ${listing.title}`}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     {previewImages.map((image, index) => (
@@ -369,6 +446,24 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                         />
                       </button>
                     ))}
+                  </div>
+                  <div className="flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={showPreviousPreview}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8cec6] bg-white text-brand-dark transition hover:border-brand-red"
+                      aria-label={`Show previous desktop image for ${listing.title}`}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={showNextPreview}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8cec6] bg-white text-brand-dark transition hover:border-brand-red"
+                      aria-label={`Show next desktop image for ${listing.title}`}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -692,25 +787,114 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-gray">Gallery</p>
                 <h2 className="mt-2 text-2xl font-black text-brand-dark">{listing.title}</h2>
               </div>
-              <button
-                type="button"
-                onClick={() => setGalleryOpen(false)}
-                className="rounded-full border border-[#dfd5ce] px-4 py-2 text-sm font-black text-brand-dark transition hover:border-brand-red"
-              >
-                Close
-              </button>
+              <div className="flex items-center gap-3">
+                {galleryFocusIndex !== null ? (
+                  <button
+                    type="button"
+                    onClick={() => setGalleryFocusIndex(null)}
+                    className="rounded-full border border-[#dfd5ce] px-4 py-2 text-sm font-black text-brand-dark transition hover:border-brand-red"
+                  >
+                    Back to all
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setGalleryOpen(false)}
+                  className="rounded-full border border-[#dfd5ce] px-4 py-2 text-sm font-black text-brand-dark transition hover:border-brand-red"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {listing.galleryImages.map((image, index) => (
-                <div key={`${listing.id}-gallery-${index}`} className="overflow-hidden rounded-[24px] bg-[#f8f5f2]">
+            {galleryFocusIndex === null ? (
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {listing.galleryImages.map((image, index) => (
+                  <button
+                    key={`${listing.id}-gallery-${index}`}
+                    type="button"
+                    onClick={() => setGalleryFocusIndex(index)}
+                    className="overflow-hidden rounded-[24px] bg-[#f8f5f2] text-left transition hover:-translate-y-1"
+                  >
+                    <img
+                      src={assetPath(image)}
+                      alt={`${listing.title} photo ${index + 1}`}
+                      className="h-full min-h-[220px] w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-6">
+                <div className="relative overflow-hidden rounded-[28px] bg-[#f8f5f2]">
                   <img
-                    src={assetPath(image)}
-                    alt={`${listing.title} photo ${index + 1}`}
-                    className="h-full min-h-[220px] w-full object-cover"
+                    src={assetPath(listing.galleryImages[galleryFocusIndex])}
+                    alt={`${listing.title} full photo ${galleryFocusIndex + 1}`}
+                    className="max-h-[78vh] w-full object-contain"
                   />
+                  <button
+                    type="button"
+                    onClick={showPreviousGalleryImage}
+                    className="absolute left-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.72)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] backdrop-blur"
+                    aria-label={`Previous full gallery image for ${listing.title}`}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={showNextGalleryImage}
+                    className="absolute right-4 top-1/2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(17,24,39,0.72)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.28)] backdrop-blur"
+                    aria-label={`Next full gallery image for ${listing.title}`}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
                 </div>
-              ))}
-            </div>
+                <div className="mt-4 flex items-center justify-between gap-4">
+                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
+                    Photo {galleryFocusIndex + 1} of {listing.galleryImages.length}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={showPreviousGalleryImage}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8cec6] bg-white text-brand-dark transition hover:border-brand-red"
+                      aria-label={`Previous full image for ${listing.title}`}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={showNextGalleryImage}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d8cec6] bg-white text-brand-dark transition hover:border-brand-red"
+                      aria-label={`Next full image for ${listing.title}`}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
+                  {listing.galleryImages.map((image, index) => (
+                    <button
+                      key={`${listing.id}-gallery-thumb-${index}`}
+                      type="button"
+                      onClick={() => setGalleryFocusIndex(index)}
+                      className={`overflow-hidden rounded-[18px] border-2 transition ${
+                        galleryFocusIndex === index
+                          ? "border-brand-red shadow-[0_10px_22px_rgba(163,28,36,0.18)]"
+                          : "border-transparent"
+                      }`}
+                      aria-label={`Show full gallery image ${index + 1} for ${listing.title}`}
+                      aria-pressed={galleryFocusIndex === index}
+                    >
+                      <img
+                        src={assetPath(image)}
+                        alt={`${listing.title} thumbnail ${index + 1}`}
+                        className="aspect-square w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : null}
