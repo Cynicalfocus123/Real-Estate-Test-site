@@ -22,7 +22,7 @@ import { OwnPropertyInThailandPage } from "./components/OwnPropertyInThailandPag
 import { PreForeclosurePage } from "./components/PreForeclosurePage";
 import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
 import { PropertySpecifiedDetailsPage } from "./components/PropertySpecifiedDetailsPage";
-import { PropertyCard } from "./components/PropertyCard";
+import { PropertyListingCard } from "./components/PropertyListingCard";
 import { PropertyListingsPage } from "./components/PropertyListingsPage";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
@@ -34,7 +34,9 @@ import { UrgentSalePage } from "./components/UrgentSalePage";
 import { WhyChooseUs } from "./components/WhyChooseUs";
 import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { WhySeniorcarePage } from "./components/WhySeniorcarePage";
-import { featuredProperties } from "./data/mockProperties";
+import { propertyListings } from "./data/propertyListings";
+
+const featuredListings = propertyListings.filter((listing) => listing.mode === "sale").slice(0, 6);
 
 export function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
@@ -305,9 +307,9 @@ export function App() {
               <ArrowRight className="h-5 w-5" />
             </a>
           </div>
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {featuredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+          <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            {featuredListings.map((listing) => (
+              <PropertyListingCard key={listing.id} listing={listing} mode="sale" />
             ))}
           </div>
         </section>
