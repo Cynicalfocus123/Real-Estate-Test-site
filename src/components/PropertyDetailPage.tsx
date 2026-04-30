@@ -14,7 +14,9 @@ import {
   Share2,
   Warehouse,
 } from "lucide-react";
+import L from "leaflet";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import "leaflet/dist/leaflet.css";
 import { propertyListings } from "../data/propertyListings";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
@@ -51,6 +53,15 @@ type GeocodedMapPoint = {
   label: string;
 };
 
+function createPropertyPinIcon() {
+  return L.divIcon({
+    className: "property-map-pin",
+    html: "<span style='display:block;width:18px;height:18px;border-radius:9999px;background:#a31c24;border:3px solid #ffffff;box-shadow:0 6px 18px rgba(15,23,42,0.35);'></span>",
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+}
+
 function normalizeAddressValue(value?: string) {
   const normalized = value?.trim();
   return normalized ? normalized : undefined;
@@ -72,18 +83,6 @@ function buildAddressQuery(listing: PropertyListing) {
   ].filter(Boolean);
 
   return parts.join(", ");
-}
-
-function buildMapEmbedUrl(lat: number, lon: number) {
-  const offset = 0.015;
-  const minLon = (lon - offset).toFixed(6);
-  const minLat = (lat - offset).toFixed(6);
-  const maxLon = (lon + offset).toFixed(6);
-  const maxLat = (lat + offset).toFixed(6);
-  const marker = `${lat.toFixed(6)},${lon.toFixed(6)}`;
-  const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
-
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${encodeURIComponent(marker)}`;
 }
 
 async function geocodeAddressQuery(query: string, signal: AbortSignal) {
@@ -165,6 +164,9 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
   const similarScrollRef = useRef<HTMLDivElement | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const mapMarkerRef = useRef<L.Marker | null>(null);
   const phoneHref = `tel:${listing.agent.phone.replace(/\s+/g, "")}`;
   const emailHref = `mailto:${listing.agent.email}`;
   const defaultAddressQuery = useMemo(() => buildAddressQuery(listing), [listing]);
@@ -243,6 +245,55 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       controller.abort();
     };
   }, [backendMapPoint, defaultAddressQuery, listing.id]);
+
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return undefined;
+
+    const initialCenter: [number, number] = mapPoint ? [mapPoint.lat, mapPoint.lon] : [13.7563, 100.5018];
+    const map = L.map(mapContainerRef.current, {
+      zoomControl: true,
+      scrollWheelZoom: true,
+      attributionControl: true,
+    }).setView(initialCenter, mapPoint ? 15 : 11);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+    window.setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      mapMarkerRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (!mapPoint) {
+      if (mapMarkerRef.current) {
+        map.removeLayer(mapMarkerRef.current);
+        mapMarkerRef.current = null;
+      }
+      return;
+    }
+
+    const position: [number, number] = [mapPoint.lat, mapPoint.lon];
+    if (!mapMarkerRef.current) {
+      mapMarkerRef.current = L.marker(position, { icon: createPropertyPinIcon() }).addTo(map);
+    } else {
+      mapMarkerRef.current.setLatLng(position);
+    }
+
+    mapMarkerRef.current.bindPopup(mapPoint.label);
+    map.setView(position, 15, { animate: true });
+    window.setTimeout(() => map.invalidateSize(), 0);
+  }, [mapPoint]);
 
   useEffect(() => {
     if (!galleryOpen) {
@@ -818,24 +869,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </form>
 
                 <div className="mt-5 overflow-hidden rounded-[24px] border border-[#ded6d0] bg-white">
-                  {mapPoint ? (
-                    <iframe
-                      title={`Map location for ${listing.title}`}
-                      src={buildMapEmbedUrl(mapPoint.lat, mapPoint.lon)}
-                      className="h-[360px] w-full md:h-[440px]"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-[280px] items-center justify-center px-6 text-center text-sm font-semibold text-brand-gray">
-                      {mapLoading ? "Finding map location..." : "Map location is not available yet for this property."}
-                    </div>
-                  )}
+                  <div ref={mapContainerRef} className="h-[360px] w-full md:h-[440px]" />
                 </div>
 
                 {mapPoint ? (
                   <p className="mt-4 break-words text-sm font-semibold text-brand-gray">
                     Mapped location: {mapPoint.label}
                   </p>
+                ) : null}
+                {mapLoading ? (
+                  <p className="mt-2 break-words text-sm font-semibold text-brand-gray">Finding map location...</p>
                 ) : null}
                 {mapError ? (
                   <p className="mt-2 break-words text-sm font-semibold text-brand-red">{mapError}</p>

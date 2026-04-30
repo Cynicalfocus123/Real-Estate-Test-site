@@ -242,3 +242,4 @@
 - Updated the property gallery modal so tapping a photo from `See all photos` opens one large focused image viewer without keeping the thumbnail list underneath.
 - Switched the `sqm` metric icon in property details from a square to a ruler to better match measurement context.
 - Added a backend-ready `Property Location` section under amenities using OpenStreetMap + Nominatim geocoding, with structured Thai address fields (street, tambon, amphoe, city, province, postal code, country), searchable map input, and automatic marker placement from backend coordinates when available.
+- Replaced the property location iframe map with an in-page Leaflet map (OpenStreetMap tiles) to fix blocked-content rendering, and confirmed address search updates the location marker icon from Thai address queries.
