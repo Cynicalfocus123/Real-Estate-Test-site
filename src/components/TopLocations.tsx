@@ -34,9 +34,6 @@ function LocationTile({ location, large = false }: { location: TopLocation; larg
         <h3 className={`font-serif font-bold leading-tight drop-shadow ${location.name.length > 22 ? "text-xl" : "text-2xl"}`}>
           {location.name}
         </h3>
-        <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-[#f4c21b]">
-          {location.listingCount} Listings
-        </p>
       </div>
     </a>
   );
