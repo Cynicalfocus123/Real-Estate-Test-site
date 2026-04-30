@@ -11,6 +11,7 @@
 - All code, page creation, and website changes must be security hardened, with specific care to prevent XSS/cross-site scripting by avoiding unsafe HTML injection, sanitizing any future user/API content before render, validating inputs, and keeping external embeds/scripts tightly controlled.
 - Before every update and push, do a security pass limited to XSS, unsafe HTML rendering, unsafe image URLs, unsafe href/src values, unsafe search input, unsafe URL params, missing `rel="noopener noreferrer"`, missing validation, missing security headers, and vulnerable dependencies. Make safe code changes without changing the design, then report what was fixed and what still needs manual review.
 - At the start of every new chat/session, first confirm the git repo is connected and working, keep git connected throughout the session, and commit plus push every completed change automatically unless the user explicitly says not to.
+- User standing instruction: do not ask in chat for git commit or git push permission; after verified changes, commit and push immediately unless the user explicitly says not to.
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
 - At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
 - Update this file whenever corrections or fixes are applied.
