@@ -265,6 +265,8 @@ export function PropertyListingsPage() {
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
+  const [minLandSize, setMinLandSize] = useState("");
+  const [maxLandSize, setMaxLandSize] = useState("");
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -300,6 +302,8 @@ export function PropertyListingsPage() {
   const priceStep = mode === "rent" ? 1000 : 500000;
   const minValue = minPrice > minPriceLimit ? minPrice : null;
   const maxValue = maxPrice < maxPriceLimit ? maxPrice : null;
+  const minLandValue = minLandSize ? Number(minLandSize) : null;
+  const maxLandValue = maxLandSize ? Number(maxLandSize) : null;
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -309,6 +313,8 @@ export function PropertyListingsPage() {
       const matchesMin = minValue === null || listing.priceValue >= minValue;
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
       const matchesType = selectedHomeType === "Any" || listing.homeType === selectedHomeType;
+      const matchesMinLand = minLandValue === null || listing.areaSqm >= minLandValue;
+      const matchesMaxLand = maxLandValue === null || listing.areaSqm <= maxLandValue;
       const matchesAmenities =
         selectedAmenities.length === 0 ||
         selectedAmenities.every((amenity) => listing.amenities.includes(amenity));
@@ -322,6 +328,8 @@ export function PropertyListingsPage() {
         matchesMin &&
         matchesMax &&
         matchesType &&
+        matchesMinLand &&
+        matchesMaxLand &&
         matchesAmenities &&
         matchesCategory &&
         matchesBedroom(listing, selectedBedroom) &&
@@ -355,6 +363,8 @@ export function PropertyListingsPage() {
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
+    setMinLandSize("");
+    setMaxLandSize("");
     setSortBy("recommended");
     setSortOpen(false);
     setFilterOpen(false);
@@ -639,6 +649,37 @@ export function PropertyListingsPage() {
                                 {formatPriceValue(maxPrice, mode)}
                               </div>
                             </div>
+                          </label>
+                        </div>
+                      </section>
+
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Land Size</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Minimum sqm</span>
+                            <input
+                              value={minLandSize}
+                              onChange={(event) => setMinLandSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Min"
+                            />
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Maximum sqm</span>
+                            <input
+                              value={maxLandSize}
+                              onChange={(event) => setMaxLandSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Max"
+                            />
                           </label>
                         </div>
                       </section>
