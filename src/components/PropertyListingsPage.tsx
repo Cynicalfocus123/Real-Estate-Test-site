@@ -36,6 +36,11 @@ type PhotonResponse = {
 };
 
 const modeOptions: ListingMode[] = ["sale", "rent"];
+const listingToolbarModeOptions = [
+  { label: "Buy", value: "sale" as ListingMode },
+  { label: "Sale", value: "sale" as ListingMode },
+  { label: "Rent", value: "rent" as ListingMode },
+] as const;
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
 const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
 const homeTypeOptions: Array<"Any" | ListingHomeType> = [
@@ -695,18 +700,18 @@ export function PropertyListingsPage({
 
             <div className="mx-auto mt-5 max-w-5xl">
               <div className="flex flex-wrap justify-center gap-2 pb-3">
-                {modeOptions.map((option) => (
+                {listingToolbarModeOptions.map((option) => (
                   <button
-                    key={option}
+                    key={option.label}
                     type="button"
-                    onClick={() => handleModeChange(option)}
+                    onClick={() => handleModeChange(option.value)}
                     className={`rounded-full px-5 py-2.5 text-sm font-black uppercase tracking-[0.14em] transition-all duration-300 ${
-                      mode === option
+                      mode === option.value
                         ? "bg-brand-red text-white shadow-[0_14px_28px_rgba(163,28,36,0.22)]"
                         : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
                     }`}
                   >
-                    {option === "sale" ? "Sale" : "Rent"}
+                    {option.label}
                   </button>
                 ))}
               </div>

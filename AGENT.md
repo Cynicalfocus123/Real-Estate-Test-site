@@ -212,3 +212,4 @@
 - Removed the standalone front-page search block, moved the home search into the center of the hero video area, changed the top mode controls to text-only `Buy`, `Rent`, `Sell`, and `Senior Home`, and moved the search label plus icon to the right side of the hero search field while keeping the sanitized listing-style query flow.
 - Brightened the hero video search bar to a solid white treatment with a stronger outline and shadow so it stands out clearly against the video background.
 - Changed the hero video mode labels so clicking `Buy` goes straight to the sale listings page, clicking `Rent` goes straight to the rent listings page, and clicking `Senior Home` goes straight to the senior home page while carrying the current search query in the URL when present.
+- Added a top-level `Buy` item before `For Sale` in the header menu and added a `Buy` button beside `Sale` above the listing-page search bar, with both `Buy` and `Sale` targeting the sale listings view.
