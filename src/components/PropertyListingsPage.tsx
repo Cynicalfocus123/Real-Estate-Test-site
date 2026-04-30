@@ -187,29 +187,63 @@ function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
 export function PropertyListingsPage({
   initialMode = "sale",
   initialProvince,
+  initialQuery = "",
+  initialHomeType,
+  initialBedroom,
+  initialBathroom,
+  initialMinPrice,
+  initialMaxPrice,
 }: {
   initialMode?: ListingMode;
   initialProvince?: string;
+  initialQuery?: string;
+  initialHomeType?: string;
+  initialBedroom?: string;
+  initialBathroom?: string;
+  initialMinPrice?: string;
+  initialMaxPrice?: string;
 }) {
   const validatedInitialProvince = initialProvince && thaiProvinces.some((province) => province.name === initialProvince)
     ? initialProvince
     : "";
+  const validatedInitialQuery = cleanSearchText(initialQuery);
+  const validatedInitialHomeType =
+    initialHomeType && homeTypeOptions.includes(initialHomeType as "Any" | ListingHomeType)
+      ? (initialHomeType as "Any" | ListingHomeType)
+      : "Any";
+  const validatedInitialBedroom =
+    initialBedroom && bedroomOptions.includes(initialBedroom as (typeof bedroomOptions)[number])
+      ? initialBedroom
+      : "Any";
+  const validatedInitialBathroom =
+    initialBathroom && bathroomOptions.includes(initialBathroom as (typeof bathroomOptions)[number])
+      ? initialBathroom
+      : "Any";
+  const initialMaxLimit = initialMode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT;
+  const validatedInitialMinPrice = Math.max(
+    0,
+    Math.min(Number(cleanNumericText(initialMinPrice ?? null, 12)) || 0, initialMaxLimit),
+  );
+  const validatedInitialMaxPrice = Math.max(
+    validatedInitialMinPrice + (initialMode === "rent" ? 1000 : 1000000),
+    Math.min(Number(cleanNumericText(initialMaxPrice ?? null, 12)) || initialMaxLimit, initialMaxLimit),
+  );
   const [mode, setMode] = useState<ListingMode>(initialMode);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(validatedInitialQuery);
   const [locationSuggestions, setLocationSuggestions] = useState<ThailandLocationSuggestion[]>([]);
   const [locationSuggestionsOpen, setLocationSuggestionsOpen] = useState(false);
   const [locationSuggestionsLoading, setLocationSuggestionsLoading] = useState(false);
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(SALE_MAX_PRICE_LIMIT);
+  const [minPrice, setMinPrice] = useState(validatedInitialMinPrice);
+  const [maxPrice, setMaxPrice] = useState(validatedInitialMaxPrice);
   const [priceQuickView, setPriceQuickView] = useState<PriceQuickView>("list-price");
   const [downPaymentOption, setDownPaymentOption] = useState<DownPaymentOption>("amount");
-  const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
-  const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
-  const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [selectedBedroom, setSelectedBedroom] = useState<string>(validatedInitialBedroom);
+  const [selectedBathroom, setSelectedBathroom] = useState<string>(validatedInitialBathroom);
+  const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>(validatedInitialHomeType);
   const [selectedProvince, setSelectedProvince] = useState("");
-  const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>("Any");
-  const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>("Any");
-  const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>(validatedInitialBedroom);
+  const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>(validatedInitialBathroom);
+  const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>(validatedInitialHomeType);
   const [draftQuickProvince, setDraftQuickProvince] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
@@ -244,24 +278,24 @@ export function PropertyListingsPage({
   useEffect(() => {
     setMode(initialMode);
     setDraftMode(initialMode);
-    setQuery("");
+    setQuery(validatedInitialQuery);
     setLocationSuggestions([]);
     setLocationSuggestionsOpen(false);
     setLocationSuggestionsLoading(false);
-    setSelectedBedroom("Any");
-    setSelectedBathroom("Any");
+    setSelectedBedroom(validatedInitialBedroom);
+    setSelectedBathroom(validatedInitialBathroom);
     setSelectedProvince(validatedInitialProvince);
-    setDraftQuickBedroom("Any");
-    setDraftQuickBathroom("Any");
-    setDraftQuickHomeType("Any");
+    setDraftQuickBedroom(validatedInitialBedroom);
+    setDraftQuickBathroom(validatedInitialBathroom);
+    setDraftQuickHomeType(validatedInitialHomeType);
     setDraftQuickProvince(validatedInitialProvince);
     setSelectedCategories([]);
     setSelectedAmenities([]);
-    setSelectedHomeType("Any");
+    setSelectedHomeType(validatedInitialHomeType);
     setMinLandSize("");
     setMaxLandSize("");
-    setMinPrice(0);
-    setMaxPrice(initialMode === "rent" ? RENT_MAX_PRICE_LIMIT : SALE_MAX_PRICE_LIMIT);
+    setMinPrice(validatedInitialMinPrice);
+    setMaxPrice(validatedInitialMaxPrice);
     setPriceQuickView("list-price");
     setDownPaymentOption("amount");
     setSortBy("recommended");
@@ -269,7 +303,16 @@ export function PropertyListingsPage({
     setFilterOpen(false);
     setActiveQuickFilter(null);
     lastPickedSuggestionRef.current = "";
-  }, [initialMode, validatedInitialProvince]);
+  }, [
+    initialMode,
+    validatedInitialBathroom,
+    validatedInitialBedroom,
+    validatedInitialHomeType,
+    validatedInitialMaxPrice,
+    validatedInitialMinPrice,
+    validatedInitialProvince,
+    validatedInitialQuery,
+  ]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {

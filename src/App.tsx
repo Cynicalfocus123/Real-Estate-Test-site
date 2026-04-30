@@ -41,7 +41,14 @@ const featuredListings = propertyListings.filter((listing) => listing.mode === "
 export function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
-  const listingProvince = new URLSearchParams(window.location.search).get("province") ?? undefined;
+  const listingSearchParams = new URLSearchParams(window.location.search);
+  const listingProvince = listingSearchParams.get("province") ?? undefined;
+  const listingQuery = listingSearchParams.get("q") ?? undefined;
+  const listingHomeType = listingSearchParams.get("homeType") ?? undefined;
+  const listingBedroom = listingSearchParams.get("bedroom") ?? undefined;
+  const listingBathroom = listingSearchParams.get("bathroom") ?? undefined;
+  const listingMinPrice = listingSearchParams.get("minPrice") ?? undefined;
+  const listingMaxPrice = listingSearchParams.get("maxPrice") ?? undefined;
   const isRealEstateLawsPage =
     currentPath.endsWith("/real-estate-laws-for-foreigner") ||
     currentHash === "#/real-estate-laws-for-foreigner";
@@ -186,11 +193,33 @@ export function App() {
   }
 
   if (isPropertyListingsSalePage) {
-    return <PropertyListingsPage initialMode="sale" initialProvince={listingProvince} />;
+    return (
+      <PropertyListingsPage
+        initialMode="sale"
+        initialProvince={listingProvince}
+        initialQuery={listingQuery}
+        initialHomeType={listingHomeType}
+        initialBedroom={listingBedroom}
+        initialBathroom={listingBathroom}
+        initialMinPrice={listingMinPrice}
+        initialMaxPrice={listingMaxPrice}
+      />
+    );
   }
 
   if (isPropertyListingsRentPage) {
-    return <PropertyListingsPage initialMode="rent" initialProvince={listingProvince} />;
+    return (
+      <PropertyListingsPage
+        initialMode="rent"
+        initialProvince={listingProvince}
+        initialQuery={listingQuery}
+        initialHomeType={listingHomeType}
+        initialBedroom={listingBedroom}
+        initialBathroom={listingBathroom}
+        initialMinPrice={listingMinPrice}
+        initialMaxPrice={listingMaxPrice}
+      />
+    );
   }
 
   if (isRetirementVisaPage) {
