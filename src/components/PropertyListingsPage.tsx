@@ -568,7 +568,7 @@ export function PropertyListingsPage() {
       <main>
         <section className="border-b border-[#e5ddd7] bg-white">
           <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8">
-            <div className="max-w-4xl">
+            <div className="mx-auto max-w-4xl text-center">
               <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
                 {mode === "sale" ? "For Sale" : "For Rent"}
               </p>
@@ -577,8 +577,8 @@ export function PropertyListingsPage() {
               </h1>
             </div>
 
-            <div className="mt-5">
-              <div className="flex flex-wrap gap-2 pb-3">
+            <div className="mx-auto mt-5 max-w-5xl">
+              <div className="flex flex-wrap justify-center gap-2 pb-3">
                 {modeOptions.map((option) => (
                   <button
                     key={option}
@@ -595,7 +595,7 @@ export function PropertyListingsPage() {
                 ))}
               </div>
 
-              <label className="flex w-full items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)] lg:max-w-[640px]">
+              <label className="mx-auto flex w-full items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)] lg:max-w-[700px]">
                   <Search className="h-5 w-5 text-brand-dark" />
                   <input
                     value={query}
@@ -607,7 +607,7 @@ export function PropertyListingsPage() {
                 </label>
 
               <div ref={quickFilterRef} className="relative mt-4">
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="flex flex-wrap justify-center gap-2 pb-1">
                   <button
                     type="button"
                     onClick={openFilter}
@@ -654,7 +654,7 @@ export function PropertyListingsPage() {
 
                 {mountedQuickFilter ? (
                   <div
-                    className={`absolute left-0 top-[calc(100%+10px)] z-40 w-[min(92vw,464px)] rounded-[22px] border border-[#d8d2cc] bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
+                    className={`absolute left-1/2 top-[calc(100%+10px)] z-40 w-[min(92vw,464px)] -translate-x-1/2 rounded-[22px] border border-[#d8d2cc] bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
                       activeQuickFilter ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
                     }`}
                   >
@@ -887,7 +887,7 @@ export function PropertyListingsPage() {
 
         {filterMounted ? (
           <div
-            className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/35 px-4 py-6 transition-opacity duration-300 ${
+            className={`fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/35 px-4 py-4 transition-opacity duration-300 sm:items-center sm:py-6 ${
               filterOpen ? "opacity-100" : "opacity-0"
             }`}
             onMouseDown={(event) => {
@@ -897,7 +897,7 @@ export function PropertyListingsPage() {
             }}
           >
             <div
-              className={`max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-[28px] border border-[#e3ddd8] bg-white shadow-[0_26px_70px_rgba(15,23,42,0.22)] transition-all duration-300 ease-out ${
+              className={`flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border border-[#e3ddd8] bg-white shadow-[0_26px_70px_rgba(15,23,42,0.22)] transition-all duration-300 ease-out ${
                 filterOpen ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
               }`}
               onMouseDown={(event) => event.stopPropagation()}
@@ -933,7 +933,7 @@ export function PropertyListingsPage() {
                       ))}
               </div>
 
-              <div className="max-h-[calc(88vh-150px)] overflow-y-auto">
+              <div className="flex-1 overflow-y-auto">
                       <section className="border-b border-[#eeeeee] px-5 py-5">
                         <div className="flex items-center justify-between">
                           <h3 className="text-base font-black text-brand-dark">Home Type</h3>
@@ -1064,11 +1064,11 @@ export function PropertyListingsPage() {
                       ) : null}
               </div>
 
-              <div className="flex items-center justify-between border-t border-[#eeeeee] bg-white px-5 py-4">
+              <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-[#eeeeee] bg-white px-5 py-4">
                       <button
                         type="button"
                         onClick={resetDraftFilters}
-                        className="inline-flex items-center gap-2 text-sm font-black text-brand-red"
+                        className="inline-flex items-center gap-2 rounded-xl border border-brand-line px-4 py-3 text-sm font-black text-brand-red transition hover:border-brand-red hover:bg-[#fff7f7]"
                       >
                         <Undo2 className="h-4 w-4" />
                         Clear All
@@ -1078,7 +1078,7 @@ export function PropertyListingsPage() {
                         onClick={applyFilters}
                         className="rounded-xl bg-brand-red px-7 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(163,28,36,0.24)] transition hover:bg-brand-dark"
                       >
-                        Done
+                        Submit
                       </button>
               </div>
             </div>

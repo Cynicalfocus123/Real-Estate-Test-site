@@ -191,3 +191,4 @@
 - Changed the listing-page filter modal to use draft state so Buy/Rent and all modal filter changes do not affect the page until the user clicks `Done`; `Clear All` now resets modal options and applying it shows the full listing set for the chosen tab.
 - Centered the home-page search panel and the controls below it, tightened widths, added rounded modern styling, and organized the tabs and filter/search controls into a cleaner centered real-estate search layout.
 - Added a visible footer to the home-page expanded filter box with a bottom-left `Clear Reset` action and a bottom-right `Search` submit button so the filter actions are no longer missing or cut off.
+- Corrected the listing-page layout by centering the top search bar and quick-filter buttons, centering the quick-filter popovers, and making the main Filters modal use a sticky visible footer with stronger `Clear All` and `Submit` actions so the bottom controls do not get cut off.
