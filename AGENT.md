@@ -179,3 +179,4 @@
 - Changed listing filter panel to open as a centered modal with upward motion and close with downward motion when clicking away or the close button.
 - Compressed listing search area into a Realtor-style horizontal toolbar with a long search pill and compact filter chips to reduce vertical whitespace.
 - Updated listing page search placeholder to `search location, property types`.
+- Changed listing Price, Rooms, and Home type toolbar chips to open their own smooth animated dropdown panels instead of always opening the full filter modal.

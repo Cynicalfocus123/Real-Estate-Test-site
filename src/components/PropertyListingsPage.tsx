@@ -29,6 +29,8 @@ import { cleanNumericText, cleanSearchText } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
+type QuickFilter = "price" | "rooms" | "homeType";
+
 const modeOptions: ListingMode[] = ["sale", "rent"];
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
 const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
@@ -272,7 +274,10 @@ export function PropertyListingsPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterMounted, setFilterMounted] = useState(false);
+  const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilter | null>(null);
+  const [mountedQuickFilter, setMountedQuickFilter] = useState<QuickFilter | null>(null);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
+  const quickFilterRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -282,6 +287,9 @@ export function PropertyListingsPage() {
     function handlePointerDown(event: MouseEvent) {
       if (!sortMenuRef.current?.contains(event.target as Node)) {
         setSortOpen(false);
+      }
+      if (!quickFilterRef.current?.contains(event.target as Node)) {
+        setActiveQuickFilter(null);
       }
     }
 
@@ -298,6 +306,16 @@ export function PropertyListingsPage() {
     const timeout = window.setTimeout(() => setFilterMounted(false), 300);
     return () => window.clearTimeout(timeout);
   }, [filterOpen]);
+
+  useEffect(() => {
+    if (activeQuickFilter) {
+      setMountedQuickFilter(activeQuickFilter);
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setMountedQuickFilter(null), 220);
+    return () => window.clearTimeout(timeout);
+  }, [activeQuickFilter]);
 
   const modeListings = useMemo(
     () => propertyListings.filter((listing) => listing.mode === mode),
@@ -380,6 +398,7 @@ export function PropertyListingsPage() {
     setSortBy("recommended");
     setSortOpen(false);
     setFilterOpen(false);
+    setActiveQuickFilter(null);
   }
 
   function toggleAmenity(amenity: string) {
@@ -405,19 +424,28 @@ export function PropertyListingsPage() {
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSortOpen(false);
+    setActiveQuickFilter(null);
   }
 
   function applyFilters() {
     setFilterOpen(false);
+    setActiveQuickFilter(null);
   }
 
   function openFilter() {
+    setActiveQuickFilter(null);
     setFilterMounted(true);
     window.requestAnimationFrame(() => setFilterOpen(true));
   }
 
   function closeFilter() {
     setFilterOpen(false);
+  }
+
+  function toggleQuickFilter(filter: QuickFilter) {
+    setSortOpen(false);
+    setFilterOpen(false);
+    setActiveQuickFilter((current) => (current === filter ? null : filter));
   }
 
   function handleMinPriceChange(value: number) {
@@ -472,89 +500,239 @@ export function PropertyListingsPage() {
                   />
                 </label>
 
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark"
-                  aria-expanded={filterOpen}
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filters
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  Price
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  Rooms
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  Home type
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  New construction
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  Min {formatPriceValue(minPrice, mode)}
-                </button>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
-                >
-                  Hide pending / contingent
-                </button>
-              </div>
+              <div ref={quickFilterRef} className="relative mt-4">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  <button
+                    type="button"
+                    onClick={openFilter}
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                    aria-expanded={filterOpen}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Filters
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleQuickFilter("price")}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      activeQuickFilter === "price" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                    }`}
+                    aria-expanded={activeQuickFilter === "price"}
+                  >
+                    Price
+                    {activeQuickFilter === "price" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleQuickFilter("rooms")}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      activeQuickFilter === "rooms" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                    }`}
+                    aria-expanded={activeQuickFilter === "rooms"}
+                  >
+                    Rooms
+                    {activeQuickFilter === "rooms" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleQuickFilter("homeType")}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      activeQuickFilter === "homeType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                    }`}
+                    aria-expanded={activeQuickFilter === "homeType"}
+                  >
+                    Home type
+                    {activeQuickFilter === "homeType" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openFilter}
+                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                  >
+                    New construction
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openFilter}
+                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                  >
+                    Min {formatPriceValue(minPrice, mode)}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openFilter}
+                    className="inline-flex shrink-0 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                  >
+                    Hide pending / contingent
+                  </button>
+                </div>
 
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <select
-                  value={selectedBedroom}
-                  onChange={(event) => setSelectedBedroom(event.target.value)}
-                  className="rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-semibold outline-none transition-all duration-300 focus:border-brand-red"
-                  aria-label="Bedroom filter"
-                >
-                  {bedroomOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option === "Any" ? "Any Bed" : option === "Studio" ? "Studio" : `${option}+ Bed`}
-                    </option>
-                  ))}
-                </select>
+                {mountedQuickFilter ? (
+                  <div
+                    className={`absolute left-0 top-[calc(100%+10px)] z-40 w-[min(92vw,464px)] rounded-[22px] border border-[#d8d2cc] bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
+                      activeQuickFilter ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      <h2 className="text-lg font-black text-brand-dark">
+                        {mountedQuickFilter === "price" ? "Price" : mountedQuickFilter === "rooms" ? "Rooms" : "Home type"}
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => setActiveQuickFilter(null)}
+                        className="text-sm font-black text-brand-dark underline underline-offset-4"
+                      >
+                        Done
+                      </button>
+                    </div>
 
-                <select
-                  value={selectedBathroom}
-                  onChange={(event) => setSelectedBathroom(event.target.value)}
-                  className="rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-semibold outline-none transition-all duration-300 focus:border-brand-red"
-                  aria-label="Bathroom filter"
-                >
-                  {bathroomOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option === "Any" ? "Any Bath" : `${option}+ Bath`}
-                    </option>
-                  ))}
-                </select>
+                    {mountedQuickFilter === "price" ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[#cfc7c0] text-sm font-semibold">
+                          <button type="button" className="bg-[#f5f1ed] px-4 py-3 text-brand-dark">
+                            List price
+                          </button>
+                          <button type="button" className="px-4 py-3 text-brand-dark">
+                            Monthly payment
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-2 text-sm font-black text-brand-dark underline underline-offset-4"
+                        >
+                          <ArrowUpDown className="h-4 w-4 rotate-90" />
+                          Search with my buying power
+                        </button>
+                        <div className="px-1">
+                          <div className="flex h-20 items-end gap-1 border-b-2 border-brand-dark">
+                            {priceBars.map((height, index) => (
+                              <span
+                                key={`${height}-${index}`}
+                                className="flex-1 rounded-t-full bg-brand-dark"
+                                style={{ height: `${Math.max(height * 1.3, 6)}px` }}
+                              />
+                            ))}
+                          </div>
+                          <div className="relative mt-[-11px] h-8">
+                            <input
+                              type="range"
+                              min={minPriceLimit}
+                              max={maxPriceLimit}
+                              step={priceStep}
+                              value={minPrice}
+                              onChange={(event) => handleMinPriceChange(Number(event.target.value))}
+                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                              aria-label="Minimum price"
+                            />
+                            <input
+                              type="range"
+                              min={minPriceLimit}
+                              max={maxPriceLimit}
+                              step={priceStep}
+                              value={maxPrice}
+                              onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
+                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                              aria-label="Maximum price"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="mb-2 block text-sm font-black text-brand-muted">Minimum</label>
+                            <div className="flex overflow-hidden rounded-xl border border-[#cfc7c0] bg-white">
+                              <span className="border-r border-[#cfc7c0] px-3 py-3 font-black">฿</span>
+                              <input
+                                value={minPrice === minPriceLimit ? "" : minPrice}
+                                onChange={(event) => handleMinPriceChange(Number(cleanNumericText(event.target.value)) || minPriceLimit)}
+                                className="w-full px-3 py-3 text-sm font-semibold outline-none"
+                                inputMode="numeric"
+                                placeholder="No min"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-sm font-black text-brand-muted">Maximum</label>
+                            <div className="flex overflow-hidden rounded-xl border border-[#cfc7c0] bg-white">
+                              <span className="border-r border-[#cfc7c0] px-3 py-3 font-black">฿</span>
+                              <input
+                                value={maxPrice === maxPriceLimit ? "" : maxPrice}
+                                onChange={(event) => handleMaxPriceChange(Number(cleanNumericText(event.target.value)) || maxPriceLimit)}
+                                className="w-full px-3 py-3 text-sm font-semibold outline-none"
+                                inputMode="numeric"
+                                placeholder="No max"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mountedQuickFilter === "rooms" ? (
+                      <div className="space-y-5">
+                        <div>
+                          <h3 className="mb-3 text-sm font-black text-brand-muted">Bedrooms</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {bedroomOptions.map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setSelectedBedroom(option)}
+                                className={`min-w-16 rounded-xl border px-4 py-2.5 text-sm font-black transition-all duration-300 ${
+                                  selectedBedroom === option
+                                    ? "border-brand-dark bg-brand-dark text-white"
+                                    : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
+                                }`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="mb-3 text-sm font-black text-brand-muted">Bathrooms</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {bathroomOptions.map((option) => (
+                              <button
+                                key={option}
+                                type="button"
+                                onClick={() => setSelectedBathroom(option)}
+                                className={`min-w-16 rounded-xl border px-4 py-2.5 text-sm font-black transition-all duration-300 ${
+                                  selectedBathroom === option
+                                    ? "border-brand-dark bg-brand-dark text-white"
+                                    : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
+                                }`}
+                              >
+                                {option}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mountedQuickFilter === "homeType" ? (
+                      <div className="max-h-[360px] overflow-y-auto pr-1">
+                        {homeTypeOptions.map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => setSelectedHomeType(option)}
+                            className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                          >
+                            <span
+                              className={`h-5 w-5 rounded-full border transition-all duration-300 ${
+                                selectedHomeType === option
+                                  ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
+                                  : "border-brand-muted bg-white"
+                              }`}
+                            />
+                            {option}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
