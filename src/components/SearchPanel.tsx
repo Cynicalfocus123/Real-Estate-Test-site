@@ -26,8 +26,16 @@ type PhotonResponse = {
     properties?: PhotonFeatureProperties;
   }>;
 };
+type SearchPanelVariant = "default" | "hero";
+type HeroSearchMode = "buy" | "rent" | "sell" | "senior";
 
 const modeOptions: ListingMode[] = ["sale", "rent"];
+const heroModeOptions: Array<{ value: HeroSearchMode; label: string }> = [
+  { value: "buy", label: "Buy" },
+  { value: "rent", label: "Rent" },
+  { value: "sell", label: "Sell" },
+  { value: "senior", label: "Senior Home" },
+];
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
 const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
 const homeTypeOptions: Array<"Any" | ListingHomeType> = [
@@ -108,8 +116,10 @@ function getPriceInputValue(value: number, limit: number) {
   return value === limit ? "" : String(value);
 }
 
-export function SearchPanel() {
+export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVariant }) {
+  const isHeroVariant = variant === "hero";
   const [mode, setMode] = useState<ListingMode>("sale");
+  const [heroMode, setHeroMode] = useState<HeroSearchMode>("buy");
   const [query, setQuery] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState<ThailandLocationSuggestion[]>([]);
   const [locationSuggestionsOpen, setLocationSuggestionsOpen] = useState(false);
@@ -331,18 +341,28 @@ export function SearchPanel() {
   }
 
   function buildListingUrl() {
+    if (isHeroVariant && heroMode === "senior") {
+      const path = `${import.meta.env.BASE_URL}nursing-home-facility`;
+      const queryString = sanitizedQuery ? `?q=${encodeURIComponent(sanitizedQuery)}` : "";
+      return `${path}${queryString}`;
+    }
+
     const params = new URLSearchParams();
     const normalizedQuery = normalizeSearchValue(sanitizedQuery);
 
     if (normalizedQuery) params.set("q", sanitizedQuery);
-    if (selectedProvince) params.set("province", selectedProvince);
-    if (selectedHomeType !== "Any") params.set("homeType", selectedHomeType);
-    if (selectedBedroom !== "Any") params.set("bedroom", selectedBedroom);
-    if (selectedBathroom !== "Any") params.set("bathroom", selectedBathroom);
-    if (minPrice > minPriceLimit) params.set("minPrice", String(minPrice));
-    if (maxPrice < maxPriceLimit) params.set("maxPrice", String(maxPrice));
+    if (!isHeroVariant) {
+      if (selectedProvince) params.set("province", selectedProvince);
+      if (selectedHomeType !== "Any") params.set("homeType", selectedHomeType);
+      if (selectedBedroom !== "Any") params.set("bedroom", selectedBedroom);
+      if (selectedBathroom !== "Any") params.set("bathroom", selectedBathroom);
+      if (minPrice > minPriceLimit) params.set("minPrice", String(minPrice));
+      if (maxPrice < maxPriceLimit) params.set("maxPrice", String(maxPrice));
+    }
 
-    const path = `${import.meta.env.BASE_URL}${mode === "rent" ? "properties-for-rent" : "properties-for-sale"}`;
+    const resolvedMode =
+      isHeroVariant ? (heroMode === "rent" ? "rent" : "sale") : mode;
+    const path = `${import.meta.env.BASE_URL}${resolvedMode === "rent" ? "properties-for-rent" : "properties-for-sale"}`;
     const queryString = params.toString();
     return queryString ? `${path}?${queryString}` : path;
   }
@@ -354,6 +374,79 @@ export function SearchPanel() {
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     submitSearch();
+  }
+
+  if (isHeroVariant) {
+    return (
+      <form onSubmit={handleSearchSubmit} className="mx-auto flex w-full max-w-4xl flex-col items-center">
+        <div className="flex flex-wrap items-center justify-center gap-5 text-sm font-black uppercase tracking-[0.2em] text-white sm:text-base">
+          {heroModeOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setHeroMode(option.value)}
+              className={`border-b-2 pb-2 transition-colors duration-300 ${
+                heroMode === option.value
+                  ? "border-white text-white"
+                  : "border-transparent text-white/72 hover:text-white"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div ref={searchBoxRef} className="relative mt-8 w-full max-w-3xl">
+          <label className="flex w-full items-center gap-4 rounded-full border border-white/35 bg-white/96 px-6 py-3 shadow-[0_20px_60px_rgba(15,23,42,0.22)] backdrop-blur-sm transition-shadow duration-300 focus-within:shadow-[0_26px_70px_rgba(15,23,42,0.28)] sm:px-7 sm:py-4">
+            <input
+              value={query}
+              onChange={(event) => handleQueryChange(event.target.value)}
+              onFocus={() => {
+                if (locationSuggestions.length > 0) {
+                  setLocationSuggestionsOpen(true);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  setLocationSuggestionsOpen(false);
+                }
+              }}
+              className="min-w-0 flex-1 bg-transparent text-base font-semibold text-brand-dark outline-none placeholder:text-brand-gray/90 sm:text-lg"
+              maxLength={80}
+              autoComplete="off"
+              placeholder="Search Thailand cities, towns, property types"
+            />
+            <button
+              type="submit"
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-black uppercase tracking-[0.16em] text-brand-dark transition hover:text-brand-red sm:text-base"
+              aria-label="Search listings"
+            >
+              <span>Search</span>
+              <Search className="h-5 w-5" />
+            </button>
+          </label>
+          {locationSuggestionsLoading || locationSuggestionsOpen ? (
+            <div className="absolute inset-x-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-[24px] border border-[#d8d2cc] bg-white shadow-[0_22px_60px_rgba(15,23,42,0.18)]">
+              {locationSuggestionsLoading ? (
+                <p className="px-5 py-4 text-sm font-semibold text-brand-gray">Searching Thailand locations...</p>
+              ) : (
+                locationSuggestions.map((suggestion) => (
+                  <button
+                    key={suggestion.id}
+                    type="button"
+                    onClick={() => applyLocationSuggestion(suggestion)}
+                    className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-5 py-4 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:bg-[#faf7f3] hover:text-brand-red"
+                  >
+                    <MapPin className="h-4 w-4 shrink-0 text-brand-red" />
+                    <span>{suggestion.label}</span>
+                  </button>
+                ))
+              )}
+            </div>
+          ) : null}
+        </div>
+      </form>
+    );
   }
 
   return (

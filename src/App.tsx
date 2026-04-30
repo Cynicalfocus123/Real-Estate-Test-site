@@ -286,7 +286,7 @@ export function App() {
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
       <main>
-        <section className="relative min-h-[680px] overflow-hidden bg-neutral-900">
+        <section className="relative min-h-[720px] overflow-hidden bg-neutral-900">
           <iframe
             className="pointer-events-none absolute left-1/2 top-1/2 h-[145%] w-[360%] -translate-x-1/2 -translate-y-1/2 sm:w-[240%] md:w-[180%] lg:h-[145%] lg:w-[115%]"
             src="https://www.youtube.com/embed/DjHBEF6derw?autoplay=1&mute=1&loop=1&playlist=DjHBEF6derw&controls=0&rel=0&modestbranding=1&playsinline=1"
@@ -296,23 +296,22 @@ export function App() {
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allowFullScreen
           />
-          <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(0,0,0,0.54)_0%,rgba(0,0,0,0.34)_48%,rgba(0,0,0,0.12)_100%)]" />
-          <div className="relative mx-auto flex max-w-7xl px-4 py-20 lg:px-8 lg:py-28">
-            <div className="max-w-2xl">
-              <h1 className="text-5xl font-black leading-[1.02] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl">
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.46)_0%,rgba(0,0,0,0.24)_30%,rgba(0,0,0,0.42)_100%)]" />
+          <div className="relative mx-auto flex min-h-[720px] max-w-7xl items-center px-4 py-20 lg:px-8 lg:py-28">
+            <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center">
+              <h1 className="max-w-4xl text-5xl font-black leading-[1.02] text-white drop-shadow-[0_5px_18px_rgba(0,0,0,0.9)] sm:text-6xl lg:text-7xl">
                 Find your next home for less.
               </h1>
-              <p className="mt-6 max-w-lg text-lg font-extrabold leading-8 text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]">
+              <p className="mt-6 max-w-2xl text-lg font-extrabold leading-8 text-white drop-shadow-[0_4px_14px_rgba(0,0,0,0.95)]">
                 Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury
                 homes, distressed properties, and exclusive long-term visa packages for foreign buyers.
               </p>
+              <div className="mt-12 w-full">
+                <SearchPanel variant="hero" />
+              </div>
             </div>
           </div>
         </section>
-
-        <div className="relative z-10 px-4 lg:px-8">
-          <SearchPanel />
-        </div>
 
         <StatsBand />
 
