@@ -171,3 +171,4 @@
 - Refined listing-page controls and chips with rounded modern styling plus smooth dropdown open/close animation inspired by Airbnb-like interaction patterns.
 - Reworked property listing page into a compact product-card grid with top search, filter drawer, sort menu above products, heart save buttons, and six-image card sliders.
 - Changed property listings to a single vertical list with smaller DDProperty-inspired compact rows and reduced built-year styling for mobile-friendly scanning.
+- Increased listing image area while narrowing the overall product list width for a closer DDProperty-style row proportion.

@@ -105,8 +105,8 @@ function ListingCard({ listing, mode }: { listing: PropertyListing; mode: Listin
       id={listing.id}
       className="overflow-hidden border border-[#e3ddd8] bg-white shadow-[0_10px_26px_rgba(15,23,42,0.08)] transition duration-300 hover:shadow-[0_16px_34px_rgba(15,23,42,0.12)]"
     >
-      <div className="grid md:grid-cols-[220px_1fr] lg:grid-cols-[250px_1fr]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200 md:aspect-auto md:min-h-[210px]">
+      <div className="grid md:grid-cols-[310px_1fr] lg:grid-cols-[340px_1fr]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200 md:aspect-auto md:min-h-[250px]">
           <div
             className="flex h-full transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${activeSlide * 100}%)` }}
@@ -553,7 +553,7 @@ export function PropertyListingsPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+        <section className="mx-auto max-w-5xl px-4 py-10 lg:px-8">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-black text-brand-dark">
