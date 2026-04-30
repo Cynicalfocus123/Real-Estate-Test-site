@@ -205,3 +205,4 @@
 - Updated the listing-page search bar so typed queries keep spaces while the search engine still normalizes and matches multi-word place names safely.
 - Reused the listing-style property card on the home-page `Best Deals` section so those cards now share the same slider, save button, location row, and metadata styling as the listing page.
 - Widened the home-page `Best Deals` grid so each product card gets more horizontal room and the image/text/icon chips do not feel cramped.
+- Changed the home-page `Best Deals` layout to a single wide column so the price label and other card text no longer get squeezed on desktop.
