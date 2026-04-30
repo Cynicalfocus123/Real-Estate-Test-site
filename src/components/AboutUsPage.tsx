@@ -33,15 +33,14 @@ export function AboutUsPage() {
             </p>
           </div>
 
-          <div className="mt-10 space-y-6">
-            {aboutParagraphs.map((paragraph) => (
-              <article
-                key={paragraph}
-                className="border border-brand-line bg-white p-6 shadow-[0_10px_30px_rgba(23,23,23,0.05)]"
-              >
-                <p className="text-base leading-8 text-brand-gray">{paragraph}</p>
-              </article>
-            ))}
+          <div className="mt-10 max-w-4xl">
+            <div className="text-base leading-8 text-brand-gray">
+              {aboutParagraphs.map((paragraph) => (
+                <p key={paragraph} className="mb-6 last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </section>
       </main>

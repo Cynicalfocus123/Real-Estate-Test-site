@@ -225,3 +225,4 @@
 - Changed the home hero `Senior Home` mode to open the shared property listings page instead of the static nursing-home content page.
 - Fixed the stacked dual-handle price sliders so the left minimum-price thumb is draggable on mobile by giving the hidden range inputs thumb-only pointer events instead of letting the top input block touches across the full track.
 - Changed the header `More` submenu label from `Abouts` to `About Us` and added a dedicated `About Us` page at `/about-us` using the supplied company profile copy.
+- Restyled the `About Us` page copy into a single flowing text section instead of separate boxed paragraphs.
