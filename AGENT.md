@@ -193,3 +193,4 @@
 - Added a visible footer to the home-page expanded filter box with a bottom-left `Clear Reset` action and a bottom-right `Search` submit button so the filter actions are no longer missing or cut off.
 - Corrected the listing-page layout by centering the top search bar and quick-filter buttons, centering the quick-filter popovers, and making the main Filters modal use a sticky visible footer with stronger `Clear All` and `Submit` actions so the bottom controls do not get cut off.
 - Removed the `New Projects Only` row from the listing-page Filters modal.
+- Wired the header `For Rent` menu to the shared listing page route and made the listing page auto-open in Rent mode with clean default filters when entered through the rent URL.

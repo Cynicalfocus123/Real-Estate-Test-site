@@ -304,8 +304,8 @@ function ListingCard({ listing, mode }: { listing: PropertyListing; mode: Listin
   );
 }
 
-export function PropertyListingsPage() {
-  const [mode, setMode] = useState<ListingMode>("sale");
+export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: ListingMode }) {
+  const [mode, setMode] = useState<ListingMode>(initialMode);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(30000000);
@@ -318,7 +318,7 @@ export function PropertyListingsPage() {
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
   const [maxLandSize, setMaxLandSize] = useState("");
-  const [draftMode, setDraftMode] = useState<ListingMode>("sale");
+  const [draftMode, setDraftMode] = useState<ListingMode>(initialMode);
   const [draftHomeType, setDraftHomeType] = useState<"Any" | ListingHomeType>("Any");
   const [draftAmenities, setDraftAmenities] = useState<string[]>([]);
   const [draftCategories, setDraftCategories] = useState<ListingSpecialCategory[]>([]);
@@ -336,6 +336,27 @@ export function PropertyListingsPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
   }, []);
+
+  useEffect(() => {
+    setMode(initialMode);
+    setDraftMode(initialMode);
+    setQuery("");
+    setSelectedBedroom("Any");
+    setSelectedBathroom("Any");
+    setSelectedCategories([]);
+    setSelectedAmenities([]);
+    setSelectedHomeType("Any");
+    setMinLandSize("");
+    setMaxLandSize("");
+    setMinPrice(0);
+    setMaxPrice(initialMode === "rent" ? 100000 : 30000000);
+    setPriceQuickView("list-price");
+    setDownPaymentOption("amount");
+    setSortBy("recommended");
+    setSortOpen(false);
+    setFilterOpen(false);
+    setActiveQuickFilter(null);
+  }, [initialMode]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {

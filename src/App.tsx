@@ -67,8 +67,10 @@ export function App() {
   const isCostOfLivingThailandPage =
     currentPath.endsWith("/cost-of-living-thailand") ||
     currentHash === "#/cost-of-living-thailand";
-  const isPropertyListingsPage =
+  const isPropertyListingsSalePage =
     currentPath.endsWith("/properties-for-sale") || currentHash === "#/properties-for-sale";
+  const isPropertyListingsRentPage =
+    currentPath.endsWith("/properties-for-rent") || currentHash === "#/properties-for-rent";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -180,8 +182,12 @@ export function App() {
     return <CostOfLivingThailandPage />;
   }
 
-  if (isPropertyListingsPage) {
-    return <PropertyListingsPage />;
+  if (isPropertyListingsSalePage) {
+    return <PropertyListingsPage initialMode="sale" />;
+  }
+
+  if (isPropertyListingsRentPage) {
+    return <PropertyListingsPage initialMode="rent" />;
   }
 
   if (isRetirementVisaPage) {
