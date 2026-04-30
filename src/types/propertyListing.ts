@@ -8,8 +8,18 @@ export type ListingHomeType =
   | "Single Detach House"
   | "Semi Detached House";
 
+export type ListingMode = "sale" | "rent";
+
+export type ListingSpecialCategory =
+  | "Distress Property"
+  | "Foreclosure"
+  | "Pre-Foreclosure"
+  | "Fixer Upper"
+  | "Urgent Sale";
+
 export type PropertyListing = {
   id: string;
+  mode: ListingMode;
   title: string;
   city: string;
   province: string;
@@ -24,4 +34,5 @@ export type PropertyListing = {
   amenities: string[];
   image: string;
   statusLabel: string;
+  specialCategory?: ListingSpecialCategory;
 };

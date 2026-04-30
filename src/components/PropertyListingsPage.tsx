@@ -2,24 +2,30 @@ import {
   Bath,
   BedDouble,
   CalendarRange,
-  Filter,
+  ChevronDown,
   MapPin,
   Search,
   Share2,
-  SlidersHorizontal,
   Sparkles,
   Square,
+  Undo2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
-import type { ListingHomeType, PropertyListing } from "../types/propertyListing";
+import type {
+  ListingHomeType,
+  ListingMode,
+  ListingSpecialCategory,
+  PropertyListing,
+} from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { cleanNumericText, cleanSearchText } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-const bedroomOptions = ["Studio", "1", "2", "3", "4", "5+"] as const;
-const bathroomOptions = ["1", "2", "3", "4", "5+"] as const;
+const modeOptions: ListingMode[] = ["sale", "rent"];
+const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
+const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
 const homeTypeOptions: Array<"Any" | ListingHomeType> = [
   "Any",
   "House",
@@ -32,10 +38,20 @@ const homeTypeOptions: Array<"Any" | ListingHomeType> = [
   "Semi Detached House",
 ];
 const sortOptions = [
-  { label: "Newest first", value: "newest" },
-  { label: "Price: low to high", value: "price-low" },
-  { label: "Price: high to low", value: "price-high" },
+  { label: "Recommended", value: "recommended" },
+  { label: "Newest", value: "newest" },
+  { label: "Lowest Price", value: "price-low" },
+  { label: "Highest Price", value: "price-high" },
+  { label: "Size (high-low)", value: "size-high" },
+  { label: "Size (low-high)", value: "size-low" },
 ] as const;
+const saleCategoryOptions: ListingSpecialCategory[] = [
+  "Distress Property",
+  "Foreclosure",
+  "Pre-Foreclosure",
+  "Fixer Upper",
+  "Urgent Sale",
+];
 
 function getBedroomLabel(beds: number) {
   return beds === 0 ? "Studio" : `${beds} Bed`;
@@ -52,23 +68,25 @@ function getMinimumFilterValue(option: string) {
 }
 
 function matchesBedroom(listing: PropertyListing, selected: string) {
-  if (!selected) return true;
+  if (!selected || selected === "Any") return true;
   if (selected === "Studio") return listing.beds === 0;
   return listing.beds >= getMinimumFilterValue(selected);
 }
 
 function matchesBathroom(listing: PropertyListing, selected: string) {
-  if (!selected) return true;
+  if (!selected || selected === "Any") return true;
   return listing.baths >= getMinimumFilterValue(selected);
 }
 
 function ListingCard({
   copiedId,
   listing,
+  mode,
   onShare,
 }: {
   copiedId: string | null;
   listing: PropertyListing;
+  mode: ListingMode;
   onShare: (listing: PropertyListing) => void;
 }) {
   return (
@@ -84,9 +102,16 @@ function ListingCard({
             className="h-full w-full object-cover transition duration-500 hover:scale-105"
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.12)_40%,rgba(0,0,0,0.55)_100%)]" />
-          <span className="absolute left-4 top-4 bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
-            {listing.statusLabel}
-          </span>
+          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+            <span className="bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
+              {listing.statusLabel}
+            </span>
+            {listing.specialCategory ? (
+              <span className="bg-brand-red px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white">
+                {listing.specialCategory}
+              </span>
+            ) : null}
+          </div>
           <button
             type="button"
             onClick={() => onShare(listing)}
@@ -115,7 +140,7 @@ function ListingCard({
             <div className="shrink-0">
               <p className="text-3xl font-black text-brand-red">{listing.priceLabel}</p>
               <p className="mt-1 text-right text-xs font-bold uppercase tracking-[0.2em] text-brand-gray">
-                For Sale
+                For {mode}
               </p>
             </div>
           </div>
@@ -141,7 +166,7 @@ function ListingCard({
             </div>
             <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
-                <Filter className="h-4 w-4 text-brand-red" />
+                <Sparkles className="h-4 w-4 text-brand-red" />
                 {listing.homeType}
               </span>
             </div>
@@ -174,24 +199,37 @@ function ListingCard({
 }
 
 export function PropertyListingsPage() {
+  const [mode, setMode] = useState<ListingMode>("sale");
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [selectedBedroom, setSelectedBedroom] = useState("");
-  const [selectedBathroom, setSelectedBathroom] = useState("");
+  const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
+  const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
-  const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("newest");
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
+  const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
+  const [sortOpen, setSortOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
   }, []);
 
+  const modeListings = useMemo(
+    () => propertyListings.filter((listing) => listing.mode === mode),
+    [mode],
+  );
+  const amenityOptions = useMemo(
+    () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
+    [modeListings],
+  );
+
   const sanitizedQuery = cleanSearchText(query);
   const minValue = minPrice ? Number(minPrice) : null;
   const maxValue = maxPrice ? Number(maxPrice) : null;
 
-  const filteredListings = propertyListings
+  const filteredListings = modeListings
     .filter((listing) => {
       const searchableText = `${listing.title} ${listing.city} ${listing.province} ${listing.homeType} ${listing.nearby.join(" ")}`
         .toLowerCase();
@@ -199,12 +237,21 @@ export function PropertyListingsPage() {
       const matchesMin = minValue === null || listing.priceValue >= minValue;
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
       const matchesType = selectedHomeType === "Any" || listing.homeType === selectedHomeType;
+      const matchesAmenities =
+        selectedAmenities.length === 0 ||
+        selectedAmenities.every((amenity) => listing.amenities.includes(amenity));
+      const matchesCategory =
+        mode === "rent" ||
+        selectedCategories.length === 0 ||
+        (listing.specialCategory && selectedCategories.includes(listing.specialCategory));
 
       return (
         matchesQuery &&
         matchesMin &&
         matchesMax &&
         matchesType &&
+        matchesAmenities &&
+        matchesCategory &&
         matchesBedroom(listing, selectedBedroom) &&
         matchesBathroom(listing, selectedBathroom)
       );
@@ -212,7 +259,17 @@ export function PropertyListingsPage() {
     .sort((left, right) => {
       if (sortBy === "price-low") return left.priceValue - right.priceValue;
       if (sortBy === "price-high") return right.priceValue - left.priceValue;
-      return right.builtYear - left.builtYear;
+      if (sortBy === "size-high") return right.areaSqm - left.areaSqm;
+      if (sortBy === "size-low") return left.areaSqm - right.areaSqm;
+      if (sortBy === "newest") return right.builtYear - left.builtYear;
+
+      const score = (listing: PropertyListing) =>
+        listing.builtYear * 1000 +
+        listing.areaSqm * 10 +
+        listing.amenities.length * 25 +
+        (listing.specialCategory ? 5 : 0);
+
+      return score(right) - score(left);
     });
 
   const provinceCount = new Set(filteredListings.map((listing) => listing.province)).size;
@@ -241,10 +298,36 @@ export function PropertyListingsPage() {
     setQuery("");
     setMinPrice("");
     setMaxPrice("");
-    setSelectedBedroom("");
-    setSelectedBathroom("");
+    setSelectedBedroom("Any");
+    setSelectedBathroom("Any");
     setSelectedHomeType("Any");
-    setSortBy("newest");
+    setSelectedAmenities([]);
+    setSelectedCategories([]);
+    setSortBy("recommended");
+    setSortOpen(false);
+  }
+
+  function toggleAmenity(amenity: string) {
+    setSelectedAmenities((current) =>
+      current.includes(amenity)
+        ? current.filter((item) => item !== amenity)
+        : [...current, amenity],
+    );
+  }
+
+  function toggleCategory(category: ListingSpecialCategory) {
+    setSelectedCategories((current) =>
+      current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category],
+    );
+  }
+
+  function handleModeChange(nextMode: ListingMode) {
+    setMode(nextMode);
+    setSelectedCategories([]);
+    setSelectedAmenities([]);
+    setSortOpen(false);
   }
 
   return (
@@ -254,36 +337,55 @@ export function PropertyListingsPage() {
         <section className="border-b border-[#e5ddd7] bg-white">
           <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
             <div className="max-w-4xl">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">For Sale</p>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
+                {mode === "sale" ? "For Sale" : "For Rent"}
+              </p>
               <h1 className="mt-4 font-serif text-5xl font-normal leading-tight text-brand-dark sm:text-6xl">
                 Property Listings by City and Province
               </h1>
               <p className="mt-5 max-w-3xl text-lg font-semibold leading-8 text-brand-gray">
-                Test layout for our main listing page. Search by location, narrow by budget and home
-                type, and browse a modern card view with the key property details surfaced up front.
+                Test layout for our main listing page. Search by location, switch between sale and
+                rent, and refine results from one compact filter area below the search.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 border border-[#e3ddd8] bg-[#faf7f4] p-4 lg:grid-cols-[1fr_auto] lg:p-5">
-              <label className="flex items-center gap-3 border border-white bg-white px-4 py-4">
-                <Search className="h-5 w-5 text-brand-red" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(cleanSearchText(event.target.value))}
-                  className="w-full text-sm font-medium outline-none"
-                  maxLength={80}
-                  placeholder="Search by city, province, project, nearby landmark, or property type"
-                />
-              </label>
+            <div className="mt-8 border border-[#e3ddd8] bg-[#faf7f4] p-4 lg:p-5">
+              <div className="flex flex-wrap gap-2 border-b border-[#e3ddd8] pb-4">
+                {modeOptions.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleModeChange(option)}
+                    className={`px-5 py-3 text-sm font-black uppercase tracking-[0.18em] ${
+                      mode === option
+                        ? "bg-brand-red text-white"
+                        : "border border-brand-line bg-white text-brand-dark"
+                    }`}
+                  >
+                    {option === "sale" ? "Sale" : "Rent"}
+                  </button>
+                ))}
+              </div>
 
-              <div className="grid gap-4 sm:grid-cols-3 lg:min-w-[360px]">
+              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,170px))_minmax(0,240px)]">
+                <label className="flex items-center gap-3 border border-white bg-white px-4 py-4">
+                  <Search className="h-5 w-5 text-brand-red" />
+                  <input
+                    value={query}
+                    onChange={(event) => setQuery(cleanSearchText(event.target.value))}
+                    className="w-full text-sm font-medium outline-none"
+                    maxLength={80}
+                    placeholder="Search by city, province, project, nearby landmark, or property type"
+                  />
+                </label>
+
                 <input
                   value={minPrice}
                   onChange={(event) => setMinPrice(cleanNumericText(event.target.value))}
                   className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
                   inputMode="numeric"
                   maxLength={12}
-                  placeholder="Min THB"
+                  placeholder={mode === "sale" ? "Min THB" : "Min / month"}
                 />
                 <input
                   value={maxPrice}
@@ -291,141 +393,197 @@ export function PropertyListingsPage() {
                   className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
                   inputMode="numeric"
                   maxLength={12}
-                  placeholder="Max THB"
+                  placeholder={mode === "sale" ? "Max THB" : "Max / month"}
                 />
-                <label className="flex items-center gap-3 border border-white bg-white px-4 py-4">
-                  <SlidersHorizontal className="h-5 w-5 text-brand-red" />
-                  <select
-                    value={sortBy}
-                    onChange={(event) => setSortBy(event.target.value as (typeof sortOptions)[number]["value"])}
-                    className="w-full bg-transparent text-sm font-semibold outline-none"
-                    aria-label="Sort listings"
+
+                <select
+                  value={selectedBedroom}
+                  onChange={(event) => setSelectedBedroom(event.target.value)}
+                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  aria-label="Bedroom filter"
+                >
+                  {bedroomOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option === "Any" ? "Any Bed" : option === "Studio" ? "Studio" : `${option}+ Bed`}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedBathroom}
+                  onChange={(event) => setSelectedBathroom(event.target.value)}
+                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  aria-label="Bathroom filter"
+                >
+                  {bathroomOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option === "Any" ? "Any Bath" : `${option}+ Bath`}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setSortOpen((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 rounded-[24px] border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold"
+                    aria-expanded={sortOpen}
+                    aria-label="Recommended sort menu"
                   >
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
+                    <span>{sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}</span>
+                    <ChevronDown className={`h-4 w-4 transition ${sortOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {sortOpen ? (
+                    <div className="absolute right-0 top-[calc(100%+10px)] z-20 min-w-full overflow-hidden border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)]">
+                      {sortOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setSortBy(option.value);
+                            setSortOpen(false);
+                          }}
+                          className="flex w-full items-center gap-4 border-b border-[#d7dde6] px-5 py-4 text-left text-[15px] text-brand-dark last:border-b-0 hover:bg-[#f7f9fc]"
+                        >
+                          <span
+                            className={`h-6 w-6 rounded-full border ${
+                              sortBy === option.value ? "border-brand-dark" : "border-[#6b7280]"
+                            } flex items-center justify-center`}
+                          >
+                            <span
+                              className={`h-3.5 w-3.5 rounded-full ${
+                                sortBy === option.value ? "bg-brand-dark" : "bg-transparent"
+                              }`}
+                            />
+                          </span>
+                          <span className="font-medium">{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-start gap-4 border-t border-[#e3ddd8] pt-4">
+                <div className="min-w-[220px] flex-1">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Home Type</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {homeTypeOptions.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setSelectedHomeType(option)}
+                        className={`px-4 py-2 text-sm font-bold ${
+                          selectedHomeType === option
+                            ? "bg-brand-red text-white"
+                            : "border border-brand-line bg-white text-brand-dark"
+                        }`}
+                      >
+                        {option}
+                      </button>
                     ))}
-                  </select>
-                </label>
+                  </div>
+                </div>
+
+                <div className="min-w-[220px] flex-1">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Amenities</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {amenityOptions.map((amenity) => (
+                      <button
+                        key={amenity}
+                        type="button"
+                        onClick={() => toggleAmenity(amenity)}
+                        className={`px-4 py-2 text-sm font-bold ${
+                          selectedAmenities.includes(amenity)
+                            ? "bg-brand-dark text-white"
+                            : "border border-brand-line bg-white text-brand-dark"
+                        }`}
+                      >
+                        {amenity}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {mode === "sale" ? (
+                  <div className="min-w-[240px] flex-1">
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">
+                      Special Listings
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {saleCategoryOptions.map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => toggleCategory(category)}
+                          className={`px-4 py-2 text-sm font-bold ${
+                            selectedCategories.includes(category)
+                              ? "bg-[#1f2937] text-white"
+                              : "border border-brand-line bg-white text-brand-dark"
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="inline-flex items-center gap-2 border border-brand-line bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.18em] text-brand-dark hover:text-brand-red"
+                  >
+                    <Undo2 className="h-4 w-4" />
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[290px_1fr] lg:px-8">
-          <aside className="h-fit border border-[#e3ddd8] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-24">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-red">Filters</p>
-                <h2 className="mt-2 text-2xl font-black text-brand-dark">Refine Search</h2>
-              </div>
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray hover:text-brand-red"
-              >
-                Reset
-              </button>
+        <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
+          <div className="flex flex-col gap-3 border border-[#e3ddd8] bg-white px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.05)] sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-brand-red">Results</p>
+              <h2 className="mt-2 text-3xl font-black text-brand-dark">
+                {filteredListings.length} homes across {provinceCount} provinces
+              </h2>
+              <p className="mt-2 text-sm text-brand-gray">
+                Search works across city, province, nearby landmarks, and property type.
+              </p>
             </div>
-
-            <div className="mt-8 space-y-8">
-              <section>
-                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-brand-dark">Bedrooms</h3>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {bedroomOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setSelectedBedroom((current) => (current === option ? "" : option))}
-                      className={`px-3 py-3 text-sm font-bold ${
-                        selectedBedroom === option
-                          ? "bg-brand-dark text-white"
-                          : "border border-brand-line text-brand-dark hover:border-brand-red"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-brand-dark">Bathrooms</h3>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {bathroomOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setSelectedBathroom((current) => (current === option ? "" : option))}
-                      className={`px-3 py-3 text-sm font-bold ${
-                        selectedBathroom === option
-                          ? "bg-brand-dark text-white"
-                          : "border border-brand-line text-brand-dark hover:border-brand-red"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-brand-dark">Home Type</h3>
-                <div className="mt-3 grid gap-2">
-                  {homeTypeOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setSelectedHomeType(option)}
-                      className={`px-4 py-3 text-left text-sm font-bold ${
-                        selectedHomeType === option
-                          ? "bg-brand-red text-white"
-                          : "border border-brand-line text-brand-dark hover:border-brand-red"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </section>
+            <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gray">
+              {Array.from(new Set(filteredListings.map((listing) => listing.province))).slice(0, 6).map((province) => (
+                <span key={province} className="border border-brand-line px-3 py-2">
+                  {province}
+                </span>
+              ))}
             </div>
-          </aside>
+          </div>
 
-          <div>
-            <div className="flex flex-col gap-3 border border-[#e3ddd8] bg-white px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.05)] sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[0.18em] text-brand-red">Results</p>
-                <h2 className="mt-2 text-3xl font-black text-brand-dark">
-                  {filteredListings.length} homes across {provinceCount} provinces
-                </h2>
-                <p className="mt-2 text-sm text-brand-gray">
-                  Search works across city, province, nearby landmarks, and property type.
+          <div className="mt-6 space-y-6">
+            {filteredListings.length > 0 ? (
+              filteredListings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  copiedId={copiedId}
+                  listing={listing}
+                  mode={mode}
+                  onShare={handleShare}
+                />
+              ))
+            ) : (
+              <div className="border border-dashed border-brand-line bg-white px-6 py-16 text-center">
+                <h3 className="text-2xl font-black text-brand-dark">No homes match these filters</h3>
+                <p className="mt-4 text-base leading-7 text-brand-gray">
+                  Try widening budget, changing bedroom count, or clearing location search.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gray">
-                {Array.from(new Set(filteredListings.map((listing) => listing.province))).slice(0, 5).map((province) => (
-                  <span key={province} className="border border-brand-line px-3 py-2">
-                    {province}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-6">
-              {filteredListings.length > 0 ? (
-                filteredListings.map((listing) => (
-                  <ListingCard key={listing.id} copiedId={copiedId} listing={listing} onShare={handleShare} />
-                ))
-              ) : (
-                <div className="border border-dashed border-brand-line bg-white px-6 py-16 text-center">
-                  <h3 className="text-2xl font-black text-brand-dark">No homes match these filters</h3>
-                  <p className="mt-4 text-base leading-7 text-brand-gray">
-                    Try widening your budget, changing bedroom count, or clearing the location search.
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </section>
       </main>
