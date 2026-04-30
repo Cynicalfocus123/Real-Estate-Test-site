@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { thaiProvinces } from "../data/thaiProvinces";
 import { propertyListings } from "../data/propertyListings";
 import type {
   ListingHomeType,
@@ -29,7 +30,7 @@ import { cleanNumericText, cleanSearchText } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-type QuickFilter = "price" | "rooms" | "homeType";
+type QuickFilter = "price" | "rooms" | "homeType" | "province" | "city";
 type PriceQuickView = "list-price" | "monthly-payment";
 type DownPaymentOption = "amount" | "percentage";
 
@@ -139,6 +140,10 @@ function formatPriceValue(value: number, mode: ListingMode) {
 
 function getPriceInputValue(value: number, limit: number) {
   return value === limit ? "" : String(value);
+}
+
+function getSingleFilterLabel(defaultLabel: string, selectedValue: string) {
+  return selectedValue || defaultLabel;
 }
 
 function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
@@ -316,9 +321,13 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
   const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>("Any");
   const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>("Any");
   const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [draftQuickProvince, setDraftQuickProvince] = useState("");
+  const [draftQuickCity, setDraftQuickCity] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
@@ -348,9 +357,13 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setQuery("");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
+    setSelectedProvince("");
+    setSelectedCity("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
+    setDraftQuickProvince("");
+    setDraftQuickCity("");
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSelectedHomeType("Any");
@@ -414,6 +427,10 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     () => propertyListings.filter((listing) => listing.mode === draftMode),
     [draftMode],
   );
+  const cityOptions = useMemo(
+    () => Array.from(new Set(modeListings.map((listing) => listing.city))).sort(),
+    [modeListings],
+  );
   const amenityOptions = useMemo(
     () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
     [modeListings],
@@ -437,6 +454,8 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   const hasActivePriceFilter = minPrice > minPriceLimit || maxPrice < maxPriceLimit;
   const hasActiveRoomFilter = selectedBedroom !== "Any" || selectedBathroom !== "Any";
   const hasActiveHomeTypeFilter = selectedHomeType !== "Any";
+  const hasActiveProvinceFilter = Boolean(selectedProvince);
+  const hasActiveCityFilter = Boolean(selectedCity);
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -446,6 +465,8 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
       const matchesMin = minValue === null || listing.priceValue >= minValue;
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
       const matchesType = selectedHomeType === "Any" || listing.homeType === selectedHomeType;
+      const matchesProvince = !selectedProvince || listing.province === selectedProvince;
+      const matchesCity = !selectedCity || listing.city === selectedCity;
       const matchesMinLand = minLandValue === null || listing.areaSqm >= minLandValue;
       const matchesMaxLand = maxLandValue === null || listing.areaSqm <= maxLandValue;
       const matchesAmenities =
@@ -461,6 +482,8 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
         matchesMin &&
         matchesMax &&
         matchesType &&
+        matchesProvince &&
+        matchesCity &&
         matchesMinLand &&
         matchesMaxLand &&
         matchesAmenities &&
@@ -495,9 +518,13 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setDownPaymentOption("amount");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
+    setSelectedProvince("");
+    setSelectedCity("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
+    setDraftQuickProvince("");
+    setDraftQuickCity("");
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
@@ -525,6 +552,10 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setDownPaymentOption("amount");
     setSelectedCategories([]);
     setSelectedAmenities([]);
+    setSelectedProvince("");
+    setSelectedCity("");
+    setDraftQuickProvince("");
+    setDraftQuickCity("");
     setSortOpen(false);
     setActiveQuickFilter(null);
   }
@@ -569,6 +600,12 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     if (filter === "homeType") {
       setDraftQuickHomeType(selectedHomeType);
     }
+    if (filter === "province") {
+      setDraftQuickProvince(selectedProvince);
+    }
+    if (filter === "city") {
+      setDraftQuickCity(selectedCity);
+    }
     setActiveQuickFilter((current) => (current === filter ? null : filter));
   }
 
@@ -580,6 +617,16 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
 
   function applyHomeTypeQuickFilter() {
     setSelectedHomeType(draftQuickHomeType);
+    setActiveQuickFilter(null);
+  }
+
+  function applyProvinceQuickFilter() {
+    setSelectedProvince(draftQuickProvince);
+    setActiveQuickFilter(null);
+  }
+
+  function applyCityQuickFilter() {
+    setSelectedCity(draftQuickCity);
     setActiveQuickFilter(null);
   }
 
@@ -601,6 +648,18 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setSelectedHomeType("Any");
     setDraftQuickHomeType("Any");
     setActiveQuickFilter((current) => (current === "homeType" ? null : current));
+  }
+
+  function resetProvinceQuickFilter() {
+    setSelectedProvince("");
+    setDraftQuickProvince("");
+    setActiveQuickFilter((current) => (current === "province" ? null : current));
+  }
+
+  function resetCityQuickFilter() {
+    setSelectedCity("");
+    setDraftQuickCity("");
+    setActiveQuickFilter((current) => (current === "city" ? null : current));
   }
 
   function handleMinPriceChange(value: number) {
@@ -680,6 +739,66 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                 </label>
 
               <div ref={quickFilterRef} className="relative mt-4">
+                <div className="mx-auto mb-3 grid w-full max-w-[700px] gap-2 sm:grid-cols-2">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleQuickFilter("city")}
+                      className={`relative flex w-full items-center rounded-xl border bg-white px-4 py-3 pr-12 text-left text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActiveCityFilter ? "pr-20" : ""
+                      } ${
+                        activeQuickFilter === "city" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "city"}
+                    >
+                      <span className="truncate">{getSingleFilterLabel("Cities", selectedCity)}</span>
+                      {activeQuickFilter === "city" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
+                    </button>
+                    {hasActiveCityFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetCityQuickFilter}
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear city filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => toggleQuickFilter("province")}
+                      className={`relative flex w-full items-center rounded-xl border bg-white px-4 py-3 pr-12 text-left text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActiveProvinceFilter ? "pr-20" : ""
+                      } ${
+                        activeQuickFilter === "province" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "province"}
+                    >
+                      <span className="truncate">{getSingleFilterLabel("Province", selectedProvince)}</span>
+                      {activeQuickFilter === "province" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
+                    </button>
+                    {hasActiveProvinceFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetProvinceQuickFilter}
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear province filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
                 <div className="flex flex-wrap justify-center gap-2 pb-1">
                   <button
                     type="button"
@@ -787,7 +906,15 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                   >
                     <div className="mb-4">
                       <h2 className="text-lg font-black text-brand-dark">
-                        {mountedQuickFilter === "price" ? "Price" : mountedQuickFilter === "rooms" ? "Room" : "Home type"}
+                        {mountedQuickFilter === "price"
+                          ? "Price"
+                          : mountedQuickFilter === "rooms"
+                            ? "Room"
+                            : mountedQuickFilter === "homeType"
+                              ? "Home type"
+                              : mountedQuickFilter === "city"
+                                ? "Cities"
+                                : "Province"}
                       </h2>
                     </div>
 
@@ -1018,6 +1145,75 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                           <button
                             type="button"
                             onClick={applyHomeTypeQuickFilter}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mountedQuickFilter === "city" ? (
+                      <div className="space-y-5">
+                        <div className="max-h-[360px] overflow-y-auto pr-1">
+                          {cityOptions.map((city) => (
+                            <button
+                              key={city}
+                              type="button"
+                              onClick={() => setDraftQuickCity(city)}
+                              className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                            >
+                              <span
+                                className={`h-5 w-5 rounded-full border transition-all duration-300 ${
+                                  draftQuickCity === city
+                                    ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
+                                    : "border-brand-muted bg-white"
+                                }`}
+                              />
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={applyCityQuickFilter}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mountedQuickFilter === "province" ? (
+                      <div className="space-y-5">
+                        <div className="max-h-[360px] overflow-y-auto pr-1">
+                          {thaiProvinces.map((province) => (
+                            <button
+                              key={province.name}
+                              type="button"
+                              onClick={() => setDraftQuickProvince(province.name)}
+                              className="flex w-full items-center justify-between gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                            >
+                              <span className="inline-flex items-center gap-3">
+                                <span
+                                  className={`h-5 w-5 rounded-full border transition-all duration-300 ${
+                                    draftQuickProvince === province.name
+                                      ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
+                                      : "border-brand-muted bg-white"
+                                  }`}
+                                />
+                                {province.name}
+                              </span>
+                              <span className="text-xs font-black text-brand-red">{province.count}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={applyProvinceQuickFilter}
                             className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
                           >
                             Done
