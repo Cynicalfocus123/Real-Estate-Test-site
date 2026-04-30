@@ -448,13 +448,13 @@ export function PropertyListingsPage() {
               </div>
 
               <div className="mt-4 border-t border-[#e3ddd8] pt-4">
-                <div className="max-w-3xl">
-                  <h2 className="text-2xl font-black text-brand-dark">Price range</h2>
-                  <p className="mt-1 text-sm font-semibold text-brand-gray">
+                <div className="max-w-xl">
+                  <h2 className="text-lg font-black text-brand-dark">Price range</h2>
+                  <p className="mt-1 text-xs font-semibold text-brand-gray">
                     {mode === "sale" ? "Sale price, Thai baht" : "Monthly rent, Thai baht"}
                   </p>
-                  <div className="relative mt-5 h-24">
-                    <div className="absolute inset-x-5 bottom-8 flex h-16 items-end gap-1">
+                  <div className="relative mt-3 h-16">
+                    <div className="absolute inset-x-4 bottom-6 flex h-10 items-end gap-1">
                       {priceBars.map((height, index) => {
                         const barValue = minPriceLimit + ((maxPriceLimit - minPriceLimit) * index) / (priceBars.length - 1);
                         const isActive = barValue >= minPrice && barValue <= maxPrice;
@@ -465,12 +465,12 @@ export function PropertyListingsPage() {
                             className={`w-full rounded-t-full transition-colors duration-300 ${
                               isActive ? "bg-brand-red" : "bg-[#f1b6bf]"
                             }`}
-                            style={{ height: `${Math.max(6, height)}px` }}
+                            style={{ height: `${Math.max(4, Math.round(height * 0.65))}px` }}
                           />
                         );
                       })}
                     </div>
-                    <div className="absolute inset-x-5 bottom-8 h-0.5 bg-brand-red" />
+                    <div className="absolute inset-x-4 bottom-6 h-0.5 bg-brand-red" />
                     <input
                       type="range"
                       min={minPriceLimit}
@@ -478,7 +478,7 @@ export function PropertyListingsPage() {
                       step={priceStep}
                       value={minPrice}
                       onChange={(event) => handleMinPriceChange(Number(event.target.value))}
-                      className="pointer-events-auto absolute inset-x-0 bottom-3 z-10 h-10 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                      className="pointer-events-auto absolute inset-x-0 bottom-1 z-10 h-9 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
                       aria-label="Minimum price"
                     />
                     <input
@@ -488,20 +488,20 @@ export function PropertyListingsPage() {
                       step={priceStep}
                       value={maxPrice}
                       onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
-                      className="pointer-events-auto absolute inset-x-0 bottom-3 z-20 h-10 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                      className="pointer-events-auto absolute inset-x-0 bottom-1 z-20 h-9 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
                       aria-label="Maximum price"
                     />
                   </div>
-                  <div className="mt-1 flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm font-bold text-brand-gray">Minimum</p>
-                      <div className="mt-2 rounded-full border border-[#ddd8d2] bg-white px-8 py-4 text-center text-lg font-semibold text-brand-dark shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+                      <p className="text-xs font-bold text-brand-gray">Minimum</p>
+                      <div className="mt-1 rounded-full border border-[#ddd8d2] bg-white px-5 py-2 text-center text-sm font-semibold text-brand-dark shadow-[0_6px_16px_rgba(15,23,42,0.04)]">
                         {formatPriceValue(minPrice, mode)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-brand-gray">Maximum</p>
-                      <div className="mt-2 rounded-full border border-[#ddd8d2] bg-white px-8 py-4 text-center text-lg font-semibold text-brand-dark shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+                      <p className="text-xs font-bold text-brand-gray">Maximum</p>
+                      <div className="mt-1 rounded-full border border-[#ddd8d2] bg-white px-5 py-2 text-center text-sm font-semibold text-brand-dark shadow-[0_6px_16px_rgba(15,23,42,0.04)]">
                         {formatPriceValue(maxPrice, mode)}
                       </div>
                     </div>
@@ -640,29 +640,6 @@ export function PropertyListingsPage() {
                               </div>
                             </div>
                           </label>
-                        </div>
-                      </section>
-
-                      <section className="border-b border-[#eeeeee] px-5 py-5">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-base font-black text-brand-dark">Bedroom</h3>
-                          <ChevronUp className="h-5 w-5 text-brand-dark" />
-                        </div>
-                        <div className="mt-4 flex flex-wrap gap-3">
-                          {bedroomOptions.map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => setSelectedBedroom(option)}
-                              className={`min-w-[76px] rounded-xl border px-5 py-3 text-base font-semibold transition ${
-                                selectedBedroom === option
-                                  ? "border-brand-red bg-brand-red text-white"
-                                  : "border-[#b7b7b7] bg-white text-brand-dark"
-                              }`}
-                            >
-                              {option}
-                            </button>
-                          ))}
                         </div>
                       </section>
 

@@ -174,3 +174,4 @@
 - Increased listing image area while narrowing the overall product list width for a closer DDProperty-style row proportion.
 - Replaced min/max price inputs on the listing page with a price range slider, histogram-style price graph, and minimum/maximum value boxes underneath.
 - Restyled listing filter dropdown into a modern panel with buy/rent tabs, radio-style home type rows, price boxes, bedroom pills, amenities, special listings, and sticky Clear All/Apply Filter actions.
+- Reduced listing price slider height and removed Bedroom from the Buy filter panel while keeping the top quick bedroom selector.
