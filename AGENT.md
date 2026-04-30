@@ -229,3 +229,4 @@
 - Linked the footer `About Us` item to the real `/about-us` page instead of the old hash anchor.
 - Fixed the listing-page mobile sort control so the button aligns to the right edge, the label no longer gets clipped, and the dropdown opens from the correct mobile anchor width.
 - Added a property detail page route for each listing with a five-image preview grid, `See all` photo gallery modal, BuyHomeForLess agent contact card, save/share actions, structured property details, amenities, backend-ready FAQ data rendering, and a similar-properties slider based on same-province matching.
+- Refined the property detail gallery with a smaller `See all photos` button, a larger centered hero image, and five square clickable preview tiles that swap the main photo in place.

@@ -73,12 +73,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [contactVisible, setContactVisible] = useState(false);
   const [shareMessage, setShareMessage] = useState("Share");
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
   const similarScrollRef = useRef<HTMLDivElement | null>(null);
 
   const previewImages = useMemo(() => {
     const sourceImages = listing.galleryImages.length > 0 ? listing.galleryImages : [listing.image];
     return Array.from({ length: Math.min(5, Math.max(sourceImages.length, 5)) }, (_, index) => sourceImages[index % sourceImages.length]);
   }, [listing.galleryImages, listing.image]);
+
+  useEffect(() => {
+    setActivePreviewIndex(0);
+  }, [listing.id]);
 
   const similarProperties = useMemo(() => {
     const sameProvince = propertyListings.filter(
@@ -181,39 +186,50 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
               </div>
 
-              <div className="mt-8 overflow-hidden rounded-[34px] bg-white p-2 shadow-[0_20px_48px_rgba(15,23,42,0.12)]">
-                <div className="grid gap-2 lg:grid-cols-[1.45fr_1fr]">
-                  <div className="relative min-h-[280px] overflow-hidden rounded-[28px]">
+              <div className="mt-8 overflow-hidden rounded-[34px] bg-white p-3 shadow-[0_20px_48px_rgba(15,23,42,0.12)] sm:p-4">
+                <div className="space-y-4">
+                  <div className="relative min-h-[340px] overflow-hidden rounded-[30px] sm:min-h-[430px] lg:min-h-[560px]">
                     <img
-                      src={assetPath(previewImages[0])}
+                      src={assetPath(previewImages[activePreviewIndex])}
                       alt={`${listing.title} main photo`}
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute left-4 top-4 rounded-full bg-white/96 px-4 py-2 text-sm font-black text-brand-dark shadow-sm">
                       {listing.statusLabel}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryOpen(true)}
+                      className="absolute bottom-4 right-4 rounded-xl bg-white/96 px-3 py-2 text-xs font-black text-brand-dark shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 sm:px-4 sm:text-sm"
+                    >
+                      See all {listing.galleryImages.length} photos
+                    </button>
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {previewImages.slice(1, 5).map((image, index) => (
-                      <div key={`${listing.id}-preview-${index}`} className="relative min-h-[135px] overflow-hidden rounded-[24px]">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                    {previewImages.map((image, index) => (
+                      <button
+                        key={`${listing.id}-preview-${index}`}
+                        type="button"
+                        onClick={() => setActivePreviewIndex(index)}
+                        className={`relative aspect-square overflow-hidden rounded-[24px] border-2 transition ${
+                          activePreviewIndex === index
+                            ? "border-brand-red shadow-[0_14px_32px_rgba(163,28,36,0.16)]"
+                            : "border-transparent hover:border-[#d9c9be]"
+                        }`}
+                        aria-label={`Show photo ${index + 1} for ${listing.title}`}
+                        aria-pressed={activePreviewIndex === index}
+                      >
                         <img
                           src={assetPath(image)}
-                          alt={`${listing.title} preview ${index + 2}`}
+                          alt={`${listing.title} preview ${index + 1}`}
                           className="h-full w-full object-cover"
                         />
-                        {index === 3 ? (
-                          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.5)_100%)]" />
-                        ) : null}
-                        {index === 3 ? (
-                          <button
-                            type="button"
-                            onClick={() => setGalleryOpen(true)}
-                            className="absolute bottom-4 right-4 rounded-2xl bg-white px-5 py-3 text-sm font-black text-brand-dark shadow-[0_12px_28px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5"
-                          >
-                            See all {listing.galleryImages.length} photos
-                          </button>
-                        ) : null}
-                      </div>
+                        <div
+                          className={`absolute inset-0 transition ${
+                            activePreviewIndex === index ? "bg-[rgba(163,28,36,0.14)]" : "bg-transparent"
+                          }`}
+                        />
+                      </button>
                     ))}
                   </div>
                 </div>
