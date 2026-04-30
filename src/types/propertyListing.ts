@@ -28,6 +28,21 @@ export type PropertyAgent = {
   email: string;
 };
 
+export type PropertyAddress = {
+  street?: string;
+  village?: string;
+  soi?: string;
+  tambon?: string;
+  amphoe?: string;
+  district?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
 export type PropertyListing = {
   id: string;
   mode: ListingMode;
@@ -51,6 +66,7 @@ export type PropertyListing = {
   garageSpaces: number;
   propertyTypeLabel: string;
   agent: PropertyAgent;
+  address?: PropertyAddress;
   faqs?: PropertyFaq[];
   specialCategory?: ListingSpecialCategory;
 };

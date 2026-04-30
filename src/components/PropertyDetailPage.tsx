@@ -10,10 +10,11 @@ import {
   MoreHorizontal,
   Phone,
   Ruler,
+  Search,
   Share2,
   Warehouse,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
@@ -42,6 +43,83 @@ function getAgentInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+type GeocodedMapPoint = {
+  lat: number;
+  lon: number;
+  label: string;
+};
+
+function normalizeAddressValue(value?: string) {
+  const normalized = value?.trim();
+  return normalized ? normalized : undefined;
+}
+
+function buildAddressQuery(listing: PropertyListing) {
+  const address = listing.address;
+  const parts = [
+    normalizeAddressValue(address?.street),
+    normalizeAddressValue(address?.village),
+    normalizeAddressValue(address?.soi),
+    normalizeAddressValue(address?.tambon),
+    normalizeAddressValue(address?.amphoe),
+    normalizeAddressValue(address?.district),
+    normalizeAddressValue(address?.city) ?? listing.city,
+    normalizeAddressValue(address?.province) ?? listing.province,
+    normalizeAddressValue(address?.postalCode),
+    normalizeAddressValue(address?.country) ?? "Thailand",
+  ].filter(Boolean);
+
+  return parts.join(", ");
+}
+
+function buildMapEmbedUrl(lat: number, lon: number) {
+  const offset = 0.015;
+  const minLon = (lon - offset).toFixed(6);
+  const minLat = (lat - offset).toFixed(6);
+  const maxLon = (lon + offset).toFixed(6);
+  const maxLat = (lat + offset).toFixed(6);
+  const marker = `${lat.toFixed(6)},${lon.toFixed(6)}`;
+  const bbox = `${minLon},${minLat},${maxLon},${maxLat}`;
+
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${encodeURIComponent(marker)}`;
+}
+
+async function geocodeAddressQuery(query: string, signal: AbortSignal) {
+  if (!query.trim()) return null;
+
+  const endpoint = new URL("https://nominatim.openstreetmap.org/search");
+  endpoint.searchParams.set("format", "jsonv2");
+  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("addressdetails", "1");
+  endpoint.searchParams.set("countrycodes", "th");
+  endpoint.searchParams.set("q", query);
+
+  const response = await fetch(endpoint.toString(), {
+    method: "GET",
+    signal,
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Geocoding failed with status ${response.status}`);
+  }
+
+  const payload = (await response.json()) as Array<{ lat?: string; lon?: string; display_name?: string }>;
+  const firstMatch = payload[0];
+
+  if (!firstMatch?.lat || !firstMatch?.lon) return null;
+
+  const lat = Number.parseFloat(firstMatch.lat);
+  const lon = Number.parseFloat(firstMatch.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+  return {
+    lat,
+    lon,
+    label: firstMatch.display_name ?? query,
+  };
 }
 
 function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
@@ -89,6 +167,23 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const similarScrollRef = useRef<HTMLDivElement | null>(null);
   const phoneHref = `tel:${listing.agent.phone.replace(/\s+/g, "")}`;
   const emailHref = `mailto:${listing.agent.email}`;
+  const defaultAddressQuery = useMemo(() => buildAddressQuery(listing), [listing]);
+  const backendMapPoint = useMemo(() => {
+    const lat = listing.address?.latitude;
+    const lon = listing.address?.longitude;
+
+    if (typeof lat !== "number" || typeof lon !== "number") return null;
+
+    return {
+      lat,
+      lon,
+      label: defaultAddressQuery,
+    };
+  }, [defaultAddressQuery, listing.address?.latitude, listing.address?.longitude]);
+  const [mapSearchQuery, setMapSearchQuery] = useState(defaultAddressQuery);
+  const [mapPoint, setMapPoint] = useState<GeocodedMapPoint | null>(backendMapPoint);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   const metricSummary = `${getBedroomLabel(listing.beds)} • ${getBathroomLabel(listing.baths)} • ${listing.areaSqm} sqm`;
 
   const previewImages = useMemo(() => {
@@ -99,6 +194,55 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   useEffect(() => {
     setActivePreviewIndex(0);
   }, [listing.id]);
+
+  useEffect(() => {
+    setMapSearchQuery(defaultAddressQuery);
+    setMapError(null);
+
+    if (backendMapPoint) {
+      setMapPoint(backendMapPoint);
+      setMapLoading(false);
+      return undefined;
+    }
+
+    let active = true;
+    const controller = new AbortController();
+
+    async function resolveInitialMapPoint() {
+      if (!defaultAddressQuery) {
+        setMapPoint(null);
+        setMapLoading(false);
+        return;
+      }
+
+      setMapLoading(true);
+      try {
+        const resolvedPoint = await geocodeAddressQuery(defaultAddressQuery, controller.signal);
+        if (!active) return;
+
+        if (resolvedPoint) {
+          setMapPoint(resolvedPoint);
+          setMapError(null);
+        } else {
+          setMapPoint(null);
+          setMapError("No map result found for this property address yet.");
+        }
+      } catch (error) {
+        if (!active || (error instanceof DOMException && error.name === "AbortError")) return;
+        setMapPoint(null);
+        setMapError("Map lookup is temporarily unavailable. Please try the search box again.");
+      } finally {
+        if (active) setMapLoading(false);
+      }
+    }
+
+    void resolveInitialMapPoint();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [backendMapPoint, defaultAddressQuery, listing.id]);
 
   useEffect(() => {
     if (!galleryOpen) {
@@ -187,6 +331,30 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       if (current === null) return 0;
       return current === listing.galleryImages.length - 1 ? 0 : current + 1;
     });
+  }
+
+  async function handleMapSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = mapSearchQuery.trim();
+    if (!query) return;
+
+    const controller = new AbortController();
+    setMapLoading(true);
+    setMapError(null);
+
+    try {
+      const resolvedPoint = await geocodeAddressQuery(query, controller.signal);
+      if (!resolvedPoint) {
+        setMapError("No location matched that search yet. Try adding district or province.");
+        return;
+      }
+
+      setMapPoint(resolvedPoint);
+    } catch {
+      setMapError("Search failed right now. Please try again in a moment.");
+    } finally {
+      setMapLoading(false);
+    }
   }
 
   return (
@@ -621,6 +789,60 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     </div>
                   ))}
                 </div>
+              </section>
+
+              <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
+                <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
+                  Backend-ready map logic: when admin provides street, tambon, amphoe, city, province, and postal code, this section geocodes the full Thai address and pins the property location.
+                </p>
+                <form onSubmit={handleMapSearch} className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <label className="sr-only" htmlFor={`${listing.id}-map-search`}>
+                    Property map search
+                  </label>
+                  <input
+                    id={`${listing.id}-map-search`}
+                    value={mapSearchQuery}
+                    onChange={(event) => setMapSearchQuery(event.target.value)}
+                    placeholder="Search street, tambon, amphoe, city, province, zip"
+                    className="w-full rounded-2xl border border-[#d8cec6] bg-white px-4 py-3 text-sm font-semibold text-brand-dark outline-none transition focus:border-brand-red focus:ring-2 focus:ring-[rgba(163,28,36,0.12)]"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex min-w-[150px] items-center justify-center gap-2 rounded-2xl border border-brand-red bg-brand-red px-5 py-3 text-sm font-black text-white transition hover:bg-[#7d1620]"
+                    disabled={mapLoading}
+                  >
+                    <Search className="h-4 w-4" />
+                    {mapLoading ? "Searching..." : "Search map"}
+                  </button>
+                </form>
+
+                <div className="mt-5 overflow-hidden rounded-[24px] border border-[#ded6d0] bg-white">
+                  {mapPoint ? (
+                    <iframe
+                      title={`Map location for ${listing.title}`}
+                      src={buildMapEmbedUrl(mapPoint.lat, mapPoint.lon)}
+                      className="h-[360px] w-full md:h-[440px]"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-[280px] items-center justify-center px-6 text-center text-sm font-semibold text-brand-gray">
+                      {mapLoading ? "Finding map location..." : "Map location is not available yet for this property."}
+                    </div>
+                  )}
+                </div>
+
+                {mapPoint ? (
+                  <p className="mt-4 break-words text-sm font-semibold text-brand-gray">
+                    Mapped location: {mapPoint.label}
+                  </p>
+                ) : null}
+                {mapError ? (
+                  <p className="mt-2 break-words text-sm font-semibold text-brand-red">{mapError}</p>
+                ) : null}
+                <p className="mt-2 text-xs font-semibold text-brand-gray">
+                  Map data © OpenStreetMap contributors
+                </p>
               </section>
 
               <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">

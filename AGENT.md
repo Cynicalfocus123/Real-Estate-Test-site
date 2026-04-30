@@ -241,3 +241,4 @@
 - Restored the desktop property gallery `See all photos` action with a stronger overlay button and a second visible desktop gallery control under the thumbnails.
 - Updated the property gallery modal so tapping a photo from `See all photos` opens one large focused image viewer without keeping the thumbnail list underneath.
 - Switched the `sqm` metric icon in property details from a square to a ruler to better match measurement context.
+- Added a backend-ready `Property Location` section under amenities using OpenStreetMap + Nominatim geocoding, with structured Thai address fields (street, tambon, amphoe, city, province, postal code, country), searchable map input, and automatic marker placement from backend coordinates when available.

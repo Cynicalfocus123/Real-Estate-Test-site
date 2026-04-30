@@ -1,4 +1,4 @@
-import type { PropertyAgent, PropertyFaq, PropertyListing } from "../types/propertyListing";
+import type { PropertyAddress, PropertyAgent, PropertyFaq, PropertyListing } from "../types/propertyListing";
 
 type PropertyListingSeed = Omit<
   PropertyListing,
@@ -325,6 +325,21 @@ const defaultAgent: PropertyAgent = {
   email: "agent@buyhomeforless.com",
 };
 
+const addressSeedByListingId: Record<string, PropertyAddress> = {
+  "sale-bkk-phrom-phong-01": {
+    street: "Sukhumvit Road",
+    soi: "Sukhumvit 24",
+    tambon: "Khlong Tan",
+    amphoe: "Khlong Toei",
+    city: "Khlong Toei",
+    province: "Bangkok",
+    postalCode: "10110",
+    country: "Thailand",
+    latitude: 13.7306,
+    longitude: 100.5694,
+  },
+};
+
 const galleryPool = Array.from(new Set(basePropertyListings.map((listing) => listing.image)));
 
 function rotateGallery(startIndex: number) {
@@ -376,9 +391,29 @@ function getPropertyTypeLabel(listing: PropertyListingSeed) {
   return listing.specialCategory ?? listing.statusLabel;
 }
 
+function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
+  const seededAddress = addressSeedByListingId[listing.id] ?? {};
+
+  return {
+    street: seededAddress.street,
+    village: seededAddress.village,
+    soi: seededAddress.soi,
+    tambon: seededAddress.tambon,
+    amphoe: seededAddress.amphoe,
+    district: seededAddress.district,
+    city: seededAddress.city ?? listing.city,
+    province: seededAddress.province ?? listing.province,
+    postalCode: seededAddress.postalCode,
+    country: seededAddress.country ?? "Thailand",
+    latitude: seededAddress.latitude,
+    longitude: seededAddress.longitude,
+  };
+}
+
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
   ...listing,
   agent: defaultAgent,
+  address: buildPropertyAddress(listing),
   description: buildDescription(listing),
   faqs: buildFaqs(listing),
   floorCount: getFloorCount(listing),
