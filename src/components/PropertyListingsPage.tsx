@@ -434,6 +434,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   const priceRange = maxPriceLimit - minPriceLimit || 1;
   const minThumbPosition = ((minPrice - minPriceLimit) / priceRange) * 100;
   const maxThumbPosition = ((maxPrice - minPriceLimit) / priceRange) * 100;
+  const hasActivePriceFilter = minPrice > minPriceLimit || maxPrice < maxPriceLimit;
+  const hasActiveRoomFilter = selectedBedroom !== "Any" || selectedBathroom !== "Any";
+  const hasActiveHomeTypeFilter = selectedHomeType !== "Any";
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -580,6 +583,26 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setActiveQuickFilter(null);
   }
 
+  function resetPriceQuickFilter() {
+    setMinPrice(minPriceLimit);
+    setMaxPrice(maxPriceLimit);
+    setActiveQuickFilter((current) => (current === "price" ? null : current));
+  }
+
+  function resetRoomsQuickFilter() {
+    setSelectedBedroom("Any");
+    setSelectedBathroom("Any");
+    setDraftQuickBedroom("Any");
+    setDraftQuickBathroom("Any");
+    setActiveQuickFilter((current) => (current === "rooms" ? null : current));
+  }
+
+  function resetHomeTypeQuickFilter() {
+    setSelectedHomeType("Any");
+    setDraftQuickHomeType("Any");
+    setActiveQuickFilter((current) => (current === "homeType" ? null : current));
+  }
+
   function handleMinPriceChange(value: number) {
     setMinPrice(Math.min(value, maxPrice - priceStep));
   }
@@ -667,39 +690,75 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                     <SlidersHorizontal className="h-4 w-4" />
                     Filters
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleQuickFilter("price")}
-                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
-                      activeQuickFilter === "price" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                    }`}
-                    aria-expanded={activeQuickFilter === "price"}
-                  >
-                    Price
-                    {activeQuickFilter === "price" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleQuickFilter("rooms")}
-                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
-                      activeQuickFilter === "rooms" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                    }`}
-                    aria-expanded={activeQuickFilter === "rooms"}
-                  >
-                    {getRoomFilterLabel(selectedBedroom, selectedBathroom)}
-                    {activeQuickFilter === "rooms" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleQuickFilter("homeType")}
-                    className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
-                      activeQuickFilter === "homeType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                    }`}
-                    aria-expanded={activeQuickFilter === "homeType"}
-                  >
-                    Home type
-                    {activeQuickFilter === "homeType" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleQuickFilter("price")}
+                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        activeQuickFilter === "price" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "price"}
+                    >
+                      Price
+                      {activeQuickFilter === "price" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                    {hasActivePriceFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetPriceQuickFilter}
+                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear price filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleQuickFilter("rooms")}
+                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        activeQuickFilter === "rooms" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "rooms"}
+                    >
+                      {getRoomFilterLabel(selectedBedroom, selectedBathroom)}
+                      {activeQuickFilter === "rooms" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                    {hasActiveRoomFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetRoomsQuickFilter}
+                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear room filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleQuickFilter("homeType")}
+                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        activeQuickFilter === "homeType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "homeType"}
+                    >
+                      Home type
+                      {activeQuickFilter === "homeType" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                    {hasActiveHomeTypeFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetHomeTypeQuickFilter}
+                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear home type filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
 
                 {mountedQuickFilter ? (
