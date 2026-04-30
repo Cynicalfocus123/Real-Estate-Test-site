@@ -166,3 +166,4 @@
 - Increased header logo size for stronger brand visibility in the sticky top navigation.
 - Replaced home page bottom map placeholder section with embedded YouTube video content about moving to Thailand.
 - Reduced home page bottom video container width so embedded YouTube section appears smaller and less dominant.
+- Added first test version of a main `For Sale` property listing page with top search, side filters, modern listing cards, location-driven mock data, and share buttons.

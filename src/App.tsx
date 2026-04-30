@@ -23,6 +23,7 @@ import { PreForeclosurePage } from "./components/PreForeclosurePage";
 import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
 import { PropertySpecifiedDetailsPage } from "./components/PropertySpecifiedDetailsPage";
 import { PropertyCard } from "./components/PropertyCard";
+import { PropertyListingsPage } from "./components/PropertyListingsPage";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
 import { ResortNursingFacilityPage } from "./components/ResortNursingFacilityPage";
@@ -66,6 +67,8 @@ export function App() {
   const isCostOfLivingThailandPage =
     currentPath.endsWith("/cost-of-living-thailand") ||
     currentHash === "#/cost-of-living-thailand";
+  const isPropertyListingsPage =
+    currentPath.endsWith("/properties-for-sale") || currentHash === "#/properties-for-sale";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -177,6 +180,10 @@ export function App() {
     return <CostOfLivingThailandPage />;
   }
 
+  if (isPropertyListingsPage) {
+    return <PropertyListingsPage />;
+  }
+
   if (isRetirementVisaPage) {
     return <RetirementVisaPage />;
   }
@@ -283,7 +290,10 @@ export function App() {
             </p>
           </div>
           <div className="mb-8 flex justify-end">
-            <a href="#listings" className="inline-flex items-center gap-2 font-bold text-brand-red">
+            <a
+              href={`${import.meta.env.BASE_URL}properties-for-sale`}
+              className="inline-flex items-center gap-2 font-bold text-brand-red"
+            >
               View All
               <ArrowRight className="h-5 w-5" />
             </a>
