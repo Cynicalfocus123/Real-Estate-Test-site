@@ -219,3 +219,4 @@
 - Replaced the home-page hero video with the supplied YouTube embed `83po-NExIPU` while keeping the existing full-bleed slider sizing and overlay layout unchanged.
 - Increased the home hero iframe zoom/crop for the `83po-NExIPU` video so the section stays full-bleed without black bars at the top or bottom across screen sizes.
 - Removed the visible listing-count text from each home-page `Top Locations` banner while keeping the location image tiles and province links unchanged.
+- Tightened the home hero YouTube embed parameters so the video auto-plays muted, loops continuously, and keeps playback controls hidden.
