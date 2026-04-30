@@ -371,7 +371,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <button
                       type="button"
                       onClick={() => setGalleryOpen(true)}
-                      className="absolute bottom-4 right-4 rounded-xl bg-white/96 px-3 py-2 text-xs font-black text-brand-dark shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 sm:px-4 sm:text-sm"
+                      className="absolute bottom-5 right-5 z-20 rounded-2xl border border-[#d8cec6] bg-white px-5 py-3 text-sm font-black text-brand-dark shadow-[0_14px_30px_rgba(15,23,42,0.22)] transition hover:-translate-y-0.5 hover:border-brand-red"
                     >
                       See all {listing.galleryImages.length} photos
                     </button>
@@ -420,6 +420,13 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     ))}
                   </div>
                   <div className="flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setGalleryOpen(true)}
+                      className="mr-auto inline-flex items-center justify-center rounded-full border border-[#d8cec6] bg-white px-5 py-3 text-sm font-black text-brand-dark transition hover:border-brand-red"
+                    >
+                      See all {listing.galleryImages.length} photos
+                    </button>
                     <button
                       type="button"
                       onClick={showPreviousPreview}
