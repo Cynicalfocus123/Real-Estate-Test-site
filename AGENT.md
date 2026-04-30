@@ -235,3 +235,4 @@
 - Removed the separate property-detail asking-price card and moved the price directly under the gallery with the property title and location for a cleaner DDproperty-style header.
 - Fixed the mobile property detail layout so long text stays inside the phone width, strengthened the top hero action buttons, added visible previous/next image arrows on the hero and below it, and upgraded `See all photos` so tapping a gallery image opens a full-image viewer with navigation.
 - Tightened the mobile property detail sections so details, bio, amenities, FAQ, and similar properties stay within the phone width, removed the lower hero side arrows, and made similar properties finger-scrollable with visible left/right controls.
+- Removed the mobile property gallery's top-right agent profile/avatar circle while keeping the back, save, share, and more action controls visible.

@@ -212,43 +212,33 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 >
                   <ChevronLeft className="h-7 w-7" />
                 </a>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 rounded-full bg-[rgba(17,24,39,0.78)] px-2 py-2 text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur">
-                    <button
-                      type="button"
-                      onClick={() => setSaved((current) => !current)}
-                      className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
-                        saved ? "bg-white text-brand-red" : "text-white"
-                      }`}
-                      aria-label={`${saved ? "Unsave" : "Save"} ${listing.title}`}
-                      aria-pressed={saved}
-                    >
-                      <Heart className={`h-6 w-6 ${saved ? "fill-current" : ""}`} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleShare}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
-                      aria-label={`Share ${listing.title}`}
-                    >
-                      <Share2 className="h-6 w-6" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setContactVisible((current) => !current)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
-                      aria-label="More property actions"
-                    >
-                      <MoreHorizontal className="h-6 w-6" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-1 rounded-full bg-[rgba(17,24,39,0.78)] px-2 py-2 text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur">
+                  <button
+                    type="button"
+                    onClick={() => setSaved((current) => !current)}
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
+                      saved ? "bg-white text-brand-red" : "text-white"
+                    }`}
+                    aria-label={`${saved ? "Unsave" : "Save"} ${listing.title}`}
+                    aria-pressed={saved}
+                  >
+                    <Heart className={`h-6 w-6 ${saved ? "fill-current" : ""}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
+                    aria-label={`Share ${listing.title}`}
+                  >
+                    <Share2 className="h-6 w-6" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => setContactVisible((current) => !current)}
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-brand-red text-sm font-black text-white shadow-[0_10px_24px_rgba(15,23,42,0.18)]"
-                    aria-label="Show agent contact"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white transition"
+                    aria-label="More property actions"
                   >
-                    {getAgentInitials(listing.agent.name)}
+                    <MoreHorizontal className="h-6 w-6" />
                   </button>
                 </div>
               </div>
