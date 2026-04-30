@@ -182,3 +182,4 @@
 - Changed listing Price, Rooms, and Home type toolbar chips to open their own smooth animated dropdown panels instead of always opening the full filter modal.
 - Changed listing bedroom and bathroom quick controls into one Room toolbar button with a shared smooth dropdown for bed and bath choices.
 - Removed Price from the full listing filter modal and restyled the Price toolbar dropdown to match the requested segmented list/monthly panel with histogram and no-min/no-max controls.
+- Updated the listing page Price quick dropdown so users can type Min/Max values directly, drag a visible dual-handle price gauge left/right in List price mode, switch to a Monthly payment panel, and close the panel with a bottom-right Done button.

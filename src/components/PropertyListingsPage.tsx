@@ -30,6 +30,8 @@ import { Footer } from "./Footer";
 import { Header } from "./Header";
 
 type QuickFilter = "price" | "rooms" | "homeType";
+type PriceQuickView = "list-price" | "monthly-payment";
+type DownPaymentOption = "amount" | "percentage";
 
 const modeOptions: ListingMode[] = ["sale", "rent"];
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
@@ -131,6 +133,10 @@ function formatPriceValue(value: number, mode: ListingMode) {
   }
 
   return `${value.toLocaleString()}+`;
+}
+
+function getPriceInputValue(value: number, limit: number) {
+  return value === limit ? "" : String(value);
 }
 
 function ListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
@@ -284,6 +290,8 @@ export function PropertyListingsPage() {
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(30000000);
+  const [priceQuickView, setPriceQuickView] = useState<PriceQuickView>("list-price");
+  const [downPaymentOption, setDownPaymentOption] = useState<DownPaymentOption>("amount");
   const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
   const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
@@ -355,6 +363,9 @@ export function PropertyListingsPage() {
   const maxValue = maxPrice < maxPriceLimit ? maxPrice : null;
   const minLandValue = minLandSize ? Number(minLandSize) : null;
   const maxLandValue = maxLandSize ? Number(maxLandSize) : null;
+  const priceRange = maxPriceLimit - minPriceLimit || 1;
+  const minThumbPosition = ((minPrice - minPriceLimit) / priceRange) * 100;
+  const maxThumbPosition = ((maxPrice - minPriceLimit) / priceRange) * 100;
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -409,6 +420,8 @@ export function PropertyListingsPage() {
     setQuery("");
     setMinPrice(minPriceLimit);
     setMaxPrice(maxPriceLimit);
+    setPriceQuickView("list-price");
+    setDownPaymentOption("amount");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
     setSelectedHomeType("Any");
@@ -442,6 +455,8 @@ export function PropertyListingsPage() {
     setMode(nextMode);
     setMinPrice(0);
     setMaxPrice(nextMode === "rent" ? 100000 : 30000000);
+    setPriceQuickView("list-price");
+    setDownPaymentOption("amount");
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSortOpen(false);
@@ -475,6 +490,30 @@ export function PropertyListingsPage() {
 
   function handleMaxPriceChange(value: number) {
     setMaxPrice(Math.max(value, minPrice + priceStep));
+  }
+
+  function handleMinPriceInputChange(value: string) {
+    const numericValue = cleanNumericText(value, 12);
+
+    if (!numericValue) {
+      setMinPrice(minPriceLimit);
+      return;
+    }
+
+    const nextValue = Math.min(Math.max(Number(numericValue), minPriceLimit), maxPrice - priceStep);
+    setMinPrice(nextValue);
+  }
+
+  function handleMaxPriceInputChange(value: string) {
+    const numericValue = cleanNumericText(value, 12);
+
+    if (!numericValue) {
+      setMaxPrice(maxPriceLimit);
+      return;
+    }
+
+    const nextValue = Math.max(Math.min(Number(numericValue), maxPriceLimit), minPrice + priceStep);
+    setMaxPrice(nextValue);
   }
 
   return (
@@ -594,85 +633,157 @@ export function PropertyListingsPage() {
                       activeQuickFilter ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
                     }`}
                   >
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-4">
                       <h2 className="text-lg font-black text-brand-dark">
                         {mountedQuickFilter === "price" ? "Price" : mountedQuickFilter === "rooms" ? "Room" : "Home type"}
                       </h2>
-                      <button
-                        type="button"
-                        onClick={() => setActiveQuickFilter(null)}
-                        className="text-sm font-black text-brand-dark underline underline-offset-4"
-                      >
-                        Done
-                      </button>
                     </div>
 
                     {mountedQuickFilter === "price" ? (
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[#c9c1ba] text-base font-semibold">
-                          <button type="button" className="border-r border-[#9f9891] bg-[#f4f1ee] px-4 py-4 text-brand-dark">
+                          <button
+                            type="button"
+                            onClick={() => setPriceQuickView("list-price")}
+                            className={`border-r border-[#9f9891] px-4 py-4 text-brand-dark transition-colors ${
+                              priceQuickView === "list-price" ? "bg-[#f4f1ee]" : "bg-white"
+                            }`}
+                          >
                             List price
                           </button>
-                          <button type="button" className="bg-white px-4 py-4 text-brand-dark">
+                          <button
+                            type="button"
+                            onClick={() => setPriceQuickView("monthly-payment")}
+                            className={`px-4 py-4 text-brand-dark transition-colors ${
+                              priceQuickView === "monthly-payment" ? "bg-[#f4f1ee]" : "bg-white"
+                            }`}
+                          >
                             Monthly payment
                           </button>
                         </div>
-                        <button
-                          type="button"
-                          className="inline-flex items-center gap-2 text-lg font-black text-brand-dark underline underline-offset-4"
-                        >
-                          <ArrowUpDown className="h-4 w-4 rotate-90" />
-                          Search with my buying power
-                        </button>
-                        <div className="px-0 pt-2">
-                          <div className="flex h-24 items-end gap-1 border-b-2 border-brand-dark">
-                            {priceBars.map((height, index) => (
-                              <span
-                                key={`${height}-${index}`}
-                                className="flex-1 rounded-t-full bg-[#202020]"
-                                style={{ height: `${Math.max(height * 1.55, 6)}px` }}
-                              />
-                            ))}
-                          </div>
-                          <div className="relative mt-[-14px] h-8">
-                            <span className="absolute left-[-12px] top-0 z-10 h-7 w-7 rounded-full border-2 border-brand-dark bg-white" />
-                            <span className="absolute right-[-12px] top-0 z-10 h-7 w-7 rounded-full border-2 border-brand-dark bg-white" />
-                            <input
-                              type="range"
-                              min={minPriceLimit}
-                              max={maxPriceLimit}
-                              step={priceStep}
-                              value={minPrice}
-                              onChange={(event) => handleMinPriceChange(Number(event.target.value))}
-                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent opacity-0"
-                              aria-label="Minimum price"
-                            />
-                            <input
-                              type="range"
-                              min={minPriceLimit}
-                              max={maxPriceLimit}
-                              step={priceStep}
-                              value={maxPrice}
-                              onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
-                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent opacity-0"
-                              aria-label="Maximum price"
-                            />
-                          </div>
-                        </div>
                         <div className="grid grid-cols-2 gap-5">
+                          <label className="flex items-center gap-3 rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]">
+                            <span className="text-brand-dark">$</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={getPriceInputValue(minPrice, minPriceLimit)}
+                              onChange={(event) => handleMinPriceInputChange(event.target.value)}
+                              placeholder="No min"
+                              aria-label="Minimum price"
+                              className="w-full bg-transparent text-brand-dark outline-none placeholder:text-[#7c6f66]"
+                            />
+                          </label>
+                          <label className="flex items-center gap-3 rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]">
+                            <span className="text-brand-dark">$</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={getPriceInputValue(maxPrice, maxPriceLimit)}
+                              onChange={(event) => handleMaxPriceInputChange(event.target.value)}
+                              placeholder="No max"
+                              aria-label="Maximum price"
+                              className="w-full bg-transparent text-brand-dark outline-none placeholder:text-[#7c6f66]"
+                            />
+                          </label>
+                        </div>
+                        {priceQuickView === "list-price" ? (
+                          <div className="space-y-5 px-0 pt-1">
+                            <div className="flex h-24 items-end gap-1 border-b-2 border-brand-dark">
+                              {priceBars.map((height, index) => (
+                                <span
+                                  key={`${height}-${index}`}
+                                  className="flex-1 rounded-t-full bg-[#202020]"
+                                  style={{ height: `${Math.max(height * 1.55, 6)}px` }}
+                                />
+                              ))}
+                            </div>
+                            <div className="relative h-9">
+                              <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[#ded6cf]" />
+                              <div
+                                className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-brand-dark"
+                                style={{
+                                  left: `${minThumbPosition}%`,
+                                  width: `${Math.max(maxThumbPosition - minThumbPosition, 0)}%`,
+                                }}
+                              />
+                              <span
+                                className="pointer-events-none absolute top-1/2 z-10 h-7 w-7 -translate-y-1/2 rounded-full border-2 border-brand-dark bg-white shadow-[0_2px_8px_rgba(15,23,42,0.16)]"
+                                style={{ left: `calc(${minThumbPosition}% - 14px)` }}
+                              />
+                              <span
+                                className="pointer-events-none absolute top-1/2 z-10 h-7 w-7 -translate-y-1/2 rounded-full border-2 border-brand-dark bg-white shadow-[0_2px_8px_rgba(15,23,42,0.16)]"
+                                style={{ left: `calc(${maxThumbPosition}% - 14px)` }}
+                              />
+                              <input
+                                type="range"
+                                min={minPriceLimit}
+                                max={maxPriceLimit}
+                                step={priceStep}
+                                value={minPrice}
+                                onChange={(event) => handleMinPriceChange(Number(event.target.value))}
+                                className="pointer-events-auto absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+                                aria-label="Minimum price slider"
+                              />
+                              <input
+                                type="range"
+                                min={minPriceLimit}
+                                max={maxPriceLimit}
+                                step={priceStep}
+                                value={maxPrice}
+                                onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
+                                className="pointer-events-auto absolute inset-x-0 top-0 h-9 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+                                aria-label="Maximum price slider"
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        {priceQuickView === "monthly-payment" ? (
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-sm font-black text-brand-dark">Down payment</h3>
+                              <div className="mt-4 space-y-4">
+                                <button
+                                  type="button"
+                                  onClick={() => setDownPaymentOption("amount")}
+                                  className="flex items-center gap-3 text-left text-lg font-medium text-[#5f564f]"
+                                  aria-pressed={downPaymentOption === "amount"}
+                                >
+                                  <span
+                                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                                      downPaymentOption === "amount" ? "border-[#7d6f64]" : "border-[#7d6f64]"
+                                    }`}
+                                  >
+                                    {downPaymentOption === "amount" ? (
+                                      <span className="h-2.5 w-2.5 rounded-full bg-[#7d6f64]" />
+                                    ) : null}
+                                  </span>
+                                  Dollar amount
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setDownPaymentOption("percentage")}
+                                  className="flex items-center gap-3 text-left text-lg font-medium text-[#5f564f]"
+                                  aria-pressed={downPaymentOption === "percentage"}
+                                >
+                                  <span className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-[#7d6f64]">
+                                    {downPaymentOption === "percentage" ? (
+                                      <span className="h-2.5 w-2.5 rounded-full bg-[#7d6f64]" />
+                                    ) : null}
+                                  </span>
+                                  Percentage
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+                        <div className="flex justify-end">
                           <button
                             type="button"
-                            className="flex items-center justify-between rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]"
+                            onClick={() => setActiveQuickFilter(null)}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
                           >
-                            <span><span className="mr-3 text-brand-dark">$</span>{minPrice === minPriceLimit ? "No min" : formatPriceValue(minPrice, mode)}</span>
-                            <ChevronDown className="h-5 w-5 text-brand-dark" />
-                          </button>
-                          <button
-                            type="button"
-                            className="flex items-center justify-between rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]"
-                          >
-                            <span><span className="mr-3 text-brand-dark">$</span>{maxPrice === maxPriceLimit ? "No max" : formatPriceValue(maxPrice, mode)}</span>
-                            <ChevronDown className="h-5 w-5 text-brand-dark" />
+                            Done
                           </button>
                         </div>
                       </div>
