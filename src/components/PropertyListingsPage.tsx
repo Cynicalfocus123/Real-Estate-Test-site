@@ -139,6 +139,25 @@ function getPriceInputValue(value: number, limit: number) {
   return value === limit ? "" : String(value);
 }
 
+function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
+  switch (value) {
+    case "recommended":
+      return "Sort";
+    case "newest":
+      return "New";
+    case "price-low":
+      return "Low $";
+    case "price-high":
+      return "High $";
+    case "size-high":
+      return "Big";
+    case "size-low":
+      return "Small";
+    default:
+      return "Sort";
+  }
+}
+
 function ListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -415,6 +434,7 @@ export function PropertyListingsPage() {
     });
 
   const provinceCount = new Set(filteredListings.map((listing) => listing.province)).size;
+  const selectedSortLabel = sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended";
 
   function resetFilters() {
     setQuery("");
@@ -1034,17 +1054,18 @@ export function PropertyListingsPage() {
                 {filteredListings.length} homes across {provinceCount} provinces
               </h2>
             </div>
-            <div ref={sortMenuRef} className="relative w-full sm:w-[260px]">
+            <div ref={sortMenuRef} className="relative w-fit sm:w-[260px]">
               <button
                 type="button"
                 onClick={() => setSortOpen((current) => !current)}
-                className="flex w-full items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                className="flex w-fit items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-4 py-3 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)] sm:w-full sm:px-5 sm:py-4"
                 aria-expanded={sortOpen}
                 aria-label="Recommended sort menu"
               >
                 <span className="inline-flex items-center gap-3">
                   <ArrowUpDown className="h-4 w-4" />
-                  {sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}
+                  <span className="sm:hidden">{getCompactSortLabel(sortBy)}</span>
+                  <span className="hidden sm:inline">{selectedSortLabel}</span>
                 </span>
                 <ChevronDown className={`h-4 w-4 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
               </button>

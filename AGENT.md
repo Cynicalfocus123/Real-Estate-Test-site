@@ -185,3 +185,4 @@
 - Removed Price from the full listing filter modal and restyled the Price toolbar dropdown to match the requested segmented list/monthly panel with histogram and no-min/no-max controls.
 - Updated the listing page Price quick dropdown so users can type Min/Max values directly, drag a visible dual-handle price gauge left/right in List price mode, switch to a Monthly payment panel, and close the panel with a bottom-right Done button.
 - Removed `New construction`, `Min 0`, and `Hide pending / contingent` chips from the listing-page quick filter bar to keep only the active controls.
+- Shortened the mobile sort control on the listing page by switching the button to compact labels and fit-content width while keeping the full desktop sort label.
