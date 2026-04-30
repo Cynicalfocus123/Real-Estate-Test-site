@@ -222,3 +222,4 @@
 - Tightened the home hero YouTube embed parameters so the video auto-plays muted, loops continuously, and keeps playback controls hidden.
 - Added inline clear `X` buttons to the home-page and listing-page search fields so typed search text can be erased directly from the right side of the input.
 - Corrected the home hero `Sell` mode so it routes to the `For Sale` listings page, while `Buy` continues to route to the separate `/buy` listings page.
+- Changed the home hero `Senior Home` mode to open the shared property listings page instead of the static nursing-home content page.

@@ -343,16 +343,15 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
   function buildHeroModeUrl(nextMode: HeroSearchMode) {
     const normalizedQuery = normalizeSearchValue(sanitizedQuery);
 
-    if (nextMode === "senior") {
-      const path = `${import.meta.env.BASE_URL}nursing-home-facility`;
-      return normalizedQuery ? `${path}?q=${encodeURIComponent(sanitizedQuery)}` : path;
-    }
-
     const params = new URLSearchParams();
     if (normalizedQuery) params.set("q", sanitizedQuery);
 
     const path = `${import.meta.env.BASE_URL}${
-      nextMode === "rent" ? "properties-for-rent" : nextMode === "sell" ? "properties-for-sale" : "buy"
+      nextMode === "rent"
+        ? "properties-for-rent"
+        : nextMode === "sell" || nextMode === "senior"
+          ? "properties-for-sale"
+          : "buy"
     }`;
     const queryString = params.toString();
     return queryString ? `${path}?${queryString}` : path;
