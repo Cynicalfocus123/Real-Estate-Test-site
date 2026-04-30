@@ -9,8 +9,8 @@ import {
   MapPin,
   MoreHorizontal,
   Phone,
+  Ruler,
   Share2,
-  Square,
   Warehouse,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -514,7 +514,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     </p>
                   </div>
                   <div className="flex min-w-0 items-center gap-4">
-                    <Square className="h-6 w-6 shrink-0 text-brand-dark" />
+                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
                       <span className="font-black">{listing.areaSqm} sqm</span>
                     </p>

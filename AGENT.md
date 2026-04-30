@@ -240,3 +240,4 @@
 - Restored a visible header above every property detail page on mobile, using the shared site navigation with a larger logo and hamburger menu before the gallery.
 - Restored the desktop property gallery `See all photos` action with a stronger overlay button and a second visible desktop gallery control under the thumbnails.
 - Updated the property gallery modal so tapping a photo from `See all photos` opens one large focused image viewer without keeping the thumbnail list underneath.
+- Switched the `sqm` metric icon in property details from a square to a ruler to better match measurement context.
