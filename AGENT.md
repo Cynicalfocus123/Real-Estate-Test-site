@@ -172,3 +172,4 @@
 - Reworked property listing page into a compact product-card grid with top search, filter drawer, sort menu above products, heart save buttons, and six-image card sliders.
 - Changed property listings to a single vertical list with smaller DDProperty-inspired compact rows and reduced built-year styling for mobile-friendly scanning.
 - Increased listing image area while narrowing the overall product list width for a closer DDProperty-style row proportion.
+- Replaced min/max price inputs on the listing page with a price range slider, histogram-style price graph, and minimum/maximum value boxes underneath.

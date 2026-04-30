@@ -56,6 +56,7 @@ const saleCategoryOptions: ListingSpecialCategory[] = [
   "Fixer Upper",
   "Urgent Sale",
 ];
+const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
 const listingSlideImages = [
   "images/province-banners/bangkok.png",
   "images/province-banners/phuket.png",
@@ -88,6 +89,18 @@ function matchesBedroom(listing: PropertyListing, selected: string) {
 function matchesBathroom(listing: PropertyListing, selected: string) {
   if (!selected || selected === "Any") return true;
   return listing.baths >= getMinimumFilterValue(selected);
+}
+
+function formatPriceValue(value: number, mode: ListingMode) {
+  if (mode === "rent") {
+    return `${value.toLocaleString()}+`;
+  }
+
+  if (value >= 1000000) {
+    return `${(value / 1000000).toLocaleString(undefined, { maximumFractionDigits: 1 })}M+`;
+  }
+
+  return `${value.toLocaleString()}+`;
 }
 
 function ListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
@@ -239,8 +252,8 @@ function ListingCard({ listing, mode }: { listing: PropertyListing; mode: Listin
 export function PropertyListingsPage() {
   const [mode, setMode] = useState<ListingMode>("sale");
   const [query, setQuery] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(30000000);
   const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
   const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
@@ -276,8 +289,11 @@ export function PropertyListingsPage() {
   );
 
   const sanitizedQuery = cleanSearchText(query);
-  const minValue = minPrice ? Number(minPrice) : null;
-  const maxValue = maxPrice ? Number(maxPrice) : null;
+  const minPriceLimit = mode === "rent" ? 0 : 0;
+  const maxPriceLimit = mode === "rent" ? 100000 : 30000000;
+  const priceStep = mode === "rent" ? 1000 : 500000;
+  const minValue = minPrice > minPriceLimit ? minPrice : null;
+  const maxValue = maxPrice < maxPriceLimit ? maxPrice : null;
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -326,8 +342,8 @@ export function PropertyListingsPage() {
 
   function resetFilters() {
     setQuery("");
-    setMinPrice("");
-    setMaxPrice("");
+    setMinPrice(minPriceLimit);
+    setMaxPrice(maxPriceLimit);
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
     setSelectedHomeType("Any");
@@ -356,9 +372,19 @@ export function PropertyListingsPage() {
 
   function handleModeChange(nextMode: ListingMode) {
     setMode(nextMode);
+    setMinPrice(0);
+    setMaxPrice(nextMode === "rent" ? 100000 : 30000000);
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSortOpen(false);
+  }
+
+  function handleMinPriceChange(value: number) {
+    setMinPrice(Math.min(value, maxPrice - priceStep));
+  }
+
+  function handleMaxPriceChange(value: number) {
+    setMaxPrice(Math.max(value, minPrice + priceStep));
   }
 
   return (
@@ -411,24 +437,69 @@ export function PropertyListingsPage() {
                 </label>
               </div>
 
-              <div className="mt-4 grid gap-4 md:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
-                <input
-                  value={minPrice}
-                  onChange={(event) => setMinPrice(cleanNumericText(event.target.value))}
-                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
-                  inputMode="numeric"
-                  maxLength={12}
-                  placeholder={mode === "sale" ? "Min THB" : "Min / month"}
-                />
-                <input
-                  value={maxPrice}
-                  onChange={(event) => setMaxPrice(cleanNumericText(event.target.value))}
-                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
-                  inputMode="numeric"
-                  maxLength={12}
-                  placeholder={mode === "sale" ? "Max THB" : "Max / month"}
-                />
+              <div className="mt-4 border-t border-[#e3ddd8] pt-4">
+                <div className="max-w-3xl">
+                  <h2 className="text-2xl font-black text-brand-dark">Price range</h2>
+                  <p className="mt-1 text-sm font-semibold text-brand-gray">
+                    {mode === "sale" ? "Sale price, Thai baht" : "Monthly rent, Thai baht"}
+                  </p>
+                  <div className="relative mt-5 h-24">
+                    <div className="absolute inset-x-5 bottom-8 flex h-16 items-end gap-1">
+                      {priceBars.map((height, index) => {
+                        const barValue = minPriceLimit + ((maxPriceLimit - minPriceLimit) * index) / (priceBars.length - 1);
+                        const isActive = barValue >= minPrice && barValue <= maxPrice;
 
+                        return (
+                          <span
+                            key={`${height}-${index}`}
+                            className={`w-full rounded-t-full transition-colors duration-300 ${
+                              isActive ? "bg-brand-red" : "bg-[#f1b6bf]"
+                            }`}
+                            style={{ height: `${Math.max(6, height)}px` }}
+                          />
+                        );
+                      })}
+                    </div>
+                    <div className="absolute inset-x-5 bottom-8 h-0.5 bg-brand-red" />
+                    <input
+                      type="range"
+                      min={minPriceLimit}
+                      max={maxPriceLimit}
+                      step={priceStep}
+                      value={minPrice}
+                      onChange={(event) => handleMinPriceChange(Number(event.target.value))}
+                      className="pointer-events-auto absolute inset-x-0 bottom-3 z-10 h-10 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                      aria-label="Minimum price"
+                    />
+                    <input
+                      type="range"
+                      min={minPriceLimit}
+                      max={maxPriceLimit}
+                      step={priceStep}
+                      value={maxPrice}
+                      onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
+                      className="pointer-events-auto absolute inset-x-0 bottom-3 z-20 h-10 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                      aria-label="Maximum price"
+                    />
+                  </div>
+                  <div className="mt-1 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-brand-gray">Minimum</p>
+                      <div className="mt-2 rounded-full border border-[#ddd8d2] bg-white px-8 py-4 text-center text-lg font-semibold text-brand-dark shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+                        {formatPriceValue(minPrice, mode)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-brand-gray">Maximum</p>
+                      <div className="mt-2 rounded-full border border-[#ddd8d2] bg-white px-8 py-4 text-center text-lg font-semibold text-brand-dark shadow-[0_8px_20px_rgba(15,23,42,0.05)]">
+                        {formatPriceValue(maxPrice, mode)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-[repeat(2,minmax(0,1fr))_auto]">
                 <select
                   value={selectedBedroom}
                   onChange={(event) => setSelectedBedroom(event.target.value)}
