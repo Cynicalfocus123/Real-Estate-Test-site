@@ -1,4 +1,5 @@
 import {
+  ArrowUpDown,
   Bath,
   BedDouble,
   CalendarRange,
@@ -10,7 +11,7 @@ import {
   Square,
   Undo2,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
 import type {
   ListingHomeType,
@@ -103,11 +104,11 @@ function ListingCard({
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.12)_40%,rgba(0,0,0,0.55)_100%)]" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <span className="bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
+            <span className="rounded-full bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
               {listing.statusLabel}
             </span>
             {listing.specialCategory ? (
-              <span className="bg-brand-red px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white">
+              <span className="rounded-full bg-brand-red px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-white">
                 {listing.specialCategory}
               </span>
             ) : null}
@@ -115,7 +116,7 @@ function ListingCard({
           <button
             type="button"
             onClick={() => onShare(listing)}
-            className="absolute right-4 top-4 inline-flex items-center gap-2 bg-black/55 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-black/70"
+            className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white transition-all duration-300 hover:bg-black/70 hover:shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
             aria-label={`Share ${listing.title}`}
           >
             <Share2 className="h-4 w-4" />
@@ -134,7 +135,7 @@ function ListingCard({
             <div className="max-w-3xl">
               <h3 className="text-2xl font-black leading-tight text-brand-dark">{listing.title}</h3>
               <p className="mt-3 text-sm leading-7 text-brand-gray">
-                Nearby: {listing.nearby.join(" • ")}
+                Nearby: {listing.nearby.join(" | ")}
               </p>
             </div>
             <div className="shrink-0">
@@ -184,7 +185,7 @@ function ListingCard({
               {listing.amenities.map((amenity) => (
                 <span
                   key={amenity}
-                  className="inline-flex items-center gap-2 border border-brand-line px-3 py-2 text-sm font-semibold text-brand-dark"
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-line px-3 py-2 text-sm font-semibold text-brand-dark"
                 >
                   <Sparkles className="h-3.5 w-3.5 text-brand-red" />
                   {amenity}
@@ -211,9 +212,21 @@ export function PropertyListingsPage() {
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const sortMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
+  }, []);
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!sortMenuRef.current?.contains(event.target as Node)) {
+        setSortOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
 
   const modeListings = useMemo(
@@ -350,16 +363,16 @@ export function PropertyListingsPage() {
             </div>
 
             <div className="mt-8 border border-[#e3ddd8] bg-[#faf7f4] p-4 lg:p-5">
-              <div className="flex flex-wrap gap-2 border-b border-[#e3ddd8] pb-4">
+              <div className="flex flex-wrap gap-3 border-b border-[#e3ddd8] pb-4">
                 {modeOptions.map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => handleModeChange(option)}
-                    className={`px-5 py-3 text-sm font-black uppercase tracking-[0.18em] ${
+                    className={`rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.18em] transition-all duration-300 ${
                       mode === option
-                        ? "bg-brand-red text-white"
-                        : "border border-brand-line bg-white text-brand-dark"
+                        ? "bg-brand-red text-white shadow-[0_14px_28px_rgba(163,28,36,0.22)]"
+                        : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
                     }`}
                   >
                     {option === "sale" ? "Sale" : "Rent"}
@@ -368,7 +381,7 @@ export function PropertyListingsPage() {
               </div>
 
               <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,170px))_minmax(0,240px)]">
-                <label className="flex items-center gap-3 border border-white bg-white px-4 py-4">
+                <label className="flex items-center gap-3 rounded-full border border-[#e4e0db] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
                   <Search className="h-5 w-5 text-brand-red" />
                   <input
                     value={query}
@@ -382,7 +395,7 @@ export function PropertyListingsPage() {
                 <input
                   value={minPrice}
                   onChange={(event) => setMinPrice(cleanNumericText(event.target.value))}
-                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                   inputMode="numeric"
                   maxLength={12}
                   placeholder={mode === "sale" ? "Min THB" : "Min / month"}
@@ -390,7 +403,7 @@ export function PropertyListingsPage() {
                 <input
                   value={maxPrice}
                   onChange={(event) => setMaxPrice(cleanNumericText(event.target.value))}
-                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                   inputMode="numeric"
                   maxLength={12}
                   placeholder={mode === "sale" ? "Max THB" : "Max / month"}
@@ -399,7 +412,7 @@ export function PropertyListingsPage() {
                 <select
                   value={selectedBedroom}
                   onChange={(event) => setSelectedBedroom(event.target.value)}
-                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                   aria-label="Bedroom filter"
                 >
                   {bedroomOptions.map((option) => (
@@ -412,7 +425,7 @@ export function PropertyListingsPage() {
                 <select
                   value={selectedBathroom}
                   onChange={(event) => setSelectedBathroom(event.target.value)}
-                  className="border border-white bg-white px-4 py-4 text-sm font-semibold outline-none"
+                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                   aria-label="Bathroom filter"
                 >
                   {bathroomOptions.map((option) => (
@@ -422,20 +435,28 @@ export function PropertyListingsPage() {
                   ))}
                 </select>
 
-                <div className="relative">
+                <div ref={sortMenuRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setSortOpen((current) => !current)}
-                    className="flex w-full items-center justify-between gap-3 rounded-[24px] border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold"
+                    className="flex w-full items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                     aria-expanded={sortOpen}
                     aria-label="Recommended sort menu"
                   >
-                    <span>{sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}</span>
-                    <ChevronDown className={`h-4 w-4 transition ${sortOpen ? "rotate-180" : ""}`} />
+                    <span className="inline-flex items-center gap-3">
+                      <ArrowUpDown className="h-4 w-4" />
+                      {sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
                   </button>
 
-                  {sortOpen ? (
-                    <div className="absolute right-0 top-[calc(100%+10px)] z-20 min-w-full overflow-hidden border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)]">
+                  <div
+                    className={`absolute right-0 top-[calc(100%+10px)] z-20 min-w-full overflow-hidden rounded-[28px] border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)] transition-all duration-300 ${
+                      sortOpen
+                        ? "pointer-events-auto translate-y-0 opacity-100"
+                        : "pointer-events-none translate-y-2 opacity-0"
+                    }`}
+                  >
                       {sortOptions.map((option) => (
                         <button
                           key={option.value}
@@ -444,7 +465,7 @@ export function PropertyListingsPage() {
                             setSortBy(option.value);
                             setSortOpen(false);
                           }}
-                          className="flex w-full items-center gap-4 border-b border-[#d7dde6] px-5 py-4 text-left text-[15px] text-brand-dark last:border-b-0 hover:bg-[#f7f9fc]"
+                          className="flex w-full items-center gap-4 border-b border-[#d7dde6] px-5 py-4 text-left text-[15px] text-brand-dark transition-colors duration-200 last:border-b-0 hover:bg-[#f7f9fc]"
                         >
                           <span
                             className={`h-6 w-6 rounded-full border ${
@@ -460,8 +481,7 @@ export function PropertyListingsPage() {
                           <span className="font-medium">{option.label}</span>
                         </button>
                       ))}
-                    </div>
-                  ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -474,10 +494,10 @@ export function PropertyListingsPage() {
                         key={option}
                         type="button"
                         onClick={() => setSelectedHomeType(option)}
-                        className={`px-4 py-2 text-sm font-bold ${
+                        className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
                           selectedHomeType === option
-                            ? "bg-brand-red text-white"
-                            : "border border-brand-line bg-white text-brand-dark"
+                            ? "bg-brand-red text-white shadow-[0_12px_24px_rgba(163,28,36,0.2)]"
+                            : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
                         }`}
                       >
                         {option}
@@ -494,10 +514,10 @@ export function PropertyListingsPage() {
                         key={amenity}
                         type="button"
                         onClick={() => toggleAmenity(amenity)}
-                        className={`px-4 py-2 text-sm font-bold ${
+                        className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
                           selectedAmenities.includes(amenity)
-                            ? "bg-brand-dark text-white"
-                            : "border border-brand-line bg-white text-brand-dark"
+                            ? "bg-brand-dark text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
+                            : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
                         }`}
                       >
                         {amenity}
@@ -517,10 +537,10 @@ export function PropertyListingsPage() {
                           key={category}
                           type="button"
                           onClick={() => toggleCategory(category)}
-                          className={`px-4 py-2 text-sm font-bold ${
+                          className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
                             selectedCategories.includes(category)
-                              ? "bg-[#1f2937] text-white"
-                              : "border border-brand-line bg-white text-brand-dark"
+                              ? "bg-[#1f2937] text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
+                              : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
                           }`}
                         >
                           {category}
@@ -534,7 +554,7 @@ export function PropertyListingsPage() {
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="inline-flex items-center gap-2 border border-brand-line bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.18em] text-brand-dark hover:text-brand-red"
+                    className="inline-flex items-center gap-2 rounded-full border border-brand-line bg-white px-5 py-2.5 text-sm font-black uppercase tracking-[0.18em] text-brand-dark transition-all duration-300 hover:border-brand-red hover:text-brand-red hover:shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
                   >
                     <Undo2 className="h-4 w-4" />
                     Reset
