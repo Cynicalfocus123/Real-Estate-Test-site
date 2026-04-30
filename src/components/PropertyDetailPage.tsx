@@ -284,7 +284,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
           <div className="mt-6 grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
             <div>
-              <div className="hidden flex-wrap gap-3 md:flex">
+              <div className="hidden">
                 <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(`for ${listing.mode}`)}`}>
                   For {listing.mode}
                 </span>
@@ -298,7 +298,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 ) : null}
               </div>
 
-              <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="mt-5 flex flex-col gap-4 md:hidden">
                 <div>
                   <p className="md:hidden text-[11px] font-black uppercase tracking-[0.22em] text-brand-red">
                     For {listing.mode} • {listing.statusLabel}
@@ -311,10 +311,9 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <MapPin className="h-5 w-5 text-brand-red" />
                     {listing.city}, {listing.province}
                   </p>
-                </div>
-                <div className="rounded-[28px] border border-[#eadfd6] bg-white px-5 py-4 shadow-[0_16px_35px_rgba(15,23,42,0.07)] md:px-6 md:py-5">
-                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">Asking Price</p>
-                  <p className="mt-2 text-3xl font-black text-brand-red">{listing.priceLabel}</p>
+                  <p className="mt-3 text-[2.05rem] font-black leading-none text-brand-dark">
+                    {listing.priceLabel}
+                  </p>
                 </div>
               </div>
 
@@ -372,6 +371,33 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              <div className="mt-6 hidden md:block">
+                <div className="flex flex-wrap gap-3">
+                  <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(`for ${listing.mode}`)}`}>
+                    For {listing.mode}
+                  </span>
+                  <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.propertyTypeLabel)}`}>
+                    {listing.propertyTypeLabel}
+                  </span>
+                  {listing.propertyTypeLabel !== listing.statusLabel ? (
+                    <span className={`rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.2em] ${getPropertyBadgeClasses(listing.statusLabel)}`}>
+                      {listing.statusLabel}
+                    </span>
+                  ) : null}
+                </div>
+
+                <h1 className="mt-4 max-w-5xl text-[2.6rem] font-black leading-[1.06] text-brand-dark">
+                  {listing.title}
+                </h1>
+                <p className="mt-3 inline-flex items-center gap-2 text-[1.1rem] font-semibold text-brand-gray">
+                  <MapPin className="h-5 w-5 text-brand-red" />
+                  {listing.city}, {listing.province}
+                </p>
+                <p className="mt-3 text-[2.35rem] font-black leading-none text-brand-dark">
+                  {listing.priceLabel}
+                </p>
               </div>
 
               <div className="mt-5 hidden flex-wrap gap-3 md:flex">
