@@ -194,7 +194,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       <div className="hidden md:block">
         <Header />
       </div>
-      <main className="overflow-x-hidden pb-28 md:pb-20">
+      <main className="overflow-x-hidden pb-16 md:pb-20">
         <section className="mx-auto w-full max-w-7xl overflow-hidden px-4 pb-8 pt-0 md:pt-8 lg:px-8">
           <div className="md:hidden -mx-4 mb-5">
             <div className="relative aspect-[4/5] overflow-hidden bg-brand-dark">
@@ -493,114 +493,93 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </button>
               </div>
 
-              <div className="mt-5 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e7dcd5] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Type</p>
-                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.homeType}</p>
+              <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                <h2 className="break-words text-3xl font-black leading-tight text-brand-dark md:text-4xl">Property Details</h2>
+                <div className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">{getBedroomLabel(listing.beds)}</span>
+                    </p>
                   </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Built</p>
-                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.builtYear}</p>
+                  <div className="flex min-w-0 items-center gap-4">
+                    <Bath className="h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">{getBathroomLabel(listing.baths)}</span>
+                    </p>
                   </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Garage</p>
-                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.garageSpaces} spaces</p>
+                  <div className="flex min-w-0 items-center gap-4">
+                    <Square className="h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">{listing.areaSqm} sqm</span>
+                    </p>
                   </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] px-3 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Floor</p>
-                    <p className="mt-2 break-words text-base font-black leading-tight text-brand-dark">{listing.floorCount || "N/A"}</p>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Property type:</span> {listing.propertyTypeLabel}
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Built:</span> {listing.builtYear}
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Warehouse className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Garage:</span> {listing.garageSpaces || "N/A"} spaces
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-5 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e7dcd5] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] md:hidden">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gray">BuyHomeForLess Agent</p>
-                <div className="mt-3 flex items-start gap-4">
-                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-red text-lg font-black text-white">
-                    {getAgentInitials(listing.agent.name)}
+                <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:hidden">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gray">BuyHomeForLess Agent</p>
+                  <div className="mt-3 flex items-start gap-4">
+                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-red text-lg font-black text-white">
+                      {getAgentInitials(listing.agent.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-xl font-black leading-tight text-brand-dark">{listing.agent.name}</h2>
+                      <p className="mt-1 text-sm leading-6 text-brand-gray">
+                        Ask for a viewing, ownership guidance, and closing support.
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h2 className="text-xl font-black leading-tight text-brand-dark">{listing.agent.name}</h2>
-                    <p className="mt-1 text-sm leading-6 text-brand-gray">
-                      Ask for a viewing, ownership guidance, and closing support.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <a
-                    href={phoneHref}
-                    className="inline-flex items-center justify-center rounded-2xl border border-brand-red px-4 py-3 text-sm font-black text-brand-red"
-                  >
-                    Call Agent
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setContactVisible((current) => !current)}
-                    className="inline-flex items-center justify-center rounded-2xl bg-brand-red px-4 py-3 text-sm font-black text-white"
-                  >
-                    {contactVisible ? "Hide Contact" : "Show Contact"}
-                  </button>
-                </div>
-                {contactVisible ? (
-                  <div className="mt-4 space-y-3 rounded-[20px] bg-[#fff7f4] p-4 text-sm font-bold text-brand-dark">
-                    <a href={phoneHref} className="flex items-center gap-3">
-                      <Phone className="h-4 w-4 text-brand-red" />
-                      {listing.agent.phone}
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <a
+                      href={phoneHref}
+                      className="inline-flex items-center justify-center rounded-2xl border border-brand-red px-4 py-3 text-sm font-black text-brand-red"
+                    >
+                      Call Agent
                     </a>
-                    <a href={emailHref} className="flex items-center gap-3">
-                      <Mail className="h-4 w-4 text-brand-red" />
-                      {listing.agent.email}
-                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setContactVisible((current) => !current)}
+                      className="inline-flex items-center justify-center rounded-2xl bg-brand-red px-4 py-3 text-sm font-black text-white"
+                    >
+                      {contactVisible ? "Hide Contact" : "Show Contact"}
+                    </button>
                   </div>
-                ) : null}
-              </div>
-
-              <div className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px] md:p-6">
-                <h2 className="break-words text-2xl font-black leading-tight text-brand-dark md:text-2xl">Property Details</h2>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 md:mt-6 md:gap-4">
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <BedDouble className="h-4 w-4 text-brand-red" />
-                      Bedrooms
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{getBedroomLabel(listing.beds)}</p>
-                  </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <Bath className="h-4 w-4 text-brand-red" />
-                      Bathrooms
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{getBathroomLabel(listing.baths)}</p>
-                  </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <Building2 className="h-4 w-4 text-brand-red" />
-                      Floors
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.floorCount || "N/A"}</p>
-                  </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <Warehouse className="h-4 w-4 text-brand-red" />
-                      Garage
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.garageSpaces || "N/A"}</p>
-                  </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <Square className="h-4 w-4 text-brand-red" />
-                      Living Area
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.areaSqm} sqm</p>
-                  </div>
-                  <div className="min-w-0 rounded-[18px] bg-[#f5f4f8] p-4 md:rounded-[24px] md:p-5">
-                    <p className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.18em] text-brand-gray">
-                      <Building2 className="h-4 w-4 text-brand-red" />
-                      Property Type
-                    </p>
-                    <p className="mt-3 break-words text-lg font-black text-brand-dark md:text-2xl">{listing.propertyTypeLabel}</p>
-                  </div>
+                  {contactVisible ? (
+                    <div className="mt-4 space-y-3 rounded-[20px] bg-[#fff7f4] p-4 text-sm font-bold text-brand-dark">
+                      <a href={phoneHref} className="flex items-center gap-3">
+                        <Phone className="h-4 w-4 text-brand-red" />
+                        {listing.agent.phone}
+                      </a>
+                      <a href={emailHref} className="flex items-center gap-3">
+                        <Mail className="h-4 w-4 text-brand-red" />
+                        {listing.agent.email}
+                      </a>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="mt-8 grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
@@ -624,14 +603,15 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
               </div>
 
-              <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
-                <h2 className="break-words text-2xl font-black text-brand-dark">Amenities</h2>
-                <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Amenities</h2>
+                <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
                   {listing.amenities.map((amenity) => (
                     <div
                       key={`${listing.id}-amenity-${amenity}`}
-                      className="min-w-0 rounded-[18px] border border-[#ece2da] bg-[#fffaf6] px-4 py-4 text-sm font-bold text-brand-dark md:rounded-[22px] md:px-5"
+                      className="flex min-w-0 items-center gap-4 text-lg text-brand-dark"
                     >
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
                       <span className="break-words">{amenity}</span>
                     </div>
                   ))}
@@ -873,23 +853,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
         </div>
       ) : null}
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e3dad4] bg-white/96 p-3 backdrop-blur md:hidden">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setContactVisible((current) => !current)}
-            className="rounded-2xl border border-brand-red px-4 py-3 text-sm font-black text-brand-red"
-          >
-            Contact Agent
-          </button>
-          <a
-            href={phoneHref}
-            className="inline-flex items-center justify-center rounded-2xl bg-brand-red px-4 py-3 text-sm font-black text-white"
-          >
-            Request a Call
-          </a>
-        </div>
-      </div>
     </div>
   );
 }
