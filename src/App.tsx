@@ -307,7 +307,7 @@ export function App() {
               <ArrowRight className="h-5 w-5" />
             </a>
           </div>
-          <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-1 xl:grid-cols-2">
             {featuredListings.map((listing) => (
               <PropertyListingCard key={listing.id} listing={listing} mode="sale" />
             ))}

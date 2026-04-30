@@ -204,3 +204,4 @@
 - Removed the listing-page `Cities` quick-filter chip and replaced it with debounced Thailand city/town autocomplete in the main search bar using the open-source Photon OpenStreetMap geocoder, while keeping the local listing search sanitized and punctuation-safe.
 - Updated the listing-page search bar so typed queries keep spaces while the search engine still normalizes and matches multi-word place names safely.
 - Reused the listing-style property card on the home-page `Best Deals` section so those cards now share the same slider, save button, location row, and metadata styling as the listing page.
+- Widened the home-page `Best Deals` grid so each product card gets more horizontal room and the image/text/icon chips do not feel cramped.
