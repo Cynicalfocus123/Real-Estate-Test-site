@@ -169,3 +169,4 @@
 - Added first test version of a main `For Sale` property listing page with top search, side filters, modern listing cards, location-driven mock data, and share buttons.
 - Updated main property listing page to use stacked filters below search, a sale/rent toggle, a recommended sort dropdown, inline bedroom and bathroom selectors, amenities chips, and special sale-category filters.
 - Refined listing-page controls and chips with rounded modern styling plus smooth dropdown open/close animation inspired by Airbnb-like interaction patterns.
+- Reworked property listing page into a compact product-card grid with top search, filter drawer, sort menu above products, heart save buttons, and six-image card sliders.

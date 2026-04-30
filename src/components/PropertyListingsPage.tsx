@@ -4,9 +4,12 @@ import {
   BedDouble,
   CalendarRange,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
   MapPin,
   Search,
-  Share2,
+  SlidersHorizontal,
   Sparkles,
   Square,
   Undo2,
@@ -53,6 +56,14 @@ const saleCategoryOptions: ListingSpecialCategory[] = [
   "Fixer Upper",
   "Urgent Sale",
 ];
+const listingSlideImages = [
+  "images/province-banners/bangkok.png",
+  "images/province-banners/phuket.png",
+  "images/province-banners/chiang-mai.png",
+  "images/province-banners/pattaya-chonburi.png",
+  "images/province-banners/hua-hin-prachuap-khiri-khan.png",
+  "images/province-banners/kanchanaburi.png",
+];
 
 function getBedroomLabel(beds: number) {
   return beds === 0 ? "Studio" : `${beds} Bed`;
@@ -79,29 +90,35 @@ function matchesBathroom(listing: PropertyListing, selected: string) {
   return listing.baths >= getMinimumFilterValue(selected);
 }
 
-function ListingCard({
-  copiedId,
-  listing,
-  mode,
-  onShare,
-}: {
-  copiedId: string | null;
-  listing: PropertyListing;
-  mode: ListingMode;
-  onShare: (listing: PropertyListing) => void;
-}) {
+function ListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [saved, setSaved] = useState(false);
+  const slides = useMemo(
+    () => [listing.image, ...listingSlideImages.filter((image) => image !== listing.image)].slice(0, 6),
+    [listing.image],
+  );
+  const previousSlide = () => setActiveSlide((current) => (current === 0 ? slides.length - 1 : current - 1));
+  const nextSlide = () => setActiveSlide((current) => (current === slides.length - 1 ? 0 : current + 1));
+
   return (
     <article
       id={listing.id}
-      className="overflow-hidden border border-[#e3ddd8] bg-white shadow-[0_22px_50px_rgba(15,23,42,0.08)]"
+      className="overflow-hidden border border-[#e3ddd8] bg-white shadow-[0_16px_36px_rgba(15,23,42,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(15,23,42,0.12)]"
     >
-      <div className="grid lg:grid-cols-[360px_1fr]">
-        <div className="relative min-h-[260px] overflow-hidden bg-neutral-200">
-          <img
-            src={assetPath(listing.image)}
-            alt={listing.title}
-            className="h-full w-full object-cover transition duration-500 hover:scale-105"
-          />
+      <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
+        <div
+          className="flex h-full transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
+          {slides.map((image, index) => (
+            <img
+              key={`${listing.id}-${image}-${index}`}
+              src={assetPath(image)}
+              alt={`${listing.title} image ${index + 1}`}
+              className="h-full min-w-full object-cover"
+            />
+          ))}
+        </div>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.12)_40%,rgba(0,0,0,0.55)_100%)]" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
@@ -115,85 +132,93 @@ function ListingCard({
           </div>
           <button
             type="button"
-            onClick={() => onShare(listing)}
-            className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white transition-all duration-300 hover:bg-black/70 hover:shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
-            aria-label={`Share ${listing.title}`}
+            onClick={() => setSaved((current) => !current)}
+            className={`absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 transition-all duration-300 hover:scale-105 ${
+              saved ? "text-brand-red" : "text-brand-dark"
+            }`}
+            aria-label={`${saved ? "Unsave" : "Save"} ${listing.title}`}
+            aria-pressed={saved}
           >
-            <Share2 className="h-4 w-4" />
-            {copiedId === listing.id ? "Copied" : "Share"}
+            <Heart className={`h-5 w-5 ${saved ? "fill-current" : ""}`} />
           </button>
+          <button
+            type="button"
+            onClick={previousSlide}
+            className="absolute left-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
+            aria-label={`Previous image for ${listing.title}`}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={nextSlide}
+            className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
+            aria-label={`Next image for ${listing.title}`}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-3 py-2">
+            {slides.map((_, index) => (
+              <button
+                key={`${listing.id}-dot-${index}`}
+                type="button"
+                onClick={() => setActiveSlide(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeSlide === index ? "w-5 bg-white" : "w-1.5 bg-white/60"
+                }`}
+                aria-label={`Show image ${index + 1} for ${listing.title}`}
+                aria-pressed={activeSlide === index}
+              />
+            ))}
+          </div>
           <div className="absolute inset-x-4 bottom-4 text-white">
             <p className="inline-flex items-center gap-2 text-sm font-semibold">
               <MapPin className="h-4 w-4" />
               {listing.city}, {listing.province}
             </p>
           </div>
-        </div>
+      </div>
 
-        <div className="p-6 lg:p-7">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <h3 className="text-2xl font-black leading-tight text-brand-dark">{listing.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-brand-gray">
-                Nearby: {listing.nearby.join(" | ")}
-              </p>
-            </div>
-            <div className="shrink-0">
-              <p className="text-3xl font-black text-brand-red">{listing.priceLabel}</p>
-              <p className="mt-1 text-right text-xs font-bold uppercase tracking-[0.2em] text-brand-gray">
-                For {mode}
-              </p>
-            </div>
-          </div>
+      <div className="p-5">
+        <h3 className="line-clamp-2 text-xl font-black leading-tight text-brand-dark">{listing.title}</h3>
+        <p className="mt-2 text-sm font-semibold text-brand-gray">
+          {listing.city}, {listing.province}
+        </p>
+        <p className="mt-4 text-2xl font-black text-brand-red">{listing.priceLabel}</p>
+        <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-brand-gray">For {mode}</p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
+          <div className="mt-5 grid grid-cols-2 gap-2 text-sm">
+            <div className="rounded-full border border-brand-line bg-[#faf8f6] px-3 py-2 font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
                 <BedDouble className="h-4 w-4 text-brand-red" />
                 {getBedroomLabel(listing.beds)}
               </span>
             </div>
-            <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
+            <div className="rounded-full border border-brand-line bg-[#faf8f6] px-3 py-2 font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
                 <Bath className="h-4 w-4 text-brand-red" />
                 {getBathroomLabel(listing.baths)}
               </span>
             </div>
-            <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
+            <div className="rounded-full border border-brand-line bg-[#faf8f6] px-3 py-2 font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
                 <Square className="h-4 w-4 text-brand-red" />
                 {listing.areaSqm} sqm
               </span>
             </div>
-            <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
+            <div className="rounded-full border border-brand-line bg-[#faf8f6] px-3 py-2 font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-brand-red" />
                 {listing.homeType}
               </span>
             </div>
-            <div className="border border-brand-line bg-[#faf8f6] px-4 py-3 text-sm font-semibold text-brand-dark">
+            <div className="col-span-2 rounded-full border border-brand-line bg-[#faf8f6] px-3 py-2 font-semibold text-brand-dark">
               <span className="inline-flex items-center gap-2">
                 <CalendarRange className="h-4 w-4 text-brand-red" />
                 Built {listing.builtYear}
               </span>
             </div>
           </div>
-
-          <div className="mt-6">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Amenities</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {listing.amenities.map((amenity) => (
-                <span
-                  key={amenity}
-                  className="inline-flex items-center gap-2 rounded-full border border-brand-line px-3 py-2 text-sm font-semibold text-brand-dark"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-brand-red" />
-                  {amenity}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </article>
   );
@@ -211,7 +236,7 @@ export function PropertyListingsPage() {
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -287,26 +312,6 @@ export function PropertyListingsPage() {
 
   const provinceCount = new Set(filteredListings.map((listing) => listing.province)).size;
 
-  async function handleShare(listing: PropertyListing) {
-    const shareUrl = `${window.location.origin}${import.meta.env.BASE_URL}properties-for-sale#${listing.id}`;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: listing.title,
-          text: `${listing.title} in ${listing.city}, ${listing.province}`,
-          url: shareUrl,
-        });
-      } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-        setCopiedId(listing.id);
-        window.setTimeout(() => setCopiedId((current) => (current === listing.id ? null : current)), 1800);
-      }
-    } catch {
-      setCopiedId(null);
-    }
-  }
-
   function resetFilters() {
     setQuery("");
     setMinPrice("");
@@ -318,6 +323,7 @@ export function PropertyListingsPage() {
     setSelectedCategories([]);
     setSortBy("recommended");
     setSortOpen(false);
+    setFilterOpen(false);
   }
 
   function toggleAmenity(amenity: string) {
@@ -380,7 +386,7 @@ export function PropertyListingsPage() {
                 ))}
               </div>
 
-              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,170px))_minmax(0,240px)]">
+              <div className="mt-4">
                 <label className="flex items-center gap-3 rounded-full border border-[#e4e0db] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
                   <Search className="h-5 w-5 text-brand-red" />
                   <input
@@ -388,10 +394,12 @@ export function PropertyListingsPage() {
                     onChange={(event) => setQuery(cleanSearchText(event.target.value))}
                     className="w-full text-sm font-medium outline-none"
                     maxLength={80}
-                    placeholder="Search by city, province, project, nearby landmark, or property type"
+                    placeholder="Search for house type, province, cities"
                   />
                 </label>
+              </div>
 
+              <div className="mt-4 grid gap-4 md:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
                 <input
                   value={minPrice}
                   onChange={(event) => setMinPrice(cleanNumericText(event.target.value))}
@@ -434,58 +442,24 @@ export function PropertyListingsPage() {
                     </option>
                   ))}
                 </select>
-
-                <div ref={sortMenuRef} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setSortOpen((current) => !current)}
-                    className="flex w-full items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
-                    aria-expanded={sortOpen}
-                    aria-label="Recommended sort menu"
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <ArrowUpDown className="h-4 w-4" />
-                      {sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}
-                    </span>
-                    <ChevronDown className={`h-4 w-4 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
-                  </button>
-
-                  <div
-                    className={`absolute right-0 top-[calc(100%+10px)] z-20 min-w-full overflow-hidden rounded-[28px] border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)] transition-all duration-300 ${
-                      sortOpen
-                        ? "pointer-events-auto translate-y-0 opacity-100"
-                        : "pointer-events-none translate-y-2 opacity-0"
-                    }`}
-                  >
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => {
-                            setSortBy(option.value);
-                            setSortOpen(false);
-                          }}
-                          className="flex w-full items-center gap-4 border-b border-[#d7dde6] px-5 py-4 text-left text-[15px] text-brand-dark transition-colors duration-200 last:border-b-0 hover:bg-[#f7f9fc]"
-                        >
-                          <span
-                            className={`h-6 w-6 rounded-full border ${
-                              sortBy === option.value ? "border-brand-dark" : "border-[#6b7280]"
-                            } flex items-center justify-center`}
-                          >
-                            <span
-                              className={`h-3.5 w-3.5 rounded-full ${
-                                sortBy === option.value ? "bg-brand-dark" : "bg-transparent"
-                              }`}
-                            />
-                          </span>
-                          <span className="font-medium">{option.label}</span>
-                        </button>
-                      ))}
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen((current) => !current)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-dark bg-white px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-brand-dark shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                  aria-expanded={filterOpen}
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filter
+                </button>
               </div>
 
-              <div className="mt-4 flex flex-wrap items-start gap-4 border-t border-[#e3ddd8] pt-4">
+              <div
+                className={`grid overflow-hidden transition-all duration-300 ease-out ${
+                  filterOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="min-h-0">
+              <div className="flex flex-wrap items-start gap-4 border-t border-[#e3ddd8] pt-4">
                 <div className="min-w-[220px] flex-1">
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-gray">Home Type</p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -561,43 +535,80 @@ export function PropertyListingsPage() {
                   </button>
                 </div>
               </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
-          <div className="flex flex-col gap-3 border border-[#e3ddd8] bg-white px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.05)] sm:flex-row sm:items-end sm:justify-between">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-brand-red">Results</p>
-              <h2 className="mt-2 text-3xl font-black text-brand-dark">
+              <h2 className="text-2xl font-black text-brand-dark">
                 {filteredListings.length} homes across {provinceCount} provinces
               </h2>
-              <p className="mt-2 text-sm text-brand-gray">
-                Search works across city, province, nearby landmarks, and property type.
-              </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.18em] text-brand-gray">
-              {Array.from(new Set(filteredListings.map((listing) => listing.province))).slice(0, 6).map((province) => (
-                <span key={province} className="border border-brand-line px-3 py-2">
-                  {province}
+            <div ref={sortMenuRef} className="relative w-full sm:w-[260px]">
+              <button
+                type="button"
+                onClick={() => setSortOpen((current) => !current)}
+                className="flex w-full items-center justify-between gap-3 rounded-full border border-brand-dark bg-white px-5 py-4 text-left text-sm font-semibold shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                aria-expanded={sortOpen}
+                aria-label="Recommended sort menu"
+              >
+                <span className="inline-flex items-center gap-3">
+                  <ArrowUpDown className="h-4 w-4" />
+                  {sortOptions.find((option) => option.value === sortBy)?.label ?? "Recommended"}
                 </span>
-              ))}
+                <ChevronDown className={`h-4 w-4 transition duration-300 ${sortOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <div
+                className={`absolute right-0 top-[calc(100%+10px)] z-20 min-w-full overflow-hidden rounded-[28px] border border-[#cfd7e3] bg-white shadow-[0_24px_50px_rgba(15,23,42,0.14)] transition-all duration-300 ${
+                  sortOpen
+                    ? "pointer-events-auto translate-y-0 opacity-100"
+                    : "pointer-events-none translate-y-2 opacity-0"
+                }`}
+              >
+                {sortOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setSortBy(option.value);
+                      setSortOpen(false);
+                    }}
+                    className="flex w-full items-center gap-4 border-b border-[#d7dde6] px-5 py-4 text-left text-[15px] text-brand-dark transition-colors duration-200 last:border-b-0 hover:bg-[#f7f9fc]"
+                  >
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-full border ${
+                        sortBy === option.value ? "border-brand-dark" : "border-[#6b7280]"
+                      }`}
+                    >
+                      <span
+                        className={`h-3.5 w-3.5 rounded-full ${
+                          sortBy === option.value ? "bg-brand-dark" : "bg-transparent"
+                        }`}
+                      />
+                    </span>
+                    <span className="font-medium">{option.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {filteredListings.length > 0 ? (
               filteredListings.map((listing) => (
                 <ListingCard
                   key={listing.id}
-                  copiedId={copiedId}
                   listing={listing}
                   mode={mode}
-                  onShare={handleShare}
                 />
               ))
             ) : (
-              <div className="border border-dashed border-brand-line bg-white px-6 py-16 text-center">
+              <div className="border border-dashed border-brand-line bg-white px-6 py-16 text-center md:col-span-2 xl:col-span-3">
                 <h3 className="text-2xl font-black text-brand-dark">No homes match these filters</h3>
                 <p className="mt-4 text-base leading-7 text-brand-gray">
                   Try widening budget, changing bedroom count, or clearing location search.
