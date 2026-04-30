@@ -318,6 +318,12 @@ export function PropertyListingsPage() {
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
   const [maxLandSize, setMaxLandSize] = useState("");
+  const [draftMode, setDraftMode] = useState<ListingMode>("sale");
+  const [draftHomeType, setDraftHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [draftAmenities, setDraftAmenities] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<ListingSpecialCategory[]>([]);
+  const [draftMinLandSize, setDraftMinLandSize] = useState("");
+  const [draftMaxLandSize, setDraftMaxLandSize] = useState("");
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -347,6 +353,12 @@ export function PropertyListingsPage() {
 
   useEffect(() => {
     if (filterOpen) {
+      setDraftMode(mode);
+      setDraftHomeType(selectedHomeType);
+      setDraftAmenities(selectedAmenities);
+      setDraftCategories(selectedCategories);
+      setDraftMinLandSize(minLandSize);
+      setDraftMaxLandSize(maxLandSize);
       setFilterMounted(true);
       return;
     }
@@ -369,9 +381,17 @@ export function PropertyListingsPage() {
     () => propertyListings.filter((listing) => listing.mode === mode),
     [mode],
   );
+  const draftModeListings = useMemo(
+    () => propertyListings.filter((listing) => listing.mode === draftMode),
+    [draftMode],
+  );
   const amenityOptions = useMemo(
     () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
     [modeListings],
+  );
+  const draftAmenityOptions = useMemo(
+    () => Array.from(new Set(draftModeListings.flatMap((listing) => listing.amenities))).sort(),
+    [draftModeListings],
   );
 
   const sanitizedQuery = cleanSearchText(query);
@@ -454,20 +474,12 @@ export function PropertyListingsPage() {
     setActiveQuickFilter(null);
   }
 
-  function toggleAmenity(amenity: string) {
-    setSelectedAmenities((current) =>
-      current.includes(amenity)
-        ? current.filter((item) => item !== amenity)
-        : [...current, amenity],
-    );
-  }
-
-  function toggleCategory(category: ListingSpecialCategory) {
-    setSelectedCategories((current) =>
-      current.includes(category)
-        ? current.filter((item) => item !== category)
-        : [...current, category],
-    );
+  function resetDraftFilters() {
+    setDraftHomeType("Any");
+    setDraftAmenities([]);
+    setDraftCategories([]);
+    setDraftMinLandSize("");
+    setDraftMaxLandSize("");
   }
 
   function handleModeChange(nextMode: ListingMode) {
@@ -482,7 +494,22 @@ export function PropertyListingsPage() {
     setActiveQuickFilter(null);
   }
 
+  function handleDraftModeChange(nextMode: ListingMode) {
+    setDraftMode(nextMode);
+    setDraftHomeType("Any");
+    setDraftAmenities([]);
+    setDraftCategories([]);
+    setDraftMinLandSize("");
+    setDraftMaxLandSize("");
+  }
+
   function applyFilters() {
+    setMode(draftMode);
+    setSelectedHomeType(draftHomeType);
+    setSelectedAmenities(draftAmenities);
+    setSelectedCategories(draftMode === "sale" ? draftCategories : []);
+    setMinLandSize(draftMinLandSize);
+    setMaxLandSize(draftMaxLandSize);
     setFilterOpen(false);
     setActiveQuickFilter(null);
   }
@@ -891,15 +918,15 @@ export function PropertyListingsPage() {
                         <button
                           key={option.label}
                           type="button"
-                          onClick={() => handleModeChange(option.value)}
+                          onClick={() => handleDraftModeChange(option.value)}
                           className={`relative px-3 py-4 transition-colors duration-300 ${
-                            mode === option.value && option.label !== "Option To Buy"
+                            draftMode === option.value && option.label !== "Option To Buy"
                               ? "text-brand-dark"
                               : "hover:text-brand-dark"
                           }`}
                         >
                           {option.label}
-                          {mode === option.value && option.label !== "Option To Buy" ? (
+                          {draftMode === option.value && option.label !== "Option To Buy" ? (
                             <span className="absolute inset-x-0 bottom-[-1px] h-0.5 bg-brand-red" />
                           ) : null}
                         </button>
@@ -917,15 +944,15 @@ export function PropertyListingsPage() {
                             <button
                               key={option}
                               type="button"
-                              onClick={() => setSelectedHomeType(option)}
+                              onClick={() => setDraftHomeType(option)}
                               className="flex items-center gap-4 border-b border-[#eeeeee] px-1 py-3 text-left text-base font-semibold text-brand-dark last:border-b-0"
                             >
                               <span
                                 className={`flex h-5 w-5 items-center justify-center rounded-full border ${
-                                  selectedHomeType === option ? "border-brand-red" : "border-brand-dark"
+                                  draftHomeType === option ? "border-brand-red" : "border-brand-dark"
                                 }`}
                               >
-                                {selectedHomeType === option ? <span className="h-3 w-3 rounded-full bg-brand-red" /> : null}
+                                {draftHomeType === option ? <span className="h-3 w-3 rounded-full bg-brand-red" /> : null}
                               </span>
                               {option}
                             </button>
@@ -954,8 +981,8 @@ export function PropertyListingsPage() {
                           <label>
                             <span className="text-sm font-semibold text-brand-dark">Minimum sqm</span>
                             <input
-                              value={minLandSize}
-                              onChange={(event) => setMinLandSize(cleanNumericText(event.target.value, 8))}
+                              value={draftMinLandSize}
+                              onChange={(event) => setDraftMinLandSize(cleanNumericText(event.target.value, 8))}
                               className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
                               inputMode="numeric"
                               maxLength={8}
@@ -965,8 +992,8 @@ export function PropertyListingsPage() {
                           <label>
                             <span className="text-sm font-semibold text-brand-dark">Maximum sqm</span>
                             <input
-                              value={maxLandSize}
-                              onChange={(event) => setMaxLandSize(cleanNumericText(event.target.value, 8))}
+                              value={draftMaxLandSize}
+                              onChange={(event) => setDraftMaxLandSize(cleanNumericText(event.target.value, 8))}
                               className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
                               inputMode="numeric"
                               maxLength={8}
@@ -982,13 +1009,19 @@ export function PropertyListingsPage() {
                           <ChevronUp className="h-5 w-5 text-brand-dark" />
                         </div>
                         <div className="mt-4 flex flex-wrap gap-3">
-                          {amenityOptions.map((amenity) => (
+                          {draftAmenityOptions.map((amenity) => (
                             <button
                               key={amenity}
                               type="button"
-                              onClick={() => toggleAmenity(amenity)}
+                              onClick={() =>
+                                setDraftAmenities((current) =>
+                                  current.includes(amenity)
+                                    ? current.filter((item) => item !== amenity)
+                                    : [...current, amenity],
+                                )
+                              }
                               className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
-                                selectedAmenities.includes(amenity)
+                                draftAmenities.includes(amenity)
                                   ? "bg-brand-dark text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
                                   : "border border-brand-line bg-white text-brand-dark hover:border-brand-red"
                               }`}
@@ -999,7 +1032,7 @@ export function PropertyListingsPage() {
                         </div>
                       </section>
 
-                      {mode === "sale" ? (
+                      {draftMode === "sale" ? (
                         <section className="px-5 py-5">
                           <div className="flex items-center justify-between">
                             <h3 className="text-base font-black text-brand-dark">Special Listings</h3>
@@ -1010,9 +1043,15 @@ export function PropertyListingsPage() {
                               <button
                                 key={category}
                                 type="button"
-                                onClick={() => toggleCategory(category)}
+                                onClick={() =>
+                                  setDraftCategories((current) =>
+                                    current.includes(category)
+                                      ? current.filter((item) => item !== category)
+                                      : [...current, category],
+                                  )
+                                }
                                 className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
-                                  selectedCategories.includes(category)
+                                  draftCategories.includes(category)
                                     ? "bg-[#1f2937] text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
                                     : "border border-brand-line bg-white text-brand-dark hover:border-brand-red"
                                 }`}
@@ -1028,7 +1067,7 @@ export function PropertyListingsPage() {
               <div className="flex items-center justify-between border-t border-[#eeeeee] bg-white px-5 py-4">
                       <button
                         type="button"
-                        onClick={resetFilters}
+                        onClick={resetDraftFilters}
                         className="inline-flex items-center gap-2 text-sm font-black text-brand-red"
                       >
                         <Undo2 className="h-4 w-4" />
@@ -1039,7 +1078,7 @@ export function PropertyListingsPage() {
                         onClick={applyFilters}
                         className="rounded-xl bg-brand-red px-7 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(163,28,36,0.24)] transition hover:bg-brand-dark"
                       >
-                        Apply Filter
+                        Done
                       </button>
               </div>
             </div>
