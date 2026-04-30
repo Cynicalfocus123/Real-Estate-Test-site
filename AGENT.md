@@ -202,3 +202,4 @@
 - Connected the home-page `Top Locations` banners to province-filtered listing URLs so clicking a location tile opens the product listing page with that banner's mapped province already selected.
 - Aligned the listing-page `Cities` and `Province` quick-filter boxes into the same button row as the other quick filters and matched their chip height/style to the existing controls.
 - Removed the listing-page `Cities` quick-filter chip and replaced it with debounced Thailand city/town autocomplete in the main search bar using the open-source Photon OpenStreetMap geocoder, while keeping the local listing search sanitized and punctuation-safe.
+- Updated the listing-page search bar so typed queries keep spaces while the search engine still normalizes and matches multi-word place names safely.

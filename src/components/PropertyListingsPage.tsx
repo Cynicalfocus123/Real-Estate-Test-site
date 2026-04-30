@@ -772,7 +772,7 @@ export function PropertyListingsPage({
 
   function handleQueryChange(value: string) {
     lastPickedSuggestionRef.current = "";
-    setQuery(cleanSearchText(value));
+    setQuery(value.replace(/[<>`]/g, "").slice(0, 80));
   }
 
   function applyLocationSuggestion(suggestion: ThailandLocationSuggestion) {
