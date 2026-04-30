@@ -239,3 +239,4 @@
 - Converted the property detail facts and amenities from boxed mobile cards into modern text/icon rows, moved the mobile agent contact buttons directly below the property details, removed the duplicate mini fact boxes under the price, and deleted the sticky bottom contact/request-call bar.
 - Restored a visible header above every property detail page on mobile, using the shared site navigation with a larger logo and hamburger menu before the gallery.
 - Restored the desktop property gallery `See all photos` action with a stronger overlay button and a second visible desktop gallery control under the thumbnails.
+- Updated the property gallery modal so tapping a photo from `See all photos` opens one large focused image viewer without keeping the thumbnail list underneath.

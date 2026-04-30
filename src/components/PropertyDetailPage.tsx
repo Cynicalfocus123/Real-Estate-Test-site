@@ -784,7 +784,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               </div>
             ) : (
               <div className="mt-6">
-                <div className="relative overflow-hidden rounded-[28px] bg-[#f8f5f2]">
+                <div className="relative flex min-h-[66vh] items-center justify-center overflow-hidden rounded-[28px] bg-brand-dark">
                   <img
                     src={assetPath(listing.galleryImages[galleryFocusIndex])}
                     alt={`${listing.title} full photo ${galleryFocusIndex + 1}`}
@@ -829,28 +829,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
-                  {listing.galleryImages.map((image, index) => (
-                    <button
-                      key={`${listing.id}-gallery-thumb-${index}`}
-                      type="button"
-                      onClick={() => setGalleryFocusIndex(index)}
-                      className={`overflow-hidden rounded-[18px] border-2 transition ${
-                        galleryFocusIndex === index
-                          ? "border-brand-red shadow-[0_10px_22px_rgba(163,28,36,0.18)]"
-                          : "border-transparent"
-                      }`}
-                      aria-label={`Show full gallery image ${index + 1} for ${listing.title}`}
-                      aria-pressed={galleryFocusIndex === index}
-                    >
-                      <img
-                        src={assetPath(image)}
-                        alt={`${listing.title} thumbnail ${index + 1}`}
-                        className="aspect-square w-full object-cover"
-                      />
-                    </button>
-                  ))}
                 </div>
               </div>
             )}
