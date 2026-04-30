@@ -433,28 +433,24 @@ export function PropertyListingsPage() {
       <Header />
       <main>
         <section className="border-b border-[#e5ddd7] bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8">
             <div className="max-w-4xl">
               <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
                 {mode === "sale" ? "For Sale" : "For Rent"}
               </p>
-              <h1 className="mt-4 font-serif text-5xl font-normal leading-tight text-brand-dark sm:text-6xl">
+              <h1 className="mt-2 font-serif text-3xl font-normal leading-tight text-brand-dark sm:text-4xl">
                 Property Listings by City and Province
               </h1>
-              <p className="mt-5 max-w-3xl text-lg font-semibold leading-8 text-brand-gray">
-                Test layout for our main listing page. Search by location, switch between sale and
-                rent, and refine results from one compact filter area below the search.
-              </p>
             </div>
 
-            <div className="mt-8 border border-[#e3ddd8] bg-[#faf7f4] p-4 lg:p-5">
-              <div className="flex flex-wrap gap-3 border-b border-[#e3ddd8] pb-4">
+            <div className="mt-5">
+              <div className="flex flex-wrap gap-2 pb-3">
                 {modeOptions.map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => handleModeChange(option)}
-                    className={`rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.18em] transition-all duration-300 ${
+                    className={`rounded-full px-5 py-2.5 text-sm font-black uppercase tracking-[0.14em] transition-all duration-300 ${
                       mode === option
                         ? "bg-brand-red text-white shadow-[0_14px_28px_rgba(163,28,36,0.22)]"
                         : "border border-brand-line bg-white text-brand-dark hover:border-brand-red hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
@@ -465,86 +461,79 @@ export function PropertyListingsPage() {
                 ))}
               </div>
 
-              <div className="mt-4">
-                <label className="flex items-center gap-3 rounded-full border border-[#e4e0db] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
-                  <Search className="h-5 w-5 text-brand-red" />
+              <label className="flex items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
+                  <Search className="h-5 w-5 text-brand-dark" />
                   <input
                     value={query}
                     onChange={(event) => setQuery(cleanSearchText(event.target.value))}
-                    className="w-full text-sm font-medium outline-none"
+                    className="w-full text-base font-medium outline-none"
                     maxLength={80}
-                    placeholder="Search for house type, province, cities"
+                    placeholder='Try "800k 4bd 2ba with a fenced yard and a pool"'
                   />
                 </label>
+
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark"
+                  aria-expanded={filterOpen}
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filters
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  Price
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  Rooms
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  Home type
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  New construction
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  Min {formatPriceValue(minPrice, mode)}
+                </button>
+                <button
+                  type="button"
+                  onClick={openFilter}
+                  className="inline-flex shrink-0 rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition hover:border-brand-dark"
+                >
+                  Hide pending / contingent
+                </button>
               </div>
 
-              <div className="mt-4 border-t border-[#e3ddd8] pt-4">
-                <div className="max-w-xl">
-                  <h2 className="text-lg font-black text-brand-dark">Price range</h2>
-                  <p className="mt-1 text-xs font-semibold text-brand-gray">
-                    {mode === "sale" ? "Sale price, Thai baht" : "Monthly rent, Thai baht"}
-                  </p>
-                  <div className="relative mt-3 h-16">
-                    <div className="absolute inset-x-4 bottom-6 flex h-10 items-end gap-1">
-                      {priceBars.map((height, index) => {
-                        const barValue = minPriceLimit + ((maxPriceLimit - minPriceLimit) * index) / (priceBars.length - 1);
-                        const isActive = barValue >= minPrice && barValue <= maxPrice;
-
-                        return (
-                          <span
-                            key={`${height}-${index}`}
-                            className={`w-full rounded-t-full transition-colors duration-300 ${
-                              isActive ? "bg-brand-red" : "bg-[#f1b6bf]"
-                            }`}
-                            style={{ height: `${Math.max(4, Math.round(height * 0.65))}px` }}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="absolute inset-x-4 bottom-6 h-0.5 bg-brand-red" />
-                    <input
-                      type="range"
-                      min={minPriceLimit}
-                      max={maxPriceLimit}
-                      step={priceStep}
-                      value={minPrice}
-                      onChange={(event) => handleMinPriceChange(Number(event.target.value))}
-                      className="pointer-events-auto absolute inset-x-0 bottom-1 z-10 h-9 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
-                      aria-label="Minimum price"
-                    />
-                    <input
-                      type="range"
-                      min={minPriceLimit}
-                      max={maxPriceLimit}
-                      step={priceStep}
-                      value={maxPrice}
-                      onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
-                      className="pointer-events-auto absolute inset-x-0 bottom-1 z-20 h-9 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
-                      aria-label="Maximum price"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-bold text-brand-gray">Minimum</p>
-                      <div className="mt-1 rounded-full border border-[#ddd8d2] bg-white px-5 py-2 text-center text-sm font-semibold text-brand-dark shadow-[0_6px_16px_rgba(15,23,42,0.04)]">
-                        {formatPriceValue(minPrice, mode)}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-bold text-brand-gray">Maximum</p>
-                      <div className="mt-1 rounded-full border border-[#ddd8d2] bg-white px-5 py-2 text-center text-sm font-semibold text-brand-dark shadow-[0_6px_16px_rgba(15,23,42,0.04)]">
-                        {formatPriceValue(maxPrice, mode)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-[repeat(2,minmax(0,1fr))_auto]">
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <select
                   value={selectedBedroom}
                   onChange={(event) => setSelectedBedroom(event.target.value)}
-                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                  className="rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-semibold outline-none transition-all duration-300 focus:border-brand-red"
                   aria-label="Bedroom filter"
                 >
                   {bedroomOptions.map((option) => (
@@ -557,7 +546,7 @@ export function PropertyListingsPage() {
                 <select
                   value={selectedBathroom}
                   onChange={(event) => setSelectedBathroom(event.target.value)}
-                  className="rounded-full border border-[#e4e0db] bg-white px-5 py-4 text-sm font-semibold outline-none shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 focus:border-brand-red focus:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+                  className="rounded-lg border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-semibold outline-none transition-all duration-300 focus:border-brand-red"
                   aria-label="Bathroom filter"
                 >
                   {bathroomOptions.map((option) => (
@@ -566,15 +555,6 @@ export function PropertyListingsPage() {
                     </option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={openFilter}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-dark bg-white px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-brand-dark shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
-                  aria-expanded={filterOpen}
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filter
-                </button>
               </div>
             </div>
           </div>

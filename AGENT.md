@@ -177,3 +177,4 @@
 - Reduced listing price slider height and removed Bedroom from the Buy filter panel while keeping the top quick bedroom selector.
 - Added Land Size min/max fields to the listing filter panel and wired them to filter listings by sqm.
 - Changed listing filter panel to open as a centered modal with upward motion and close with downward motion when clicking away or the close button.
+- Compressed listing search area into a Realtor-style horizontal toolbar with a long search pill and compact filter chips to reduce vertical whitespace.
