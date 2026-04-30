@@ -433,6 +433,16 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
               autoComplete="off"
               placeholder="Search Thailand cities, towns, property types"
             />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => handleQueryChange("")}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-brand-gray transition hover:bg-[#f4f1ee] hover:text-brand-dark"
+                aria-label="Clear search text"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
             <button
               type="submit"
               className="inline-flex shrink-0 items-center gap-2 text-sm font-black uppercase tracking-[0.16em] text-brand-dark transition hover:text-brand-red sm:text-base"
@@ -510,6 +520,16 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
               autoComplete="off"
               placeholder="search Thailand cities, towns, property types"
             />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => handleQueryChange("")}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-brand-gray transition hover:bg-[#f4f1ee] hover:text-brand-dark"
+                aria-label="Clear search text"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </label>
           {locationSuggestionsLoading || locationSuggestionsOpen ? (
             <div className="absolute inset-x-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-[24px] border border-[#d8d2cc] bg-white shadow-[0_22px_60px_rgba(15,23,42,0.18)]">
