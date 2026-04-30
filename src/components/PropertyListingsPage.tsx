@@ -316,6 +316,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   const [selectedBedroom, setSelectedBedroom] = useState<string>("Any");
   const [selectedBathroom, setSelectedBathroom] = useState<string>("Any");
   const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>("Any");
+  const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>("Any");
+  const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>("Any");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
@@ -345,6 +348,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setQuery("");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
+    setDraftQuickBedroom("Any");
+    setDraftQuickBathroom("Any");
+    setDraftQuickHomeType("Any");
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSelectedHomeType("Any");
@@ -486,6 +492,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
     setDownPaymentOption("amount");
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
+    setDraftQuickBedroom("Any");
+    setDraftQuickBathroom("Any");
+    setDraftQuickHomeType("Any");
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
@@ -550,7 +559,25 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
   function toggleQuickFilter(filter: QuickFilter) {
     setSortOpen(false);
     setFilterOpen(false);
+    if (filter === "rooms") {
+      setDraftQuickBedroom(selectedBedroom);
+      setDraftQuickBathroom(selectedBathroom);
+    }
+    if (filter === "homeType") {
+      setDraftQuickHomeType(selectedHomeType);
+    }
     setActiveQuickFilter((current) => (current === filter ? null : filter));
+  }
+
+  function applyRoomsQuickFilter() {
+    setSelectedBedroom(draftQuickBedroom);
+    setSelectedBathroom(draftQuickBathroom);
+    setActiveQuickFilter(null);
+  }
+
+  function applyHomeTypeQuickFilter() {
+    setSelectedHomeType(draftQuickHomeType);
+    setActiveQuickFilter(null);
   }
 
   function handleMinPriceChange(value: number) {
@@ -846,9 +873,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                               <button
                                 key={option}
                                 type="button"
-                                onClick={() => setSelectedBedroom(option)}
+                                onClick={() => setDraftQuickBedroom(option)}
                                 className={`min-w-16 rounded-xl border px-4 py-2.5 text-sm font-black transition-all duration-300 ${
-                                  selectedBedroom === option
+                                  draftQuickBedroom === option
                                     ? "border-brand-dark bg-brand-dark text-white"
                                     : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
                                 }`}
@@ -865,9 +892,9 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                               <button
                                 key={option}
                                 type="button"
-                                onClick={() => setSelectedBathroom(option)}
+                                onClick={() => setDraftQuickBathroom(option)}
                                 className={`min-w-16 rounded-xl border px-4 py-2.5 text-sm font-black transition-all duration-300 ${
-                                  selectedBathroom === option
+                                  draftQuickBathroom === option
                                     ? "border-brand-dark bg-brand-dark text-white"
                                     : "border-[#d2d2d2] bg-white text-brand-dark hover:border-brand-dark"
                                 }`}
@@ -877,28 +904,48 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                             ))}
                           </div>
                         </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={applyRoomsQuickFilter}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                          >
+                            Done
+                          </button>
+                        </div>
                       </div>
                     ) : null}
 
                     {mountedQuickFilter === "homeType" ? (
-                      <div className="max-h-[360px] overflow-y-auto pr-1">
-                        {homeTypeOptions.map((option) => (
+                      <div className="space-y-5">
+                        <div className="max-h-[360px] overflow-y-auto pr-1">
+                          {homeTypeOptions.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => setDraftQuickHomeType(option)}
+                              className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                            >
+                              <span
+                                className={`h-5 w-5 rounded-full border transition-all duration-300 ${
+                                  draftQuickHomeType === option
+                                    ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
+                                    : "border-brand-muted bg-white"
+                                }`}
+                              />
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex justify-end">
                           <button
-                            key={option}
                             type="button"
-                            onClick={() => setSelectedHomeType(option)}
-                            className="flex w-full items-center gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                            onClick={applyHomeTypeQuickFilter}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
                           >
-                            <span
-                              className={`h-5 w-5 rounded-full border transition-all duration-300 ${
-                                selectedHomeType === option
-                                  ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
-                                  : "border-brand-muted bg-white"
-                              }`}
-                            />
-                            {option}
+                            Done
                           </button>
-                        ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>

@@ -195,3 +195,4 @@
 - Removed the `New Projects Only` row from the listing-page Filters modal.
 - Wired the header `For Rent` menu to the shared listing page route and made the listing page auto-open in Rent mode with clean default filters when entered through the rent URL.
 - Updated the listing-page sale price filter to show `Min 0` and `Max 500 MB`, and increased the sale-mode price range cap to 500,000,000.
+- Changed the listing-page quick `Room` and `Home type` dropdowns to use local draft selections so the site updates only after the user clicks each dropdown's `Done` button.
