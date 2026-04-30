@@ -13,6 +13,7 @@
 - At the start of every new chat/session, first confirm the git repo is connected and working, keep git connected throughout the session, and commit plus push every completed change automatically unless the user explicitly says not to.
 - User standing instruction: do not ask in chat for git commit or git push permission; after verified changes, commit and push immediately unless the user explicitly says not to.
 - Priority objective: never ask again for git commit or git push after verified work; commit and push automatically by default unless the user explicitly says not to push.
+- Final standing rule: all future updates and changes must be committed and pushed to the GitHub repo automatically after verification, with no chat permission requests for commit or push.
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
 - At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
 - Update this file whenever corrections or fixes are applied.
