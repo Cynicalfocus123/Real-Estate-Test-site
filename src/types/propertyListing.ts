@@ -17,6 +17,17 @@ export type ListingSpecialCategory =
   | "Fixer Upper"
   | "Urgent Sale";
 
+export type PropertyFaq = {
+  question: string;
+  answer: string;
+};
+
+export type PropertyAgent = {
+  name: string;
+  phone: string;
+  email: string;
+};
+
 export type PropertyListing = {
   id: string;
   mode: ListingMode;
@@ -33,6 +44,13 @@ export type PropertyListing = {
   nearby: string[];
   amenities: string[];
   image: string;
+  galleryImages: string[];
   statusLabel: string;
+  description: string;
+  floorCount: number;
+  garageSpaces: number;
+  propertyTypeLabel: string;
+  agent: PropertyAgent;
+  faqs?: PropertyFaq[];
   specialCategory?: ListingSpecialCategory;
 };

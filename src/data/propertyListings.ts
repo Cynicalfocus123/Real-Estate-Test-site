@@ -1,6 +1,11 @@
-import type { PropertyListing } from "../types/propertyListing";
+import type { PropertyAgent, PropertyFaq, PropertyListing } from "../types/propertyListing";
 
-export const propertyListings: PropertyListing[] = [
+type PropertyListingSeed = Omit<
+  PropertyListing,
+  "agent" | "description" | "faqs" | "floorCount" | "galleryImages" | "garageSpaces" | "propertyTypeLabel"
+>;
+
+const basePropertyListings: PropertyListingSeed[] = [
   {
     id: "sale-bkk-phrom-phong-01",
     mode: "sale",
@@ -313,3 +318,71 @@ export const propertyListings: PropertyListing[] = [
     statusLabel: "Family Rental",
   },
 ];
+
+const defaultAgent: PropertyAgent = {
+  name: "BuyHomeForLess Agent",
+  phone: "+66 82 468 2456",
+  email: "agent@buyhomeforless.com",
+};
+
+const galleryPool = Array.from(new Set(basePropertyListings.map((listing) => listing.image)));
+
+function rotateGallery(startIndex: number) {
+  return galleryPool.slice(startIndex).concat(galleryPool.slice(0, startIndex));
+}
+
+function buildGalleryImages(primaryImage: string, index: number) {
+  return Array.from(new Set([primaryImage, ...rotateGallery(index % galleryPool.length)])).slice(0, 10);
+}
+
+function buildDescription(listing: PropertyListingSeed) {
+  const priceContext = listing.mode === "rent" ? "rental" : "purchase";
+  return `${listing.title} is a ${listing.homeType.toLowerCase()} in ${listing.city}, ${listing.province} designed for ${priceContext} clients who want quick access to ${listing.nearby.join(", ")}. The layout balances everyday livability with practical resale appeal, while the ${listing.amenities.join(", ").toLowerCase()} package keeps the home ready for future backend-driven listing content.`;
+}
+
+function buildFaqs(listing: PropertyListingSeed): PropertyFaq[] {
+  const occupancyLabel = listing.mode === "rent" ? "move-in" : "transfer";
+  return [
+    {
+      question: `What stands out about this ${listing.homeType.toLowerCase()} in ${listing.city}?`,
+      answer: `This listing combines ${listing.areaSqm} sqm of interior space, ${listing.beds === 0 ? "a studio-style plan" : `${listing.beds} bedroom`}, and convenient access to ${listing.nearby[0]}. Backend property FAQs can replace this seeded content later without changing the page layout.`,
+    },
+    {
+      question: `What amenities are included with this property?`,
+      answer: `Current listing data includes ${listing.amenities.join(", ")}. The detail page reads these amenities from structured property data so the backend can supply property-specific facility lists later.`,
+    },
+    {
+      question: `How soon could a buyer or tenant plan for ${occupancyLabel}?`,
+      answer: `That timing will depend on the final agreement, due diligence, and agent coordination. The detail page is already prepared to receive backend-written FAQs for exact handover timelines on each property.`,
+    },
+  ];
+}
+
+function getFloorCount(listing: PropertyListingSeed) {
+  if (listing.homeType === "Land") return 0;
+  if (listing.homeType === "Condo" || listing.homeType === "Apartment") return 1;
+  if (listing.areaSqm >= 300) return 2;
+  return 1;
+}
+
+function getGarageSpaces(listing: PropertyListingSeed) {
+  if (listing.homeType === "Land") return 0;
+  if (listing.homeType === "Condo" || listing.homeType === "Apartment") return 1;
+  if (listing.beds >= 4) return 2;
+  return 1;
+}
+
+function getPropertyTypeLabel(listing: PropertyListingSeed) {
+  return listing.specialCategory ?? listing.statusLabel;
+}
+
+export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
+  ...listing,
+  agent: defaultAgent,
+  description: buildDescription(listing),
+  faqs: buildFaqs(listing),
+  floorCount: getFloorCount(listing),
+  galleryImages: buildGalleryImages(listing.image, index),
+  garageSpaces: getGarageSpaces(listing),
+  propertyTypeLabel: getPropertyTypeLabel(listing),
+}));

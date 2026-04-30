@@ -24,6 +24,7 @@ import { PreForeclosurePage } from "./components/PreForeclosurePage";
 import { PrivateVillaNursingCarePage } from "./components/PrivateVillaNursingCarePage";
 import { PropertySpecifiedDetailsPage } from "./components/PropertySpecifiedDetailsPage";
 import { PropertyListingCard } from "./components/PropertyListingCard";
+import { PropertyDetailPage } from "./components/PropertyDetailPage";
 import { PropertyListingsPage } from "./components/PropertyListingsPage";
 import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
@@ -43,6 +44,12 @@ export function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const listingSearchParams = new URLSearchParams(window.location.search);
+  const propertyDetailMatch =
+    currentPath.match(/\/property\/([^/]+)$/) ?? currentHash.match(/^#\/property\/([^/]+)$/);
+  const selectedPropertyId = propertyDetailMatch ? decodeURIComponent(propertyDetailMatch[1]) : null;
+  const selectedProperty = selectedPropertyId
+    ? propertyListings.find((listing) => listing.id === selectedPropertyId)
+    : undefined;
   const listingProvince = listingSearchParams.get("province") ?? undefined;
   const listingQuery = listingSearchParams.get("q") ?? undefined;
   const listingHomeType = listingSearchParams.get("homeType") ?? undefined;
@@ -198,6 +205,10 @@ export function App() {
 
   if (isCostOfLivingThailandPage) {
     return <CostOfLivingThailandPage />;
+  }
+
+  if (selectedProperty) {
+    return <PropertyDetailPage listing={selectedProperty} />;
   }
 
   if (isPropertyListingsSalePage || isPropertyListingsBuyPage) {

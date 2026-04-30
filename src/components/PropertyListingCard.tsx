@@ -11,6 +11,8 @@ import {
 import { useMemo, useState } from "react";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
+import { propertyDetailHref } from "../utils/propertyLinks";
+import { safeHref } from "../utils/security";
 
 const listingSlideImages = [
   "images/province-banners/bangkok.png",
@@ -46,6 +48,11 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
     >
       <div className="grid md:grid-cols-[310px_1fr] lg:grid-cols-[340px_1fr]">
         <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200 md:aspect-auto md:min-h-[250px]">
+          <a
+            href={safeHref(propertyDetailHref(listing.id))}
+            aria-label={`View details for ${listing.title}`}
+            className="absolute inset-0 z-10"
+          />
           <div
             className="flex h-full transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${activeSlide * 100}%)` }}
@@ -60,7 +67,7 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
             ))}
           </div>
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.12)_40%,rgba(0,0,0,0.55)_100%)]" />
-          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+          <div className="absolute left-3 top-3 z-20 flex flex-wrap gap-2">
             <span className="rounded-full bg-white/95 px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-brand-dark">
               {listing.statusLabel}
             </span>
@@ -73,7 +80,7 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
           <button
             type="button"
             onClick={() => setSaved((current) => !current)}
-            className={`absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 transition-all duration-300 hover:scale-105 ${
+            className={`absolute right-3 top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 transition-all duration-300 hover:scale-105 ${
               saved ? "text-brand-red" : "text-brand-dark"
             }`}
             aria-label={`${saved ? "Unsave" : "Save"} ${listing.title}`}
@@ -84,7 +91,7 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
           <button
             type="button"
             onClick={previousSlide}
-            className="absolute left-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
+            className="absolute left-3 top-1/2 z-20 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
             aria-label={`Previous image for ${listing.title}`}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -92,12 +99,12 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
           <button
             type="button"
             onClick={nextSlide}
-            className="absolute right-3 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
+            className="absolute right-3 top-1/2 z-20 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-dark transition hover:bg-white"
             aria-label={`Next image for ${listing.title}`}
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-          <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-3 py-2">
+          <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-3 py-2">
             {slides.map((_, index) => (
               <button
                 key={`${listing.id}-dot-${index}`}
@@ -111,7 +118,7 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
               />
             ))}
           </div>
-          <div className="absolute inset-x-3 bottom-3 text-white">
+          <div className="absolute inset-x-3 bottom-3 z-20 text-white">
             <p className="inline-flex items-center gap-2 text-xs font-semibold">
               <MapPin className="h-4 w-4" />
               {listing.city}, {listing.province}
@@ -122,9 +129,11 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
         <div className="p-4 md:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h3 className="line-clamp-2 text-lg font-black leading-snug text-brand-dark md:text-xl">
-                {listing.title}
-              </h3>
+              <a href={safeHref(propertyDetailHref(listing.id))} className="inline-block">
+                <h3 className="line-clamp-2 text-lg font-black leading-snug text-brand-dark transition hover:text-brand-red md:text-xl">
+                  {listing.title}
+                </h3>
+              </a>
               <p className="mt-1 text-sm font-semibold text-brand-gray">
                 {listing.city}, {listing.province}
               </p>
@@ -162,6 +171,18 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
                 Built {listing.builtYear}
               </span>
             </div>
+          </div>
+
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-brand-line pt-4">
+            <p className="line-clamp-1 text-sm font-semibold text-brand-gray">
+              {listing.propertyTypeLabel}
+            </p>
+            <a
+              href={safeHref(propertyDetailHref(listing.id))}
+              className="text-sm font-black uppercase tracking-[0.16em] text-brand-red transition hover:text-brand-dark"
+            >
+              View Details
+            </a>
           </div>
         </div>
       </div>
