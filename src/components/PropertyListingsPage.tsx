@@ -690,69 +690,87 @@ export function PropertyListingsPage({ initialMode = "sale" }: { initialMode?: L
                     <SlidersHorizontal className="h-4 w-4" />
                     Filters
                   </button>
-                  <div className="flex items-center gap-2">
+                  <div className="relative">
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("price")}
-                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActivePriceFilter ? "pr-20" : ""
+                      } ${
                         activeQuickFilter === "price" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
                       }`}
                       aria-expanded={activeQuickFilter === "price"}
                     >
                       Price
-                      {activeQuickFilter === "price" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {activeQuickFilter === "price" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
                     </button>
                     {hasActivePriceFilter ? (
                       <button
                         type="button"
                         onClick={resetPriceQuickFilter}
-                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
                         aria-label="Clear price filter"
                       >
                         <X className="h-5 w-5" />
                       </button>
                     ) : null}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="relative">
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("rooms")}
-                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActiveRoomFilter ? "pr-20" : ""
+                      } ${
                         activeQuickFilter === "rooms" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
                       }`}
                       aria-expanded={activeQuickFilter === "rooms"}
                     >
                       {getRoomFilterLabel(selectedBedroom, selectedBathroom)}
-                      {activeQuickFilter === "rooms" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {activeQuickFilter === "rooms" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
                     </button>
                     {hasActiveRoomFilter ? (
                       <button
                         type="button"
                         onClick={resetRoomsQuickFilter}
-                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
                         aria-label="Clear room filter"
                       >
                         <X className="h-5 w-5" />
                       </button>
                     ) : null}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="relative">
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("homeType")}
-                      className={`inline-flex shrink-0 items-center gap-2 rounded-xl border bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActiveHomeTypeFilter ? "pr-20" : ""
+                      } ${
                         activeQuickFilter === "homeType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
                       }`}
                       aria-expanded={activeQuickFilter === "homeType"}
                     >
                       Home type
-                      {activeQuickFilter === "homeType" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {activeQuickFilter === "homeType" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
                     </button>
                     {hasActiveHomeTypeFilter ? (
                       <button
                         type="button"
                         onClick={resetHomeTypeQuickFilter}
-                        className="inline-flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-brand-dark bg-white text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
                         aria-label="Clear home type filter"
                       >
                         <X className="h-5 w-5" />
