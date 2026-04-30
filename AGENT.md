@@ -221,3 +221,4 @@
 - Removed the visible listing-count text from each home-page `Top Locations` banner while keeping the location image tiles and province links unchanged.
 - Tightened the home hero YouTube embed parameters so the video auto-plays muted, loops continuously, and keeps playback controls hidden.
 - Added inline clear `X` buttons to the home-page and listing-page search fields so typed search text can be erased directly from the right side of the input.
+- Corrected the home hero `Sell` mode so it routes to the `For Sale` listings page, while `Buy` continues to route to the separate `/buy` listings page.
