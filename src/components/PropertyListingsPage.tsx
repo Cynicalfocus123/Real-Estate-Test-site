@@ -608,33 +608,35 @@ export function PropertyListingsPage() {
                     </div>
 
                     {mountedQuickFilter === "price" ? (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[#cfc7c0] text-sm font-semibold">
-                          <button type="button" className="bg-[#f5f1ed] px-4 py-3 text-brand-dark">
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[#c9c1ba] text-base font-semibold">
+                          <button type="button" className="border-r border-[#9f9891] bg-[#f4f1ee] px-4 py-4 text-brand-dark">
                             List price
                           </button>
-                          <button type="button" className="px-4 py-3 text-brand-dark">
+                          <button type="button" className="bg-white px-4 py-4 text-brand-dark">
                             Monthly payment
                           </button>
                         </div>
                         <button
                           type="button"
-                          className="inline-flex items-center gap-2 text-sm font-black text-brand-dark underline underline-offset-4"
+                          className="inline-flex items-center gap-2 text-lg font-black text-brand-dark underline underline-offset-4"
                         >
                           <ArrowUpDown className="h-4 w-4 rotate-90" />
                           Search with my buying power
                         </button>
-                        <div className="px-1">
-                          <div className="flex h-20 items-end gap-1 border-b-2 border-brand-dark">
+                        <div className="px-0 pt-2">
+                          <div className="flex h-24 items-end gap-1 border-b-2 border-brand-dark">
                             {priceBars.map((height, index) => (
                               <span
                                 key={`${height}-${index}`}
-                                className="flex-1 rounded-t-full bg-brand-dark"
-                                style={{ height: `${Math.max(height * 1.3, 6)}px` }}
+                                className="flex-1 rounded-t-full bg-[#202020]"
+                                style={{ height: `${Math.max(height * 1.55, 6)}px` }}
                               />
                             ))}
                           </div>
-                          <div className="relative mt-[-11px] h-8">
+                          <div className="relative mt-[-14px] h-8">
+                            <span className="absolute left-[-12px] top-0 z-10 h-7 w-7 rounded-full border-2 border-brand-dark bg-white" />
+                            <span className="absolute right-[-12px] top-0 z-10 h-7 w-7 rounded-full border-2 border-brand-dark bg-white" />
                             <input
                               type="range"
                               min={minPriceLimit}
@@ -642,7 +644,7 @@ export function PropertyListingsPage() {
                               step={priceStep}
                               value={minPrice}
                               onChange={(event) => handleMinPriceChange(Number(event.target.value))}
-                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent opacity-0"
                               aria-label="Minimum price"
                             />
                             <input
@@ -652,38 +654,26 @@ export function PropertyListingsPage() {
                               step={priceStep}
                               value={maxPrice}
                               onChange={(event) => handleMaxPriceChange(Number(event.target.value))}
-                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent accent-brand-red"
+                              className="pointer-events-auto absolute inset-x-0 top-0 h-8 w-full cursor-pointer appearance-none bg-transparent opacity-0"
                               aria-label="Maximum price"
                             />
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="mb-2 block text-sm font-black text-brand-muted">Minimum</label>
-                            <div className="flex overflow-hidden rounded-xl border border-[#cfc7c0] bg-white">
-                              <span className="border-r border-[#cfc7c0] px-3 py-3 font-black">฿</span>
-                              <input
-                                value={minPrice === minPriceLimit ? "" : minPrice}
-                                onChange={(event) => handleMinPriceChange(Number(cleanNumericText(event.target.value)) || minPriceLimit)}
-                                className="w-full px-3 py-3 text-sm font-semibold outline-none"
-                                inputMode="numeric"
-                                placeholder="No min"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="mb-2 block text-sm font-black text-brand-muted">Maximum</label>
-                            <div className="flex overflow-hidden rounded-xl border border-[#cfc7c0] bg-white">
-                              <span className="border-r border-[#cfc7c0] px-3 py-3 font-black">฿</span>
-                              <input
-                                value={maxPrice === maxPriceLimit ? "" : maxPrice}
-                                onChange={(event) => handleMaxPriceChange(Number(cleanNumericText(event.target.value)) || maxPriceLimit)}
-                                className="w-full px-3 py-3 text-sm font-semibold outline-none"
-                                inputMode="numeric"
-                                placeholder="No max"
-                              />
-                            </div>
-                          </div>
+                        <div className="grid grid-cols-2 gap-5">
+                          <button
+                            type="button"
+                            className="flex items-center justify-between rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]"
+                          >
+                            <span><span className="mr-3 text-brand-dark">$</span>{minPrice === minPriceLimit ? "No min" : formatPriceValue(minPrice, mode)}</span>
+                            <ChevronDown className="h-5 w-5 text-brand-dark" />
+                          </button>
+                          <button
+                            type="button"
+                            className="flex items-center justify-between rounded-xl border border-[#c9c1ba] bg-white px-4 py-4 text-left text-lg font-semibold text-[#7c6f66]"
+                          >
+                            <span><span className="mr-3 text-brand-dark">$</span>{maxPrice === maxPriceLimit ? "No max" : formatPriceValue(maxPrice, mode)}</span>
+                            <ChevronDown className="h-5 w-5 text-brand-dark" />
+                          </button>
                         </div>
                       </div>
                     ) : null}
@@ -844,37 +834,6 @@ export function PropertyListingsPage() {
                           <span className="absolute left-0 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full border border-brand-dark bg-white shadow-sm" />
                           <span className="absolute right-2 top-1/2 -translate-y-1/2">Off</span>
                         </button>
-                      </section>
-
-                      <section className="border-b border-[#eeeeee] px-5 py-5">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-base font-black text-brand-dark">Price</h3>
-                          <ChevronUp className="h-5 w-5 text-brand-dark" />
-                        </div>
-                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                          <label>
-                            <span className="text-sm font-semibold text-brand-dark">Minimum</span>
-                            <div className="mt-2 flex overflow-hidden rounded-lg border border-[#d0d0d0] bg-white">
-                              <span className="flex w-11 items-center justify-center border-r border-[#d0d0d0] bg-[#f4f4f4] font-bold">
-                                B
-                              </span>
-                              <div className="flex-1 px-4 py-3 text-base font-semibold text-[#9b9b9b]">
-                                {formatPriceValue(minPrice, mode)}
-                              </div>
-                            </div>
-                          </label>
-                          <label>
-                            <span className="text-sm font-semibold text-brand-dark">Maximum</span>
-                            <div className="mt-2 flex overflow-hidden rounded-lg border border-[#d0d0d0] bg-white">
-                              <span className="flex w-11 items-center justify-center border-r border-[#d0d0d0] bg-[#f4f4f4] font-bold">
-                                B
-                              </span>
-                              <div className="flex-1 px-4 py-3 text-base font-semibold text-[#9b9b9b]">
-                                {formatPriceValue(maxPrice, mode)}
-                              </div>
-                            </div>
-                          </label>
-                        </div>
                       </section>
 
                       <section className="border-b border-[#eeeeee] px-5 py-5">
