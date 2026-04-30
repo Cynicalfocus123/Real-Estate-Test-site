@@ -187,3 +187,4 @@
 - Removed `New construction`, `Min 0`, and `Hide pending / contingent` chips from the listing-page quick filter bar to keep only the active controls.
 - Shortened the mobile sort control on the listing page by switching the button to compact labels and fit-content width while keeping the full desktop sort label.
 - Shortened the desktop listing-page sort button too by using compact labels on all screen sizes while keeping the dropdown menu wide enough for full sort-option text.
+- Shortened the desktop listing-page search bar by capping its width while keeping the mobile search field full width.

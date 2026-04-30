@@ -568,7 +568,7 @@ export function PropertyListingsPage() {
                 ))}
               </div>
 
-              <label className="flex items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
+              <label className="flex w-full items-center gap-3 rounded-full border border-[#1f2937] bg-white px-6 py-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-shadow duration-300 focus-within:shadow-[0_12px_28px_rgba(15,23,42,0.08)] lg:max-w-[640px]">
                   <Search className="h-5 w-5 text-brand-dark" />
                   <input
                     value={query}
