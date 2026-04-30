@@ -176,3 +176,4 @@
 - Restyled listing filter dropdown into a modern panel with buy/rent tabs, radio-style home type rows, price boxes, bedroom pills, amenities, special listings, and sticky Clear All/Apply Filter actions.
 - Reduced listing price slider height and removed Bedroom from the Buy filter panel while keeping the top quick bedroom selector.
 - Added Land Size min/max fields to the listing filter panel and wired them to filter listings by sqm.
+- Changed listing filter panel to open as a centered modal with upward motion and close with downward motion when clicking away or the close button.

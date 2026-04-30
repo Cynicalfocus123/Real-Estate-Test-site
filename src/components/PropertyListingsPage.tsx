@@ -14,6 +14,7 @@ import {
   Sparkles,
   Square,
   Undo2,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
@@ -270,6 +271,7 @@ export function PropertyListingsPage() {
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterMounted, setFilterMounted] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -286,6 +288,16 @@ export function PropertyListingsPage() {
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
+
+  useEffect(() => {
+    if (filterOpen) {
+      setFilterMounted(true);
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setFilterMounted(false), 300);
+    return () => window.clearTimeout(timeout);
+  }, [filterOpen]);
 
   const modeListings = useMemo(
     () => propertyListings.filter((listing) => listing.mode === mode),
@@ -396,6 +408,15 @@ export function PropertyListingsPage() {
   }
 
   function applyFilters() {
+    setFilterOpen(false);
+  }
+
+  function openFilter() {
+    setFilterMounted(true);
+    window.requestAnimationFrame(() => setFilterOpen(true));
+  }
+
+  function closeFilter() {
     setFilterOpen(false);
   }
 
@@ -547,7 +568,7 @@ export function PropertyListingsPage() {
                 </select>
                 <button
                   type="button"
-                  onClick={() => setFilterOpen((current) => !current)}
+                  onClick={openFilter}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-dark bg-white px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-brand-dark shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
                   aria-expanded={filterOpen}
                 >
@@ -555,15 +576,39 @@ export function PropertyListingsPage() {
                   Filter
                 </button>
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div
-                className={`grid overflow-hidden transition-all duration-300 ease-out ${
-                  filterOpen ? "mt-4 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"
-                }`}
-              >
-                <div className="min-h-0">
-                  <div className="overflow-hidden rounded-[28px] border border-[#e3ddd8] bg-white shadow-[0_20px_46px_rgba(15,23,42,0.08)]">
-                    <div className="grid grid-cols-3 border-b border-[#d9d9d9] text-center text-sm font-black text-[#9b9b9b] sm:text-base">
+        {filterMounted ? (
+          <div
+            className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/35 px-4 py-6 transition-opacity duration-300 ${
+              filterOpen ? "opacity-100" : "opacity-0"
+            }`}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                closeFilter();
+              }
+            }}
+          >
+            <div
+              className={`max-h-[88vh] w-full max-w-2xl overflow-hidden rounded-[28px] border border-[#e3ddd8] bg-white shadow-[0_26px_70px_rgba(15,23,42,0.22)] transition-all duration-300 ease-out ${
+                filterOpen ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+              }`}
+              onMouseDown={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-[#eeeeee] px-5 py-4">
+                <h2 className="text-lg font-black text-brand-dark">Filters</h2>
+                <button
+                  type="button"
+                  onClick={closeFilter}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-line text-brand-dark transition hover:border-brand-red hover:text-brand-red"
+                  aria-label="Close filter"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 border-b border-[#d9d9d9] text-center text-sm font-black text-[#9b9b9b] sm:text-base">
                       {filterModeOptions.map((option) => (
                         <button
                           key={option.label}
@@ -581,9 +626,9 @@ export function PropertyListingsPage() {
                           ) : null}
                         </button>
                       ))}
-                    </div>
+              </div>
 
-                    <div className="max-h-[620px] overflow-y-auto">
+              <div className="max-h-[calc(88vh-150px)] overflow-y-auto">
                       <section className="border-b border-[#eeeeee] px-5 py-5">
                         <div className="flex items-center justify-between">
                           <h3 className="text-base font-black text-brand-dark">Home Type</h3>
@@ -731,9 +776,9 @@ export function PropertyListingsPage() {
                           </div>
                         </section>
                       ) : null}
-                    </div>
+              </div>
 
-                    <div className="flex items-center justify-between border-t border-[#eeeeee] bg-white px-5 py-4">
+              <div className="flex items-center justify-between border-t border-[#eeeeee] bg-white px-5 py-4">
                       <button
                         type="button"
                         onClick={resetFilters}
@@ -749,13 +794,10 @@ export function PropertyListingsPage() {
                       >
                         Apply Filter
                       </button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
-        </section>
+        ) : null}
 
         <section className="mx-auto max-w-5xl px-4 py-10 lg:px-8">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
