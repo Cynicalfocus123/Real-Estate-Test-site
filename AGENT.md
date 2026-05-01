@@ -260,3 +260,5 @@
 - Added rent-only pricing support text across product cards and detail views: every rent listing now shows an extra line under the monthly price with a numeric `THB ... deposit per month` value.
 - Updated rent pricing support text to a larger fixed label: `Deposit 4,000 THB` (removed `per month`) across rent cards and property detail views.
 - Added a new `Features` section to every property detail page (buy and rent) showing furnishing status, air conditioner availability, and kitchen availability from structured listing data.
+- Refined the property-detail `Features` section to a plain text-row layout (no feature boxes), matching the style of details lists.
+- Made features backend-ready as dynamic text entries (`features: string[]`) so admins can add any number of custom feature lines and the frontend will render them automatically.

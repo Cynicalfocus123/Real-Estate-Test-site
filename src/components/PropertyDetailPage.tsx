@@ -978,19 +978,22 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Features</h2>
-                <div className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Furnishing</p>
-                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.furnishing}</p>
-                  </div>
-                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Air Conditioner</p>
-                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.airConditioner ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Kitchen</p>
-                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.kitchen ? "Yes" : "No"}</p>
-                  </div>
+                <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {listing.features.length > 0 ? (
+                    listing.features.map((feature, index) => (
+                      <div
+                        key={`${listing.id}-feature-${index}`}
+                        className="flex min-w-0 items-center gap-4 text-lg text-brand-dark"
+                      >
+                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
+                        <span className="break-words">{feature}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
+                      Property features will appear here once backend feature text is provided.
+                    </div>
+                  )}
                 </div>
               </section>
 

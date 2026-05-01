@@ -1,4 +1,4 @@
-import type { PropertyAddress, PropertyAgent, PropertyFaq, PropertyFeatures, PropertyListing } from "../types/propertyListing";
+import type { PropertyAddress, PropertyAgent, PropertyFaq, PropertyListing } from "../types/propertyListing";
 
 type PropertyListingSeed = Omit<
   PropertyListing,
@@ -410,20 +410,21 @@ function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
   };
 }
 
-function buildPropertyFeatures(listing: PropertyListingSeed): PropertyFeatures {
+function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
+  const furnishing =
+    listing.mode === "rent" || listing.homeType === "Condo" || listing.homeType === "Apartment" ? "Furnished" : "Unfurnished";
+  const hasAirConditioner = listing.homeType !== "Land";
+  const hasKitchen = listing.homeType !== "Land";
+
   if (listing.homeType === "Land") {
-    return {
-      furnishing: "Unfurnished",
-      airConditioner: false,
-      kitchen: false,
-    };
+    return ["Furnishing: Unfurnished", "Air Conditioner: No", "Kitchen: No"];
   }
 
-  return {
-    furnishing: listing.mode === "rent" || listing.homeType === "Condo" || listing.homeType === "Apartment" ? "Furnished" : "Unfurnished",
-    airConditioner: true,
-    kitchen: true,
-  };
+  return [
+    `Furnishing: ${furnishing}`,
+    `Air Conditioner: ${hasAirConditioner ? "Yes" : "No"}`,
+    `Kitchen: ${hasKitchen ? "Yes" : "No"}`,
+  ];
 }
 
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
