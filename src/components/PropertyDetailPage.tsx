@@ -275,7 +275,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [galleryFocusIndex, setGalleryFocusIndex] = useState<number | null>(null);
   const [contactVisible, setContactVisible] = useState(false);
   const [shareMessage, setShareMessage] = useState("Share");
-  const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState(-1);
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
   const similarScrollRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -311,6 +311,10 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
   useEffect(() => {
     setActivePreviewIndex(0);
+  }, [listing.id]);
+
+  useEffect(() => {
+    setOpenFaqIndex(-1);
   }, [listing.id]);
 
   useEffect(() => {

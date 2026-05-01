@@ -255,3 +255,4 @@
 - Updated property-location map search engine naming/config to OsmAnd: switched env keys to `VITE_OSMAND_SEARCH_URL`, `VITE_OSMAND_COUNTRY`, `VITE_OSMAND_LANGUAGE`, and optional `VITE_OSMAND_EMAIL`, while retaining Nominatim-compatible request flow.
 - Updated property location helper copy to indicate OsmAnd online search engine usage with configurable endpoint fallback behavior.
 - Increased property-location search result limit to the Nominatim max (`50`) and enabled multilingual labels by requesting English + Thai naming details, then rendering a combined readable location label.
+- Changed property detail FAQ behavior so all FAQ items are collapsed by default and remain closed when switching between listings unless the user opens one manually.
