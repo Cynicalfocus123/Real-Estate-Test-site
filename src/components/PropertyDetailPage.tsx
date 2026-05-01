@@ -53,12 +53,11 @@ type GeocodedMapPoint = {
   label: string;
 };
 
-const THAILAND_NOMINATIM_SEARCH_URL =
-  import.meta.env.VITE_THAI_NOMINATIM_SEARCH_URL?.trim() || "https://nominatim.openstreetmap.org/search";
-const THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL = "https://nominatim.openstreetmap.org/search";
-const THAILAND_NOMINATIM_COUNTRY = import.meta.env.VITE_THAI_NOMINATIM_COUNTRY?.trim() || "th";
-const THAILAND_NOMINATIM_LANGUAGE = import.meta.env.VITE_THAI_NOMINATIM_LANGUAGE?.trim() || "th,en";
-const THAILAND_NOMINATIM_EMAIL = import.meta.env.VITE_THAI_NOMINATIM_EMAIL?.trim();
+const OSMAND_SEARCH_URL = import.meta.env.VITE_OSMAND_SEARCH_URL?.trim() || "https://nominatim.openstreetmap.org/search";
+const OSMAND_PUBLIC_FALLBACK_URL = "https://nominatim.openstreetmap.org/search";
+const OSMAND_COUNTRY = import.meta.env.VITE_OSMAND_COUNTRY?.trim() || "th";
+const OSMAND_LANGUAGE = import.meta.env.VITE_OSMAND_LANGUAGE?.trim() || "th,en";
+const OSMAND_EMAIL = import.meta.env.VITE_OSMAND_EMAIL?.trim();
 const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
 const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -145,7 +144,7 @@ function buildAddressQuery(listing: PropertyListing) {
   return parts.join(", ");
 }
 
-async function geocodeWithThailandNominatim(
+async function geocodeWithOsmAndSearch(
   query: string,
   signal: AbortSignal,
   endpointUrl: string,
@@ -156,11 +155,11 @@ async function geocodeWithThailandNominatim(
   endpoint.searchParams.set("format", "jsonv2");
   endpoint.searchParams.set("limit", "1");
   endpoint.searchParams.set("addressdetails", "1");
-  endpoint.searchParams.set("countrycodes", THAILAND_NOMINATIM_COUNTRY);
+  endpoint.searchParams.set("countrycodes", OSMAND_COUNTRY);
   endpoint.searchParams.set("dedupe", "1");
   endpoint.searchParams.set("q", query);
-  if (THAILAND_NOMINATIM_EMAIL) {
-    endpoint.searchParams.set("email", THAILAND_NOMINATIM_EMAIL);
+  if (OSMAND_EMAIL) {
+    endpoint.searchParams.set("email", OSMAND_EMAIL);
   }
 
   const response = await fetch(endpoint.toString(), {
@@ -168,7 +167,7 @@ async function geocodeWithThailandNominatim(
     signal,
     headers: {
       Accept: "application/json",
-      "Accept-Language": THAILAND_NOMINATIM_LANGUAGE,
+      "Accept-Language": OSMAND_LANGUAGE,
     },
   });
 
@@ -199,22 +198,22 @@ async function geocodeAddressQuery(query: string, signal: AbortSignal) {
 
   for (const candidate of candidates) {
     try {
-      const thailandPoint = await geocodeWithThailandNominatim(candidate, signal, THAILAND_NOMINATIM_SEARCH_URL);
-      if (thailandPoint) return thailandPoint;
+      const osmandPoint = await geocodeWithOsmAndSearch(candidate, signal, OSMAND_SEARCH_URL);
+      if (osmandPoint) return osmandPoint;
     } catch {
       // Fall through to public fallback.
     }
   }
 
-  const usesPublicAsPrimary = THAILAND_NOMINATIM_SEARCH_URL === THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL;
+  const usesPublicAsPrimary = OSMAND_SEARCH_URL === OSMAND_PUBLIC_FALLBACK_URL;
   if (usesPublicAsPrimary) return null;
 
   for (const candidate of candidates) {
     try {
-      const fallbackPoint = await geocodeWithThailandNominatim(
+      const fallbackPoint = await geocodeWithOsmAndSearch(
         candidate,
         signal,
-        THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL,
+        OSMAND_PUBLIC_FALLBACK_URL,
       );
       if (fallbackPoint) return fallbackPoint;
     } catch {
@@ -952,7 +951,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
                 <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
-                  Backend-ready map logic: this section uses open-source Thailand geocoding (Nominatim-compatible), designed to work with a self-hosted index built from Geofabrik Thailand extracts.
+                  Backend-ready map logic: this section uses the OsmAnd online search engine (Nominatim-based), with a configurable endpoint for Thailand-focused deployment.
                 </p>
                 <form onSubmit={handleMapSearch} className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <label className="sr-only" htmlFor={`${listing.id}-map-search`}>

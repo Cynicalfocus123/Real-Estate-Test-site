@@ -252,3 +252,5 @@
 - Added explicit Mapbox token validation/error handling (`VITE_MAPBOX_ACCESS_TOKEN`) and refreshed property-location helper text to reflect the new API flow.
 - Replaced the property-location map search flow with an open-source Thailand geocoder setup: Nominatim-compatible search endpoint first, with public Nominatim fallback, so the frontend is ready for a self-hosted index built from Geofabrik Thailand extracts.
 - Added new geocoder env settings (`VITE_THAI_NOMINATIM_SEARCH_URL`, `VITE_THAI_NOMINATIM_COUNTRY`, `VITE_THAI_NOMINATIM_LANGUAGE`, optional `VITE_THAI_NOMINATIM_EMAIL`) and removed Mapbox token dependency from property map search.
+- Updated property-location map search engine naming/config to OsmAnd: switched env keys to `VITE_OSMAND_SEARCH_URL`, `VITE_OSMAND_COUNTRY`, `VITE_OSMAND_LANGUAGE`, and optional `VITE_OSMAND_EMAIL`, while retaining Nominatim-compatible request flow.
+- Updated property location helper copy to indicate OsmAnd online search engine usage with configurable endpoint fallback behavior.
