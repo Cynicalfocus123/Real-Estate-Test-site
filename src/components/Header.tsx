@@ -171,8 +171,8 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
           </div>
           {language !== "EN" && translationError ? (
             <p className="max-w-[230px] text-right text-[11px] font-semibold leading-4 text-brand-red" data-no-translate>
-              Translation API unreachable. Start local DeepLX on port 1188 or set
-              `VITE_DEEPLX_API_URL`.
+              Translation API unreachable. Configure `DEEPL_API_KEY` and `DEEPL_API_URL`
+              for the DeepL proxy, then restart the dev server.
             </p>
           ) : null}
         </div>

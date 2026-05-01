@@ -68,22 +68,6 @@ export function safeGraphqlEndpoint(endpoint: string | undefined) {
   }
 }
 
-export function safeTranslationEndpoint(endpoint: string | undefined, fallback: string) {
-  const normalizedFallback = fallback.trim();
-
-  if (!endpoint) return normalizedFallback;
-
-  try {
-    const url = new URL(endpoint);
-    const isLocalHttp = url.protocol === "http:" && LOCALHOST_HOSTS.has(url.hostname);
-    const isHttps = url.protocol === "https:";
-
-    return isLocalHttp || isHttps ? url.toString() : normalizedFallback;
-  } catch {
-    return normalizedFallback;
-  }
-}
-
 export function cleanSearchText(value: FormDataEntryValue | null, maxLength = 80) {
   if (typeof value !== "string") return "";
 

@@ -1,21 +1,10 @@
-import { safeTranslationEndpoint } from "../utils/security";
-
 export type SiteLanguage = "EN" | "RU" | "ZH" | "TH" | "AR" | "FA";
 
-const DEFAULT_DEEPLX_ENDPOINTS = [
-  "http://localhost:1188/translate",
-  "http://127.0.0.1:1188/translate",
-  "https://api.deeplx.org/translate",
-  "https://deeplx.vercel.app/translate",
-  "https://deeplx-jade.vercel.app/translate",
-] as const;
-
+const TRANSLATION_PROXY_PATH = "/api/deepl-translate";
 const TRANSLATION_TIMEOUT_MS = 15000;
 
 type DeepLApiResponse = {
   translations?: Array<{ text?: string }>;
-  data?: string | string[];
-  text?: string | string[];
 };
 
 function normalizeWhitespace(value: string) {
@@ -23,35 +12,18 @@ function normalizeWhitespace(value: string) {
 }
 
 function parseTranslationResponse(payload: DeepLApiResponse): string[] {
-  if (Array.isArray(payload.translations)) {
-    return payload.translations
-      .map((item) => (typeof item.text === "string" ? item.text : ""))
-      .filter(Boolean);
+  if (!Array.isArray(payload.translations)) {
+    return [];
   }
 
-  if (Array.isArray(payload.data)) {
-    return payload.data.filter((entry): entry is string => typeof entry === "string");
-  }
-
-  if (typeof payload.data === "string") {
-    return [payload.data];
-  }
-
-  if (Array.isArray(payload.text)) {
-    return payload.text.filter((entry): entry is string => typeof entry === "string");
-  }
-
-  if (typeof payload.text === "string") {
-    return [payload.text];
-  }
-
-  return [];
+  return payload.translations
+    .map((item) => (typeof item.text === "string" ? item.text : ""))
+    .filter(Boolean);
 }
 
 async function requestTranslation(
   text: string | string[],
   targetLanguage: SiteLanguage,
-  translationEndpoint: string,
   signal?: AbortSignal,
 ) {
   const controller = new AbortController();
@@ -67,19 +39,28 @@ async function requestTranslation(
   }
 
   try {
-    const response = await fetch(translationEndpoint, {
+    const response = await fetch(TRANSLATION_PROXY_PATH, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         text,
         source_lang: "EN",
-        target_lang: targetLanguage,
+        target_lang: targetLanguage === "ZH" ? "ZH-HANS" : targetLanguage,
       }),
       signal: controller.signal,
     });
 
     if (!response.ok) {
-      throw new Error(`Translation request failed (${response.status})`);
+      let message = `Translation request failed (${response.status})`;
+      try {
+        const payload = (await response.json()) as { error?: string };
+        if (payload?.error) {
+          message = payload.error;
+        }
+      } catch {
+        // Keep the fallback message when JSON parsing fails.
+      }
+      throw new Error(message);
     }
 
     return (await response.json()) as DeepLApiResponse;
@@ -105,37 +86,22 @@ export async function translateBatch(
   }
 
   const dedupedTexts = Array.from(new Set(texts.map((text) => normalizeWhitespace(text)).filter(Boolean)));
-  const endpointCandidates = [
-    import.meta.env.VITE_DEEPLX_API_URL,
-    ...DEFAULT_DEEPLX_ENDPOINTS,
-  ]
-    .map((endpoint) => safeTranslationEndpoint(endpoint, ""))
-    .filter(Boolean);
-  const uniqueEndpoints = Array.from(new Set(endpointCandidates));
 
-  let directTranslations: string[] = [];
-  let lastError: Error | null = null;
-  let activeEndpoint: string | null = null;
-
-  for (const endpoint of uniqueEndpoints) {
-    try {
-      const directPayload = await requestTranslation(dedupedTexts, targetLanguage, endpoint, signal);
-      directTranslations = parseTranslationResponse(directPayload);
-      activeEndpoint = endpoint;
-      if (directTranslations.length) {
-        break;
-      }
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      directTranslations = [];
-    }
+  let translatedTexts: string[] = [];
+  try {
+    const responsePayload = await requestTranslation(dedupedTexts, targetLanguage, signal);
+    translatedTexts = parseTranslationResponse(responsePayload);
+  } catch (error) {
+    throw error instanceof Error
+      ? error
+      : new Error("DeepL proxy request failed.");
   }
 
   const translationMap = new Map<string, string>();
 
-  if (directTranslations.length === dedupedTexts.length) {
+  if (translatedTexts.length === dedupedTexts.length) {
     dedupedTexts.forEach((source, index) => {
-      const translated = directTranslations[index];
+      const translated = translatedTexts[index];
       if (translated) {
         translationMap.set(source, translated);
       }
@@ -143,28 +109,18 @@ export async function translateBatch(
     return translationMap;
   }
 
-  if (!activeEndpoint && !uniqueEndpoints.length) {
-    throw new Error("No DeepLX endpoint is configured.");
+  for (const source of dedupedTexts) {
+    const payload = await requestTranslation(source, targetLanguage, signal);
+    const translated = parseTranslationResponse(payload)[0];
+    if (translated) {
+      translationMap.set(source, translated);
+    }
   }
 
-  if (!activeEndpoint) {
-    throw lastError ?? new Error("DeepLX endpoint is unavailable.");
-  }
-
-  const settledFallbacks = await Promise.allSettled(
-    dedupedTexts.map(async (source) => {
-      const payload = await requestTranslation(source, targetLanguage, activeEndpoint, signal);
-      const translated = parseTranslationResponse(payload)[0];
-      if (translated) {
-        translationMap.set(source, translated);
-      }
-    }),
-  );
-
-  const hasAnyFallbackFailures = settledFallbacks.some((result) => result.status === "rejected");
-  if (hasAnyFallbackFailures && translationMap.size === 0) {
-    throw new Error("DeepLX endpoint did not return any translated text.");
+  if (translationMap.size === 0) {
+    throw new Error("DeepL returned no translated text.");
   }
 
   return translationMap;
 }
+
