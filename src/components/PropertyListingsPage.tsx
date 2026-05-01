@@ -39,16 +39,16 @@ const modeOptions: ListingMode[] = ["sale", "rent"];
 const listingToolbarModeOptions = [
   { label: "Buy", value: "sale" as ListingMode, href: `${import.meta.env.BASE_URL}buy`, pageVariant: "buy" as const },
   {
-    label: "Sell",
-    value: "sale" as ListingMode,
-    href: `${import.meta.env.BASE_URL}sell-your-home`,
-    pageVariant: "sale" as const,
-  },
-  {
     label: "Rent",
     value: "rent" as ListingMode,
     href: `${import.meta.env.BASE_URL}properties-for-rent`,
     pageVariant: "rent" as const,
+  },
+  {
+    label: "Sell",
+    value: "sale" as ListingMode,
+    href: `${import.meta.env.BASE_URL}sell-your-home`,
+    pageVariant: "sale" as const,
   },
 ] as const;
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;

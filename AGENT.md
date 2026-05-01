@@ -275,3 +275,4 @@
 - Added a new `Contact Us` page (`/contact-us`) using the supplied `download.jfif` top banner, with a PropertyGuru-inspired contact layout and exactly four contact boxes (Tel, Whatsapp, Wechat, Email), and linked the header `More > Contact Us` menu to this new page.
 - Updated footer `Company` links so `Contact Us` routes to `/contact-us` and added a new `FAQ` footer link to `/faq`.
 - Updated footer right-side contact details to: `Whatsapp: +66-973924632`, `Wechat: +66-973924632`, and `Email: Info@buyhomeforless.com`.
+- Reordered the listing-page top mode buttons above the search bar so `Rent` appears before `Sell`.
