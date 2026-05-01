@@ -70,7 +70,7 @@ export function SellYourHomePage() {
           <div className="grid gap-6 rounded-[28px] bg-[#f4f5f6] p-4 sm:p-5 lg:grid-cols-[1.06fr_1.2fr] lg:items-center lg:gap-10 lg:rounded-[32px] lg:p-10">
             <div className="order-1 overflow-hidden rounded-[24px] lg:order-2 lg:rounded-[30px]">
               <img
-                src={assetPath("images/page-banners/urgent-sale.png")}
+                src={assetPath("images/page-banners/own-property-in-thailand.png")}
                 alt="Sell your home"
                 className="h-[250px] w-full object-cover sm:h-[320px] lg:h-[430px]"
               />
