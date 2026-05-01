@@ -271,3 +271,4 @@
 - Added an on-image banner caption on the `Sell Your Home` hero image that reads `Sell your home?` with a readable mobile-safe dark gradient overlay.
 - Replaced the `Sell Your Home` hero banner with the user-supplied house image (`sell-your-home-thailand-house.png`) and moved the caption text to a centered full-width strip across the middle of the banner.
 - Replaced the Sell banner asset again with the exact user-specified source file (`...prop.webp`) and updated the page to use `sell-your-home-thailand-house.webp`.
+- Updated main header order/label: moved `Sell` behind `Rent`, and renamed `For Rent` to `Rent` in the primary navigation.
