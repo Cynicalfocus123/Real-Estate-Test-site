@@ -273,3 +273,4 @@
 - Replaced the Sell banner asset again with the exact user-specified source file (`...prop.webp`) and updated the page to use `sell-your-home-thailand-house.webp`.
 - Updated main header order/label: moved `Sell` behind `Rent`, and renamed `For Rent` to `Rent` in the primary navigation.
 - Added a new `Contact Us` page (`/contact-us`) using the supplied `download.jfif` top banner, with a PropertyGuru-inspired contact layout and exactly four contact boxes (Tel, Whatsapp, Wechat, Email), and linked the header `More > Contact Us` menu to this new page.
+- Updated footer `Company` links so `Contact Us` routes to `/contact-us` and added a new `FAQ` footer link to `/faq`.

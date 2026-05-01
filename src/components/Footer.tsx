@@ -21,7 +21,8 @@ export function Footer() {
           <h3 className="text-sm font-bold uppercase text-white">Company</h3>
           <ul className="mt-5 space-y-3 text-sm text-neutral-300">
             <li><a href={safeHref(`${import.meta.env.BASE_URL}about-us`)}>About Us</a></li>
-            <li><a href={safeHref("#contact-us")}>Contact Us</a></li>
+            <li><a href={safeHref(`${import.meta.env.BASE_URL}contact-us`)}>Contact Us</a></li>
+            <li><a href={safeHref(`${import.meta.env.BASE_URL}faq`)}>FAQ</a></li>
             <li><a href={safeHref("#news")}>News</a></li>
           </ul>
         </div>
