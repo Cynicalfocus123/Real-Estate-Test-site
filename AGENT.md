@@ -269,3 +269,4 @@
 - Refined the `Sell Your Home` page for mobile: hero image now appears above hero text on small screens, CTA/button spacing is mobile-first, and the submit form fields are aligned to a tighter Zillow-like stacked mobile flow.
 - Updated the `Sell Your Home` hero banner image to a Thailand house/property visual (`own-property-in-thailand.png`) instead of the previous image.
 - Added an on-image banner caption on the `Sell Your Home` hero image that reads `Sell your home?` with a readable mobile-safe dark gradient overlay.
+- Replaced the `Sell Your Home` hero banner with the user-supplied house image (`sell-your-home-thailand-house.png`) and moved the caption text to a centered full-width strip across the middle of the banner.
