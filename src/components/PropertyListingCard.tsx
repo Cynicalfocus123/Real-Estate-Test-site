@@ -32,6 +32,12 @@ function getBathroomLabel(baths: number) {
   return `${baths} Bath`;
 }
 
+function getRentDepositLabel(listing: PropertyListing) {
+  if (listing.mode !== "rent") return null;
+  const monthlyDeposit = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(listing.priceValue);
+  return `THB ${monthlyDeposit} deposit per month`;
+}
+
 export function PropertyListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -141,6 +147,9 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
             </div>
             <div className="shrink-0 sm:text-right">
               <p className="text-xl font-black text-brand-red md:text-2xl">{listing.priceLabel}</p>
+              {listing.mode === "rent" ? (
+                <p className="mt-1 text-xs font-semibold text-brand-gray">{getRentDepositLabel(listing)}</p>
+              ) : null}
               <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gray">
                 For {mode}
               </p>
