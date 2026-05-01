@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type SiteLanguage, translateBatch } from "../services/translationService";
 
 const TRANSLATION_BATCH_SIZE = 40;
@@ -56,6 +56,7 @@ export function useSiteTranslation(language: SiteLanguage) {
   const translationCacheRef = useRef<Map<string, string>>(loadPersistedCache());
   const isApplyingRef = useRef(false);
   const isMountedRef = useRef(false);
+  const [translationError, setTranslationError] = useState<string | null>(null);
 
   const cachePrefix = useMemo(() => `${language}::`, [language]);
 
@@ -160,6 +161,7 @@ export function useSiteTranslation(language: SiteLanguage) {
         if (!targets.length) return;
 
         if (language === "EN") {
+          setTranslationError(null);
           targets.forEach((target) => target.apply(target.source));
           return;
         }
@@ -186,6 +188,7 @@ export function useSiteTranslation(language: SiteLanguage) {
             translationCacheRef.current.get(`${cachePrefix}${target.source}`) ?? target.source;
           target.apply(translatedText);
         });
+        setTranslationError(null);
 
         try {
           const serializedCache = JSON.stringify(Object.fromEntries(translationCacheRef.current.entries()));
@@ -195,7 +198,9 @@ export function useSiteTranslation(language: SiteLanguage) {
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
-          console.warn("Site translation failed:", error);
+          const message = error instanceof Error ? error.message : "Unknown translation error.";
+          setTranslationError(message);
+          console.warn("Site translation failed:", message);
         }
       } finally {
         isApplyingRef.current = false;
@@ -240,4 +245,6 @@ export function useSiteTranslation(language: SiteLanguage) {
       }
     };
   }, [cachePrefix, language]);
+
+  return { translationError };
 }

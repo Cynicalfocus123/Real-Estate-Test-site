@@ -2,11 +2,12 @@ import { safeTranslationEndpoint } from "../utils/security";
 
 export type SiteLanguage = "EN" | "RU" | "ZH" | "TH" | "AR" | "FA";
 
-const DEFAULT_DEEPLX_ENDPOINT = "https://deeplx.vercel.app/translate";
-const TRANSLATION_ENDPOINT = safeTranslationEndpoint(
-  import.meta.env.VITE_DEEPLX_API_URL,
-  DEFAULT_DEEPLX_ENDPOINT,
-);
+const DEFAULT_DEEPLX_ENDPOINTS = [
+  "http://127.0.0.1:1188/translate",
+  "https://api.deeplx.org/translate",
+  "https://deeplx.vercel.app/translate",
+  "https://deeplx-jade.vercel.app/translate",
+] as const;
 
 const TRANSLATION_TIMEOUT_MS = 15000;
 
@@ -49,6 +50,7 @@ function parseTranslationResponse(payload: DeepLApiResponse): string[] {
 async function requestTranslation(
   text: string | string[],
   targetLanguage: SiteLanguage,
+  translationEndpoint: string,
   signal?: AbortSignal,
 ) {
   const controller = new AbortController();
@@ -64,7 +66,7 @@ async function requestTranslation(
   }
 
   try {
-    const response = await fetch(TRANSLATION_ENDPOINT, {
+    const response = await fetch(translationEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -102,13 +104,30 @@ export async function translateBatch(
   }
 
   const dedupedTexts = Array.from(new Set(texts.map((text) => normalizeWhitespace(text)).filter(Boolean)));
-  let directTranslations: string[] = [];
+  const endpointCandidates = [
+    import.meta.env.VITE_DEEPLX_API_URL,
+    ...DEFAULT_DEEPLX_ENDPOINTS,
+  ]
+    .map((endpoint) => safeTranslationEndpoint(endpoint, ""))
+    .filter(Boolean);
+  const uniqueEndpoints = Array.from(new Set(endpointCandidates));
 
-  try {
-    const directPayload = await requestTranslation(dedupedTexts, targetLanguage, signal);
-    directTranslations = parseTranslationResponse(directPayload);
-  } catch {
-    directTranslations = [];
+  let directTranslations: string[] = [];
+  let lastError: Error | null = null;
+  let activeEndpoint: string | null = null;
+
+  for (const endpoint of uniqueEndpoints) {
+    try {
+      const directPayload = await requestTranslation(dedupedTexts, targetLanguage, endpoint, signal);
+      directTranslations = parseTranslationResponse(directPayload);
+      activeEndpoint = endpoint;
+      if (directTranslations.length) {
+        break;
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      directTranslations = [];
+    }
   }
 
   const translationMap = new Map<string, string>();
@@ -123,9 +142,17 @@ export async function translateBatch(
     return translationMap;
   }
 
+  if (!activeEndpoint && !uniqueEndpoints.length) {
+    throw new Error("No DeepLX endpoint is configured.");
+  }
+
+  if (!activeEndpoint) {
+    throw lastError ?? new Error("DeepLX endpoint is unavailable.");
+  }
+
   const settledFallbacks = await Promise.allSettled(
     dedupedTexts.map(async (source) => {
-      const payload = await requestTranslation(source, targetLanguage, signal);
+      const payload = await requestTranslation(source, targetLanguage, activeEndpoint, signal);
       const translated = parseTranslationResponse(payload)[0];
       if (translated) {
         translationMap.set(source, translated);
@@ -135,7 +162,7 @@ export async function translateBatch(
 
   const hasAnyFallbackFailures = settledFallbacks.some((result) => result.status === "rejected");
   if (hasAnyFallbackFailures && translationMap.size === 0) {
-    throw new Error("Translation endpoint did not return any translated text.");
+    throw new Error("DeepLX endpoint did not return any translated text.");
   }
 
   return translationMap;

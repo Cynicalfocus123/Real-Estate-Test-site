@@ -68,7 +68,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const [language, setLanguage] = useState<SiteLanguage>(getInitialLanguage);
   const homeUrl = import.meta.env.BASE_URL;
   const currentPath = window.location.pathname;
-  useSiteTranslation(language);
+  const { translationError } = useSiteTranslation(language);
 
   function toggleSubmenu(label: string) {
     setOpenSubmenu((current) => (current === label ? null : label));
@@ -138,35 +138,43 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <label
-            className="inline-flex h-10 items-center gap-2 border border-brand-line px-3 text-sm font-semibold text-brand-dark hover:border-brand-red"
-            data-no-translate
-          >
-            <Globe2 className="h-4 w-4" />
-            <span className="sr-only">Language</span>
-            <select
-              className="bg-transparent text-sm font-bold uppercase outline-none"
-              value={language}
-              onChange={(event) => setLanguage(event.target.value as SiteLanguage)}
-              aria-label="Language"
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2">
+            <label
+              className="inline-flex h-10 items-center gap-2 border border-brand-line px-3 text-sm font-semibold text-brand-dark hover:border-brand-red"
+              data-no-translate
             >
-              {languageOptions.map((language) => (
-                <option key={language} value={language}>
-                  {language}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center border border-brand-line xl:hidden"
-            aria-label="Open menu"
-            aria-expanded={menuOpen}
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+              <Globe2 className="h-4 w-4" />
+              <span className="sr-only">Language</span>
+              <select
+                className="bg-transparent text-sm font-bold uppercase outline-none"
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as SiteLanguage)}
+                aria-label="Language"
+              >
+                {languageOptions.map((language) => (
+                  <option key={language} value={language}>
+                    {language}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="inline-flex h-10 w-10 items-center justify-center border border-brand-line xl:hidden"
+              aria-label="Open menu"
+              aria-expanded={menuOpen}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+          {language !== "EN" && translationError ? (
+            <p className="max-w-[230px] text-right text-[11px] font-semibold leading-4 text-brand-red" data-no-translate>
+              Translation API unreachable. Start local DeepLX on port 1188 or set
+              `VITE_DEEPLX_API_URL`.
+            </p>
+          ) : null}
         </div>
       </div>
       {menuOpen ? (
