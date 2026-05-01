@@ -256,3 +256,4 @@
 - Updated property location helper copy to indicate OsmAnd online search engine usage with configurable endpoint fallback behavior.
 - Increased property-location search result limit to the Nominatim max (`50`) and enabled multilingual labels by requesting English + Thai naming details, then rendering a combined readable location label.
 - Changed property detail FAQ behavior so all FAQ items are collapsed by default and remain closed when switching between listings unless the user opens one manually.
+- Updated the main header navigation label from `For Sale` to `Sell` while keeping the same sale listing route target.
