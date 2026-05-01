@@ -259,3 +259,4 @@
 - Updated the main header navigation label from `For Sale` to `Sell` while keeping the same sale listing route target.
 - Added rent-only pricing support text across product cards and detail views: every rent listing now shows an extra line under the monthly price with a numeric `THB ... deposit per month` value.
 - Updated rent pricing support text to a larger fixed label: `Deposit 4,000 THB` (removed `per month`) across rent cards and property detail views.
+- Added a new `Features` section to every property detail page (buy and rent) showing furnishing status, air conditioner availability, and kitchen availability from structured listing data.

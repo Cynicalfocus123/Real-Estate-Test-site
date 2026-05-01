@@ -977,6 +977,24 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               </section>
 
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Features</h2>
+                <div className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Furnishing</p>
+                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.furnishing}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Air Conditioner</p>
+                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.airConditioner ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#e8ded7] bg-white px-4 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-gray">Kitchen</p>
+                    <p className="mt-2 text-lg font-black text-brand-dark">{listing.features.kitchen ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
                 <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
                   Backend-ready map logic: this section uses the OsmAnd online search engine (Nominatim-based), with a configurable endpoint for Thailand-focused deployment.

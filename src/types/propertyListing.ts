@@ -43,6 +43,12 @@ export type PropertyAddress = {
   longitude?: number;
 };
 
+export type PropertyFeatures = {
+  furnishing: "Furnished" | "Unfurnished";
+  airConditioner: boolean;
+  kitchen: boolean;
+};
+
 export type PropertyListing = {
   id: string;
   mode: ListingMode;
@@ -67,6 +73,7 @@ export type PropertyListing = {
   propertyTypeLabel: string;
   agent: PropertyAgent;
   address?: PropertyAddress;
+  features: PropertyFeatures;
   faqs?: PropertyFaq[];
   specialCategory?: ListingSpecialCategory;
 };
