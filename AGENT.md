@@ -258,3 +258,4 @@
 - Changed property detail FAQ behavior so all FAQ items are collapsed by default and remain closed when switching between listings unless the user opens one manually.
 - Updated the main header navigation label from `For Sale` to `Sell` while keeping the same sale listing route target.
 - Added rent-only pricing support text across product cards and detail views: every rent listing now shows an extra line under the monthly price with a numeric `THB ... deposit per month` value.
+- Updated rent pricing support text to a larger fixed label: `Deposit 4,000 THB` (removed `per month`) across rent cards and property detail views.

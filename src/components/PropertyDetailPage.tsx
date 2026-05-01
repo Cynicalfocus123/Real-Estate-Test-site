@@ -38,10 +38,8 @@ function getBathroomLabel(baths: number) {
   return baths === 0 ? "N/A" : `${baths} Bath`;
 }
 
-function getRentDepositLabel(listing: PropertyListing) {
-  if (listing.mode !== "rent") return null;
-  const monthlyDeposit = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(listing.priceValue);
-  return `THB ${monthlyDeposit} deposit per month`;
+function getRentDepositLabel() {
+  return "Deposit 4,000 THB";
 }
 
 function getAgentInitials(name: string) {
@@ -266,7 +264,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
         <h3 className="mt-3 line-clamp-2 break-words text-base font-black leading-snug text-brand-dark md:text-lg">{listing.title}</h3>
         <p className="mt-3 break-words text-lg font-black text-brand-red md:text-xl">{listing.priceLabel}</p>
         {listing.mode === "rent" ? (
-          <p className="mt-1 break-words text-xs font-semibold text-brand-gray">{getRentDepositLabel(listing)}</p>
+          <p className="mt-1 break-words text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel()}</p>
         ) : null}
         <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-brand-dark">
           <span className="rounded-full bg-[#f7f3ef] px-3 py-2">{getBedroomLabel(listing.beds)}</span>
@@ -697,7 +695,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     {listing.priceLabel}
                   </p>
                   {listing.mode === "rent" ? (
-                    <p className="mt-1 text-xs font-semibold text-brand-gray">{getRentDepositLabel(listing)}</p>
+                    <p className="mt-1 text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel()}</p>
                   ) : null}
                 </div>
               </div>
@@ -825,7 +823,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   {listing.priceLabel}
                 </p>
                 {listing.mode === "rent" ? (
-                  <p className="mt-1 text-sm font-semibold text-brand-gray">{getRentDepositLabel(listing)}</p>
+                  <p className="mt-1 text-base font-bold text-brand-gray">{getRentDepositLabel()}</p>
                 ) : null}
               </div>
 
