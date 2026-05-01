@@ -30,6 +30,7 @@ import { RealEstateLawsPage } from "./components/RealEstateLawsPage";
 import { RetirementVisaPage } from "./components/RetirementVisaPage";
 import { ResortNursingFacilityPage } from "./components/ResortNursingFacilityPage";
 import { SearchPanel } from "./components/SearchPanel";
+import { SellYourHomePage } from "./components/SellYourHomePage";
 import { StatsBand } from "./components/StatsBand";
 import { TopLocations } from "./components/TopLocations";
 import { UrgentSalePage } from "./components/UrgentSalePage";
@@ -93,6 +94,8 @@ export function App() {
     currentPath.endsWith("/buy") || currentHash === "#/buy";
   const isPropertyListingsRentPage =
     currentPath.endsWith("/properties-for-rent") || currentHash === "#/properties-for-rent";
+  const isSellYourHomePage =
+    currentPath.endsWith("/sell-your-home") || currentHash === "#/sell-your-home";
   const isRetirementVisaPage =
     currentPath.endsWith("/retirement-visa") || currentHash === "#/retirement-visa";
   const isLongTermVisaPage =
@@ -242,6 +245,10 @@ export function App() {
         initialMaxPrice={listingMaxPrice}
       />
     );
+  }
+
+  if (isSellYourHomePage) {
+    return <SellYourHomePage />;
   }
 
   if (isRetirementVisaPage) {

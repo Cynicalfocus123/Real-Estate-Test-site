@@ -265,3 +265,4 @@
 
 ## 2026-05-01
 - Security hardening pass: added validated `safeTelHref` and `safeMailtoHref` helpers for agent contact links, and routed remaining internal navigation links through `safeHref` for consistent safe `href` handling without UI changes.
+- Added a dedicated `Sell Your Home` page with a two-column hero banner, `lets start` CTA button, and a sanitized seller lead submit form; routed all `Sell` entry points (main header, home hero search mode, and listing toolbar button) to `/sell-your-home`.

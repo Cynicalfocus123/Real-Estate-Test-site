@@ -349,7 +349,9 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
     const path = `${import.meta.env.BASE_URL}${
       nextMode === "rent"
         ? "properties-for-rent"
-        : nextMode === "sell" || nextMode === "senior"
+        : nextMode === "sell"
+          ? "sell-your-home"
+          : nextMode === "senior"
           ? "properties-for-sale"
           : "buy"
     }`;

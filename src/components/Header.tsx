@@ -12,7 +12,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: "Home", href: import.meta.env.BASE_URL },
   { label: "Buy", href: `${import.meta.env.BASE_URL}buy` },
-  { label: "Sell", href: `${import.meta.env.BASE_URL}properties-for-sale` },
+  { label: "Sell", href: `${import.meta.env.BASE_URL}sell-your-home` },
   { label: "For Rent", href: `${import.meta.env.BASE_URL}properties-for-rent` },
   {
     label: "Senior Nursing Home",
