@@ -248,3 +248,5 @@
 - Removed Leaflet dependencies and added `maplibre-gl` so the property location section now renders with MapLibre controls and marker updates.
 - Fixed blank MapLibre rendering by adding CSP directives required for worker/blob usage and by using an OpenStreetMap raster fallback style when no custom MapLibre style URL is configured.
 - Improved property map geocoding reliability by adding progressive query fallbacks (full address to broader area variants) before showing `No location matched`.
+- Replaced property-location geocoding from Pelias-first to Mapbox-first: Mapbox Search Box `/forward` is now primary, with Mapbox Geocoding v6 and OSM Nominatim fallbacks for better Thai address resilience.
+- Added explicit Mapbox token validation/error handling (`VITE_MAPBOX_ACCESS_TOKEN`) and refreshed property-location helper text to reflect the new API flow.

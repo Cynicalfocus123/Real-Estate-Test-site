@@ -53,9 +53,13 @@ type GeocodedMapPoint = {
   label: string;
 };
 
-const PELIAS_SEARCH_URL =
-  import.meta.env.VITE_PELIAS_SEARCH_URL?.trim() || "https://api.openrouteservice.org/geocode/search";
-const PELIAS_API_KEY = import.meta.env.VITE_PELIAS_API_KEY?.trim();
+const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN?.trim();
+const MAPBOX_SEARCHBOX_FORWARD_URL =
+  import.meta.env.VITE_MAPBOX_SEARCHBOX_FORWARD_URL?.trim() || "https://api.mapbox.com/search/searchbox/v1/forward";
+const MAPBOX_GEOCODING_FORWARD_URL =
+  import.meta.env.VITE_MAPBOX_GEOCODING_FORWARD_URL?.trim() || "https://api.mapbox.com/search/geocode/v6/forward";
+const MAPBOX_COUNTRY = import.meta.env.VITE_MAPBOX_COUNTRY?.trim() || "TH";
+const MAPBOX_LANGUAGE = import.meta.env.VITE_MAPBOX_LANGUAGE?.trim() || "th,en";
 const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
 const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -142,20 +146,15 @@ function buildAddressQuery(listing: PropertyListing) {
   return parts.join(", ");
 }
 
-async function geocodeWithPelias(query: string, signal: AbortSignal) {
-  if (!query.trim()) return null;
+async function geocodeWithMapboxSearchBox(query: string, signal: AbortSignal) {
+  if (!query.trim() || !MAPBOX_ACCESS_TOKEN) return null;
 
-  // ORS geocoder is Pelias-backed but requires an API key.
-  const requiresApiKey = PELIAS_SEARCH_URL.includes("openrouteservice.org");
-  if (requiresApiKey && !PELIAS_API_KEY) return null;
-
-  const endpoint = new URL(PELIAS_SEARCH_URL);
-  endpoint.searchParams.set("text", query);
-  endpoint.searchParams.set("size", "1");
-  endpoint.searchParams.set("boundary.country", "TH");
-  if (PELIAS_API_KEY) {
-    endpoint.searchParams.set("api_key", PELIAS_API_KEY);
-  }
+  const endpoint = new URL(MAPBOX_SEARCHBOX_FORWARD_URL);
+  endpoint.searchParams.set("q", query);
+  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("access_token", MAPBOX_ACCESS_TOKEN);
+  endpoint.searchParams.set("country", MAPBOX_COUNTRY);
+  endpoint.searchParams.set("language", MAPBOX_LANGUAGE);
 
   const response = await fetch(endpoint.toString(), {
     method: "GET",
@@ -164,13 +163,14 @@ async function geocodeWithPelias(query: string, signal: AbortSignal) {
   });
 
   if (!response.ok) {
-    throw new Error(`Pelias geocoding failed with status ${response.status}`);
+    throw new Error(`Mapbox Search Box geocoding failed with status ${response.status}`);
   }
 
   const payload = (await response.json()) as {
     features?: Array<{
       geometry?: { coordinates?: [number, number] };
-      properties?: { label?: string; name?: string };
+      properties?: { full_address?: string; name?: string; place_formatted?: string };
+      place_name?: string;
     }>;
   };
   const firstMatch = payload.features?.[0];
@@ -183,7 +183,57 @@ async function geocodeWithPelias(query: string, signal: AbortSignal) {
   return {
     lat: resolvedLat,
     lon: resolvedLon,
-    label: firstMatch?.properties?.label ?? firstMatch?.properties?.name ?? query,
+    label:
+      firstMatch?.properties?.full_address ??
+      firstMatch?.place_name ??
+      firstMatch?.properties?.name ??
+      firstMatch?.properties?.place_formatted ??
+      query,
+  };
+}
+
+async function geocodeWithMapboxGeocodingFallback(query: string, signal: AbortSignal) {
+  if (!query.trim() || !MAPBOX_ACCESS_TOKEN) return null;
+
+  const endpoint = new URL(MAPBOX_GEOCODING_FORWARD_URL);
+  endpoint.searchParams.set("q", query);
+  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("access_token", MAPBOX_ACCESS_TOKEN);
+  endpoint.searchParams.set("country", MAPBOX_COUNTRY);
+  endpoint.searchParams.set("language", MAPBOX_LANGUAGE);
+
+  const response = await fetch(endpoint.toString(), {
+    method: "GET",
+    signal,
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Mapbox Geocoding fallback failed with status ${response.status}`);
+  }
+
+  const payload = (await response.json()) as {
+    features?: Array<{
+      geometry?: { coordinates?: [number, number] };
+      properties?: { full_address?: string; name?: string };
+      place_name?: string;
+      name?: string;
+    }>;
+  };
+  const firstMatch = payload.features?.[0];
+  const lon = firstMatch?.geometry?.coordinates?.[0];
+  const lat = firstMatch?.geometry?.coordinates?.[1];
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+
+  return {
+    lat: lat as number,
+    lon: lon as number,
+    label:
+      firstMatch?.properties?.full_address ??
+      firstMatch?.place_name ??
+      firstMatch?.name ??
+      firstMatch?.properties?.name ??
+      query,
   };
 }
 
@@ -200,7 +250,10 @@ async function geocodeWithNominatimFallback(query: string, signal: AbortSignal) 
   const response = await fetch(endpoint.toString(), {
     method: "GET",
     signal,
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      "Accept-Language": "th,en",
+    },
   });
 
   if (!response.ok) {
@@ -226,12 +279,25 @@ async function geocodeWithNominatimFallback(query: string, signal: AbortSignal) 
 async function geocodeAddressQuery(query: string, signal: AbortSignal) {
   const candidates = buildGeocodeQueryCandidates(query);
 
+  if (!MAPBOX_ACCESS_TOKEN) {
+    return null;
+  }
+
   for (const candidate of candidates) {
     try {
-      const peliasPoint = await geocodeWithPelias(candidate, signal);
-      if (peliasPoint) return peliasPoint;
+      const mapboxSearchPoint = await geocodeWithMapboxSearchBox(candidate, signal);
+      if (mapboxSearchPoint) return mapboxSearchPoint;
     } catch {
-      // Keep map usable if Pelias endpoint is temporarily unavailable.
+      // Fall through to Mapbox Geocoding and then OSM fallback.
+    }
+  }
+
+  for (const candidate of candidates) {
+    try {
+      const mapboxGeocodePoint = await geocodeWithMapboxGeocodingFallback(candidate, signal);
+      if (mapboxGeocodePoint) return mapboxGeocodePoint;
+    } catch {
+      // Fall through to OSM fallback.
     }
   }
 
@@ -349,9 +415,12 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
         if (resolvedPoint) {
           setMapPoint(resolvedPoint);
           setMapError(null);
+        } else if (!MAPBOX_ACCESS_TOKEN) {
+          setMapPoint(null);
+          setMapError("Map search needs a Mapbox token. Set VITE_MAPBOX_ACCESS_TOKEN in your .env file.");
         } else {
           setMapPoint(null);
-          setMapError("No map result found for this property address yet.");
+          setMapError("No map result found for this property address yet. Try a nearby district, city, or province.");
         }
       } catch (error) {
         if (!active || (error instanceof DOMException && error.name === "AbortError")) return;
@@ -513,6 +582,10 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     event.preventDefault();
     const query = mapSearchQuery.trim();
     if (!query) return;
+    if (!MAPBOX_ACCESS_TOKEN) {
+      setMapError("Map search needs a Mapbox token. Set VITE_MAPBOX_ACCESS_TOKEN in your .env file.");
+      return;
+    }
 
     const controller = new AbortController();
     setMapLoading(true);
@@ -521,7 +594,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     try {
       const resolvedPoint = await geocodeAddressQuery(query, controller.signal);
       if (!resolvedPoint) {
-        setMapError("No location matched that search yet. Try adding district or province.");
+        setMapError("No location matched in Mapbox search yet. Try district, city, or province.");
         return;
       }
 
@@ -970,7 +1043,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
                 <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
-                  Backend-ready map logic: this section uses Pelias geocoding for Thai address search (street, tambon, amphoe, city, province, postal code) and pins the property location automatically.
+                  Backend-ready map logic: this section uses Mapbox Search Box API for location lookup, with Mapbox Geocoding fallback and Thai-focused matching.
                 </p>
                 <form onSubmit={handleMapSearch} className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <label className="sr-only" htmlFor={`${listing.id}-map-search`}>
