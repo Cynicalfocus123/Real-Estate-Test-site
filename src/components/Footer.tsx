@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Facebook, Instagram, Mail, MessageCircle, MessagesSquare } from "lucide-react";
 import { assetPath } from "../utils/assets";
 import { safeHref } from "../utils/security";
 
@@ -29,9 +29,9 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-bold uppercase text-white">Contact</h3>
           <ul className="mt-5 space-y-3 text-sm text-neutral-300">
-            <li className="flex gap-3"><MapPin className="h-4 w-4 text-brand-red" /> Bangkok, Thailand</li>
-            <li className="flex gap-3"><Phone className="h-4 w-4 text-brand-red" /> +1 000 000 0000</li>
-            <li className="flex gap-3"><Mail className="h-4 w-4 text-brand-red" /> hello@buyhomeforless.com</li>
+            <li className="flex gap-3"><MessageCircle className="h-4 w-4 text-brand-red" /> Whatsapp: +66-973924632</li>
+            <li className="flex gap-3"><MessagesSquare className="h-4 w-4 text-brand-red" /> Wechat: +66-973924632</li>
+            <li className="flex gap-3"><Mail className="h-4 w-4 text-brand-red" /> Email: Info@buyhomeforless.com</li>
           </ul>
           <div className="mt-6 flex gap-3">
             <a href={safeHref("#contact")} aria-label="Facebook" className="inline-flex h-10 w-10 items-center justify-center bg-white/10">
