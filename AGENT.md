@@ -244,3 +244,5 @@
 - Added a backend-ready `Property Location` section under amenities using OpenStreetMap + Nominatim geocoding, with structured Thai address fields (street, tambon, amphoe, city, province, postal code, country), searchable map input, and automatic marker placement from backend coordinates when available.
 - Replaced the property location iframe map with an in-page Leaflet map (OpenStreetMap tiles) to fix blocked-content rendering, and confirmed address search updates the location marker icon from Thai address queries.
 - Switched property location search to a Pelias-first geocoding flow (configurable endpoint/API key), while keeping a Nominatim fallback so map marker placement stays available if the Pelias service is unreachable.
+- Replaced the property detail page Leaflet map with a MapLibre GL JS map renderer while keeping the same Pelias-first geocoding search flow and Nominatim fallback behavior.
+- Removed Leaflet dependencies and added `maplibre-gl` so the property location section now renders with MapLibre controls and marker updates.

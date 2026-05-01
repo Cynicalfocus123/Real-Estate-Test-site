@@ -14,9 +14,9 @@ import {
   Share2,
   Warehouse,
 } from "lucide-react";
-import L from "leaflet";
+import maplibregl from "maplibre-gl";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { propertyListings } from "../data/propertyListings";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
@@ -56,14 +56,19 @@ type GeocodedMapPoint = {
 const PELIAS_SEARCH_URL =
   import.meta.env.VITE_PELIAS_SEARCH_URL?.trim() || "https://api.openrouteservice.org/geocode/search";
 const PELIAS_API_KEY = import.meta.env.VITE_PELIAS_API_KEY?.trim();
+const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim() || "https://demotiles.maplibre.org/style.json";
 
-function createPropertyPinIcon() {
-  return L.divIcon({
-    className: "property-map-pin",
-    html: "<span style='display:block;width:18px;height:18px;border-radius:9999px;background:#a31c24;border:3px solid #ffffff;box-shadow:0 6px 18px rgba(15,23,42,0.35);'></span>",
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-  });
+function createPropertyPinElement() {
+  const pin = document.createElement("span");
+  pin.className = "property-map-pin";
+  pin.style.display = "block";
+  pin.style.width = "18px";
+  pin.style.height = "18px";
+  pin.style.borderRadius = "9999px";
+  pin.style.background = "#a31c24";
+  pin.style.border = "3px solid #ffffff";
+  pin.style.boxShadow = "0 6px 18px rgba(15,23,42,0.35)";
+  return pin;
 }
 
 function normalizeAddressValue(value?: string) {
@@ -225,8 +230,8 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [activePreviewIndex, setActivePreviewIndex] = useState(0);
   const similarScrollRef = useRef<HTMLDivElement | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const mapMarkerRef = useRef<L.Marker | null>(null);
+  const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const mapMarkerRef = useRef<maplibregl.Marker | null>(null);
   const phoneHref = `tel:${listing.agent.phone.replace(/\s+/g, "")}`;
   const emailHref = `mailto:${listing.agent.email}`;
   const defaultAddressQuery = useMemo(() => buildAddressQuery(listing), [listing]);
@@ -311,20 +316,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return undefined;
 
-    const initialCenter: [number, number] = mapPoint ? [mapPoint.lat, mapPoint.lon] : [13.7563, 100.5018];
-    const map = L.map(mapContainerRef.current, {
-      zoomControl: true,
-      scrollWheelZoom: true,
-      attributionControl: true,
-    }).setView(initialCenter, mapPoint ? 15 : 11);
-
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
-    }).addTo(map);
+    const initialCenter: [number, number] = mapPoint ? [mapPoint.lon, mapPoint.lat] : [100.5018, 13.7563];
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: MAPLIBRE_STYLE_URL,
+      center: initialCenter,
+      zoom: mapPoint ? 15 : 11,
+    });
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     mapInstanceRef.current = map;
-    window.setTimeout(() => map.invalidateSize(), 0);
+    window.setTimeout(() => map.resize(), 0);
 
     return () => {
       map.remove();
@@ -339,22 +341,26 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
     if (!mapPoint) {
       if (mapMarkerRef.current) {
-        map.removeLayer(mapMarkerRef.current);
+        mapMarkerRef.current.remove();
         mapMarkerRef.current = null;
       }
       return;
     }
 
-    const position: [number, number] = [mapPoint.lat, mapPoint.lon];
+    const position: [number, number] = [mapPoint.lon, mapPoint.lat];
     if (!mapMarkerRef.current) {
-      mapMarkerRef.current = L.marker(position, { icon: createPropertyPinIcon() }).addTo(map);
+      const popup = new maplibregl.Popup({ offset: 18 }).setText(mapPoint.label);
+      mapMarkerRef.current = new maplibregl.Marker({ element: createPropertyPinElement() })
+        .setLngLat(position)
+        .setPopup(popup)
+        .addTo(map);
     } else {
-      mapMarkerRef.current.setLatLng(position);
+      mapMarkerRef.current.setLngLat(position);
+      mapMarkerRef.current.getPopup()?.setText(mapPoint.label);
     }
 
-    mapMarkerRef.current.bindPopup(mapPoint.label);
-    map.setView(position, 15, { animate: true });
-    window.setTimeout(() => map.invalidateSize(), 0);
+    map.flyTo({ center: position, zoom: 15, essential: true });
+    window.setTimeout(() => map.resize(), 0);
   }, [mapPoint]);
 
   useEffect(() => {
