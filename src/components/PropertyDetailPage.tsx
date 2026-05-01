@@ -22,7 +22,7 @@ import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
-import { safeHref } from "../utils/security";
+import { safeHref, safeMailtoHref, safeTelHref } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
@@ -288,8 +288,8 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const mapMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const phoneHref = `tel:${listing.agent.phone.replace(/\s+/g, "")}`;
-  const emailHref = `mailto:${listing.agent.email}`;
+  const phoneHref = safeTelHref(listing.agent.phone);
+  const emailHref = safeMailtoHref(listing.agent.email);
   const defaultAddressQuery = useMemo(() => buildAddressQuery(listing), [listing]);
   const backendMapPoint = useMemo(() => {
     const lat = listing.address?.latitude;

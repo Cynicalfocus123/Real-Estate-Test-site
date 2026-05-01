@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
 import type { ListingHomeType, ListingMode } from "../types/propertyListing";
-import { cleanNumericText, cleanSearchText } from "../utils/security";
+import { cleanNumericText, cleanSearchText, safeHref } from "../utils/security";
 
 type QuickFilter = "price" | "rooms" | "homeType" | "province";
 type PriceQuickView = "list-price" | "monthly-payment";
@@ -398,7 +398,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
           {heroModeOptions.map((option) => (
             <a
               key={option.value}
-              href={buildHeroModeUrl(option.value)}
+              href={safeHref(buildHeroModeUrl(option.value))}
               onMouseEnter={() => setHeroMode(option.value)}
               onFocus={() => setHeroMode(option.value)}
               className={`border-b-2 pb-2 transition-colors duration-300 ${

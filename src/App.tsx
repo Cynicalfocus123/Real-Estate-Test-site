@@ -37,6 +37,7 @@ import { WhyChooseUs } from "./components/WhyChooseUs";
 import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { WhySeniorcarePage } from "./components/WhySeniorcarePage";
 import { propertyListings } from "./data/propertyListings";
+import { safeHref } from "./utils/security";
 
 const featuredListings = propertyListings.filter((listing) => listing.mode === "sale").slice(0, 6);
 
@@ -349,7 +350,7 @@ export function App() {
           </div>
           <div className="mb-8 flex justify-end">
             <a
-              href={`${import.meta.env.BASE_URL}properties-for-sale`}
+              href={safeHref(`${import.meta.env.BASE_URL}properties-for-sale`)}
               className="inline-flex items-center gap-2 font-bold text-brand-red"
             >
               View All

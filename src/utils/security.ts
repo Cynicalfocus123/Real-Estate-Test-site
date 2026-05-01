@@ -25,6 +25,33 @@ export function safeHref(href: string) {
   return import.meta.env.BASE_URL;
 }
 
+export function safeTelHref(phone: string) {
+  const normalized = phone.replace(/[^\d+]/g, "");
+  const hasPlusPrefix = normalized.startsWith("+");
+  const digitsOnly = normalized.replace(/\D/g, "");
+  const isValidLength = digitsOnly.length >= 7 && digitsOnly.length <= 15;
+  const isValidFormat = hasPlusPrefix
+    ? /^\+\d{7,15}$/.test(normalized)
+    : /^\d{7,15}$/.test(normalized);
+
+  if (!isValidLength || !isValidFormat) {
+    return "#";
+  }
+
+  return `tel:${normalized}`;
+}
+
+export function safeMailtoHref(email: string) {
+  const normalized = email.trim().toLowerCase();
+  const isValidEmail = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(normalized);
+
+  if (!isValidEmail) {
+    return "#";
+  }
+
+  return `mailto:${normalized}`;
+}
+
 export function safeGraphqlEndpoint(endpoint: string | undefined) {
   const fallback = "http://localhost:4000/graphql";
 

@@ -8,7 +8,7 @@ import type {
   ListingSpecialCategory,
   PropertyListing,
 } from "../types/propertyListing";
-import { cleanNumericText, cleanSearchText } from "../utils/security";
+import { cleanNumericText, cleanSearchText, safeHref } from "../utils/security";
 import { PropertyListingCard } from "./PropertyListingCard";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -716,7 +716,7 @@ export function PropertyListingsPage({
                 {listingToolbarModeOptions.map((option) => (
                   <a
                     key={option.label}
-                    href={option.href}
+                    href={safeHref(option.href)}
                     className={`rounded-full px-5 py-2.5 text-sm font-black uppercase tracking-[0.14em] transition-all duration-300 ${
                       currentPageVariant === option.pageVariant
                         ? "bg-brand-red text-white shadow-[0_14px_28px_rgba(163,28,36,0.22)]"

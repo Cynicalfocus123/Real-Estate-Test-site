@@ -262,3 +262,6 @@
 - Added a new `Features` section to every property detail page (buy and rent) showing furnishing status, air conditioner availability, and kitchen availability from structured listing data.
 - Refined the property-detail `Features` section to a plain text-row layout (no feature boxes), matching the style of details lists.
 - Made features backend-ready as dynamic text entries (`features: string[]`) so admins can add any number of custom feature lines and the frontend will render them automatically.
+
+## 2026-05-01
+- Security hardening pass: added validated `safeTelHref` and `safeMailtoHref` helpers for agent contact links, and routed remaining internal navigation links through `safeHref` for consistent safe `href` handling without UI changes.
