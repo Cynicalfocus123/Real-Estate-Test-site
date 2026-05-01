@@ -53,6 +53,10 @@ type GeocodedMapPoint = {
   label: string;
 };
 
+const PELIAS_SEARCH_URL =
+  import.meta.env.VITE_PELIAS_SEARCH_URL?.trim() || "https://api.openrouteservice.org/geocode/search";
+const PELIAS_API_KEY = import.meta.env.VITE_PELIAS_API_KEY?.trim();
+
 function createPropertyPinIcon() {
   return L.divIcon({
     className: "property-map-pin",
@@ -85,7 +89,52 @@ function buildAddressQuery(listing: PropertyListing) {
   return parts.join(", ");
 }
 
-async function geocodeAddressQuery(query: string, signal: AbortSignal) {
+async function geocodeWithPelias(query: string, signal: AbortSignal) {
+  if (!query.trim()) return null;
+
+  // ORS geocoder is Pelias-backed but requires an API key.
+  const requiresApiKey = PELIAS_SEARCH_URL.includes("openrouteservice.org");
+  if (requiresApiKey && !PELIAS_API_KEY) return null;
+
+  const endpoint = new URL(PELIAS_SEARCH_URL);
+  endpoint.searchParams.set("text", query);
+  endpoint.searchParams.set("size", "1");
+  endpoint.searchParams.set("boundary.country", "TH");
+  if (PELIAS_API_KEY) {
+    endpoint.searchParams.set("api_key", PELIAS_API_KEY);
+  }
+
+  const response = await fetch(endpoint.toString(), {
+    method: "GET",
+    signal,
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pelias geocoding failed with status ${response.status}`);
+  }
+
+  const payload = (await response.json()) as {
+    features?: Array<{
+      geometry?: { coordinates?: [number, number] };
+      properties?: { label?: string; name?: string };
+    }>;
+  };
+  const firstMatch = payload.features?.[0];
+  const lon = firstMatch?.geometry?.coordinates?.[0];
+  const lat = firstMatch?.geometry?.coordinates?.[1];
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  const resolvedLat = lat as number;
+  const resolvedLon = lon as number;
+
+  return {
+    lat: resolvedLat,
+    lon: resolvedLon,
+    label: firstMatch?.properties?.label ?? firstMatch?.properties?.name ?? query,
+  };
+}
+
+async function geocodeWithNominatimFallback(query: string, signal: AbortSignal) {
   if (!query.trim()) return null;
 
   const endpoint = new URL("https://nominatim.openstreetmap.org/search");
@@ -119,6 +168,17 @@ async function geocodeAddressQuery(query: string, signal: AbortSignal) {
     lon,
     label: firstMatch.display_name ?? query,
   };
+}
+
+async function geocodeAddressQuery(query: string, signal: AbortSignal) {
+  try {
+    const peliasPoint = await geocodeWithPelias(query, signal);
+    if (peliasPoint) return peliasPoint;
+  } catch {
+    // Keep map usable if Pelias endpoint is temporarily unavailable.
+  }
+
+  return geocodeWithNominatimFallback(query, signal);
 }
 
 function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
@@ -175,10 +235,12 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     const lon = listing.address?.longitude;
 
     if (typeof lat !== "number" || typeof lon !== "number") return null;
+    const mapLat = lat;
+    const mapLon = lon;
 
     return {
-      lat,
-      lon,
+      lat: mapLat,
+      lon: mapLon,
       label: defaultAddressQuery,
     };
   }, [defaultAddressQuery, listing.address?.latitude, listing.address?.longitude]);
@@ -845,7 +907,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
                 <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
-                  Backend-ready map logic: when admin provides street, tambon, amphoe, city, province, and postal code, this section geocodes the full Thai address and pins the property location.
+                  Backend-ready map logic: this section uses Pelias geocoding for Thai address search (street, tambon, amphoe, city, province, postal code) and pins the property location automatically.
                 </p>
                 <form onSubmit={handleMapSearch} className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <label className="sr-only" htmlFor={`${listing.id}-map-search`}>
