@@ -66,37 +66,37 @@ export function SellYourHomePage() {
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
       <main>
-        <section className="mx-auto max-w-7xl px-4 py-10 lg:px-8 lg:py-14">
-          <div className="grid gap-8 rounded-[32px] bg-[#f4f5f6] p-6 lg:grid-cols-[1.06fr_1.2fr] lg:items-center lg:gap-10 lg:p-10">
-            <div>
+        <section className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-14">
+          <div className="grid gap-6 rounded-[28px] bg-[#f4f5f6] p-4 sm:p-5 lg:grid-cols-[1.06fr_1.2fr] lg:items-center lg:gap-10 lg:rounded-[32px] lg:p-10">
+            <div className="order-1 overflow-hidden rounded-[24px] lg:order-2 lg:rounded-[30px]">
+              <img
+                src={assetPath("images/page-banners/urgent-sale.png")}
+                alt="Sell your home"
+                className="h-[250px] w-full object-cover sm:h-[320px] lg:h-[430px]"
+              />
+            </div>
+
+            <div className="order-2 px-1 pb-1 pt-2 lg:order-1 lg:px-0 lg:pb-0 lg:pt-0">
               <h1 className="max-w-xl text-4xl font-black leading-tight text-black sm:text-5xl">
                 Sell your home with confidence
               </h1>
-              <p className="mt-6 max-w-xl text-xl leading-9 text-[#111827]">
+              <p className="mt-5 max-w-xl text-lg leading-8 text-[#111827] sm:text-xl sm:leading-9">
                 We give you multiple options to sell your home with the flexibility to choose what
                 works best for your unique situation, timeline and goals.
               </p>
               <a
                 href={safeHref("#sell-form")}
-                className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-[#0f4cd7] px-7 py-4 text-2xl font-black text-white transition hover:bg-[#0c3faf]"
+                className="mt-7 inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-[#0f4cd7] px-7 py-4 text-xl font-black text-white transition hover:bg-[#0c3faf] sm:w-auto sm:justify-start sm:text-2xl"
               >
                 <ArrowDownRight className="h-7 w-7" />
                 lets start
               </a>
             </div>
-
-            <div className="relative overflow-hidden rounded-[30px]">
-              <img
-                src={assetPath("images/page-banners/urgent-sale.png")}
-                alt="Sell your home"
-                className="h-[380px] w-full object-cover lg:h-[430px]"
-              />
-            </div>
           </div>
         </section>
 
-        <section id="sell-form" className="mx-auto max-w-5xl px-4 pb-20 pt-6 lg:px-8">
-          <div className="rounded-[28px] border border-brand-line bg-white p-6 shadow-[0_16px_40px_rgba(15,23,42,0.07)] sm:p-8">
+        <section id="sell-form" className="mx-auto max-w-5xl px-4 pb-20 pt-5 lg:px-8">
+          <div className="rounded-[28px] border border-brand-line bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.07)] sm:p-8">
             <h2 className="text-3xl font-black text-brand-dark sm:text-4xl">Submit your property</h2>
             <p className="mt-3 text-base leading-7 text-brand-gray">
               Tell us about your property and our team will contact you with your best selling options.
@@ -115,7 +115,7 @@ export function SellYourHomePage() {
               </div>
             ) : null}
 
-            <form onSubmit={handleSubmit} className="mt-7 grid gap-5 sm:grid-cols-2">
+            <form onSubmit={handleSubmit} className="mx-auto mt-7 max-w-3xl grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2">
                 <span className="text-sm font-black uppercase tracking-wide text-brand-dark">Full name*</span>
                 <input
