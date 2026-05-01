@@ -3,6 +3,7 @@ import { safeTranslationEndpoint } from "../utils/security";
 export type SiteLanguage = "EN" | "RU" | "ZH" | "TH" | "AR" | "FA";
 
 const DEFAULT_DEEPLX_ENDPOINTS = [
+  "http://localhost:1188/translate",
   "http://127.0.0.1:1188/translate",
   "https://api.deeplx.org/translate",
   "https://deeplx.vercel.app/translate",
