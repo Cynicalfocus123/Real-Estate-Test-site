@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AboutUsPage } from "./components/AboutUsPage";
+import { ContactUsPage } from "./components/ContactUsPage";
 import { CostOfLivingThailandPage } from "./components/CostOfLivingThailandPage";
 import { CustomHomeNonThaiPage } from "./components/CustomHomeNonThaiPage";
 import { DistressedPropertyPage } from "./components/DistressedPropertyPage";
@@ -63,6 +64,7 @@ export function App() {
     currentPath.endsWith("/real-estate-laws-for-foreigner") ||
     currentHash === "#/real-estate-laws-for-foreigner";
   const isAboutUsPage = currentPath.endsWith("/about-us") || currentHash === "#/about-us";
+  const isContactUsPage = currentPath.endsWith("/contact-us") || currentHash === "#/contact-us";
   const isFaqPage = currentPath.endsWith("/faq") || currentHash === "#/faq";
   const isForeignerOwnPropertyPage =
     currentPath.endsWith("/foreigner-own-property-thailand") ||
@@ -173,6 +175,10 @@ export function App() {
 
   if (isAboutUsPage) {
     return <AboutUsPage />;
+  }
+
+  if (isContactUsPage) {
+    return <ContactUsPage />;
   }
 
   if (isFaqPage) {

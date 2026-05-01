@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "News", href: "#news" },
       { label: "About Us", href: `${import.meta.env.BASE_URL}about-us` },
-      { label: "Contact Us", href: "#contact-us" },
+      { label: "Contact Us", href: `${import.meta.env.BASE_URL}contact-us` },
       { label: "FAQ", href: `${import.meta.env.BASE_URL}faq` },
     ],
   },
