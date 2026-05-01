@@ -56,7 +56,27 @@ type GeocodedMapPoint = {
 const PELIAS_SEARCH_URL =
   import.meta.env.VITE_PELIAS_SEARCH_URL?.trim() || "https://api.openrouteservice.org/geocode/search";
 const PELIAS_API_KEY = import.meta.env.VITE_PELIAS_API_KEY?.trim();
-const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim() || "https://demotiles.maplibre.org/style.json";
+const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
+const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  sources: {
+    "osm-tiles": {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "&copy; OpenStreetMap contributors",
+    },
+  },
+  layers: [
+    {
+      id: "osm-tiles",
+      type: "raster",
+      source: "osm-tiles",
+      minzoom: 0,
+      maxzoom: 19,
+    },
+  ],
+};
 
 function createPropertyPinElement() {
   const pin = document.createElement("span");
@@ -74,6 +94,34 @@ function createPropertyPinElement() {
 function normalizeAddressValue(value?: string) {
   const normalized = value?.trim();
   return normalized ? normalized : undefined;
+}
+
+function buildGeocodeQueryCandidates(query: string) {
+  const normalized = query.trim();
+  if (!normalized) return [];
+
+  const parts = normalized
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const candidates = [normalized];
+
+  if (parts.length >= 4) {
+    candidates.push(parts.slice(-4).join(", "));
+  }
+  if (parts.length >= 3) {
+    candidates.push(parts.slice(-3).join(", "));
+  }
+  if (parts.length >= 2) {
+    candidates.push(parts.slice(-2).join(", "));
+  }
+
+  if (!/\bthailand\b/i.test(normalized)) {
+    candidates.push(`${normalized}, Thailand`);
+  }
+
+  return Array.from(new Set(candidates.map((item) => item.trim()).filter(Boolean)));
 }
 
 function buildAddressQuery(listing: PropertyListing) {
@@ -176,14 +224,23 @@ async function geocodeWithNominatimFallback(query: string, signal: AbortSignal) 
 }
 
 async function geocodeAddressQuery(query: string, signal: AbortSignal) {
-  try {
-    const peliasPoint = await geocodeWithPelias(query, signal);
-    if (peliasPoint) return peliasPoint;
-  } catch {
-    // Keep map usable if Pelias endpoint is temporarily unavailable.
+  const candidates = buildGeocodeQueryCandidates(query);
+
+  for (const candidate of candidates) {
+    try {
+      const peliasPoint = await geocodeWithPelias(candidate, signal);
+      if (peliasPoint) return peliasPoint;
+    } catch {
+      // Keep map usable if Pelias endpoint is temporarily unavailable.
+    }
   }
 
-  return geocodeWithNominatimFallback(query, signal);
+  for (const candidate of candidates) {
+    const fallbackPoint = await geocodeWithNominatimFallback(candidate, signal);
+    if (fallbackPoint) return fallbackPoint;
+  }
+
+  return null;
 }
 
 function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
@@ -319,7 +376,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     const initialCenter: [number, number] = mapPoint ? [mapPoint.lon, mapPoint.lat] : [100.5018, 13.7563];
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: MAPLIBRE_STYLE_URL,
+      style: MAPLIBRE_STYLE_URL || MAPLIBRE_FALLBACK_STYLE,
       center: initialCenter,
       zoom: mapPoint ? 15 : 11,
     });

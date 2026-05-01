@@ -246,3 +246,5 @@
 - Switched property location search to a Pelias-first geocoding flow (configurable endpoint/API key), while keeping a Nominatim fallback so map marker placement stays available if the Pelias service is unreachable.
 - Replaced the property detail page Leaflet map with a MapLibre GL JS map renderer while keeping the same Pelias-first geocoding search flow and Nominatim fallback behavior.
 - Removed Leaflet dependencies and added `maplibre-gl` so the property location section now renders with MapLibre controls and marker updates.
+- Fixed blank MapLibre rendering by adding CSP directives required for worker/blob usage and by using an OpenStreetMap raster fallback style when no custom MapLibre style URL is configured.
+- Improved property map geocoding reliability by adding progressive query fallbacks (full address to broader area variants) before showing `No location matched`.
