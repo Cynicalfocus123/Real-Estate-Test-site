@@ -56,7 +56,7 @@ type GeocodedMapPoint = {
 const OSMAND_SEARCH_URL = import.meta.env.VITE_OSMAND_SEARCH_URL?.trim() || "https://nominatim.openstreetmap.org/search";
 const OSMAND_PUBLIC_FALLBACK_URL = "https://nominatim.openstreetmap.org/search";
 const OSMAND_COUNTRY = import.meta.env.VITE_OSMAND_COUNTRY?.trim() || "th";
-const OSMAND_LANGUAGE = import.meta.env.VITE_OSMAND_LANGUAGE?.trim() || "th,en";
+const OSMAND_LANGUAGE = import.meta.env.VITE_OSMAND_LANGUAGE?.trim() || "en,th";
 const OSMAND_EMAIL = import.meta.env.VITE_OSMAND_EMAIL?.trim();
 const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
 const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
@@ -153,8 +153,10 @@ async function geocodeWithOsmAndSearch(
 
   const endpoint = new URL(endpointUrl);
   endpoint.searchParams.set("format", "jsonv2");
-  endpoint.searchParams.set("limit", "1");
+  endpoint.searchParams.set("limit", "50");
   endpoint.searchParams.set("addressdetails", "1");
+  endpoint.searchParams.set("namedetails", "1");
+  endpoint.searchParams.set("accept-language", OSMAND_LANGUAGE);
   endpoint.searchParams.set("countrycodes", OSMAND_COUNTRY);
   endpoint.searchParams.set("dedupe", "1");
   endpoint.searchParams.set("q", query);
@@ -180,16 +182,25 @@ async function geocodeWithOsmAndSearch(
     lon?: string;
     display_name?: string;
     name?: string;
+    importance?: number;
+    namedetails?: Record<string, string | undefined>;
   }>;
-  const firstMatch = payload[0];
+  const firstMatch = payload
+    .filter((item) => item.lat && item.lon)
+    .sort((a, b) => (b.importance ?? 0) - (a.importance ?? 0))[0];
   const lat = firstMatch?.lat ? Number.parseFloat(firstMatch.lat) : Number.NaN;
   const lon = firstMatch?.lon ? Number.parseFloat(firstMatch.lon) : Number.NaN;
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  const englishName = firstMatch?.namedetails?.["name:en"]?.trim();
+  const thaiName = firstMatch?.namedetails?.["name:th"]?.trim();
+  const displayName = firstMatch?.display_name?.trim();
+  const labelParts = [englishName, thaiName, displayName].filter(Boolean) as string[];
+  const label = Array.from(new Set(labelParts)).join(" • ");
 
   return {
     lat: lat as number,
     lon: lon as number,
-    label: firstMatch?.display_name ?? firstMatch?.name ?? query,
+    label: label || firstMatch?.name || query,
   };
 }
 
