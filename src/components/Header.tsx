@@ -1,6 +1,8 @@
 import { ChevronDown, Globe2, Menu } from "lucide-react";
 import { useState } from "react";
 import { assetPath } from "../utils/assets";
+import { getInitialLanguage, useSiteTranslation } from "../hooks/useSiteTranslation";
+import { type SiteLanguage } from "../services/translationService";
 import { safeHref } from "../utils/security";
 
 type NavItem = {
@@ -54,7 +56,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const languageOptions = ["EN", "RU", "ZH", "TH", "AR", "FA"];
+const languageOptions: SiteLanguage[] = ["EN", "RU", "ZH", "TH", "AR", "FA"];
 
 type HeaderProps = {
   logoClassName?: string;
@@ -63,8 +65,10 @@ type HeaderProps = {
 export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }: HeaderProps = {}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [language, setLanguage] = useState<SiteLanguage>(getInitialLanguage);
   const homeUrl = import.meta.env.BASE_URL;
   const currentPath = window.location.pathname;
+  useSiteTranslation(language);
 
   function toggleSubmenu(label: string) {
     setOpenSubmenu((current) => (current === label ? null : label));
@@ -135,12 +139,16 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
         </nav>
 
         <div className="flex items-center gap-2">
-          <label className="inline-flex h-10 items-center gap-2 border border-brand-line px-3 text-sm font-semibold text-brand-dark hover:border-brand-red">
+          <label
+            className="inline-flex h-10 items-center gap-2 border border-brand-line px-3 text-sm font-semibold text-brand-dark hover:border-brand-red"
+            data-no-translate
+          >
             <Globe2 className="h-4 w-4" />
             <span className="sr-only">Language</span>
             <select
               className="bg-transparent text-sm font-bold uppercase outline-none"
-              defaultValue="EN"
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as SiteLanguage)}
               aria-label="Language"
             >
               {languageOptions.map((language) => (

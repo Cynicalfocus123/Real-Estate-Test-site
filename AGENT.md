@@ -276,3 +276,4 @@
 - Updated footer `Company` links so `Contact Us` routes to `/contact-us` and added a new `FAQ` footer link to `/faq`.
 - Updated footer right-side contact details to: `Whatsapp: +66-973924632`, `Wechat: +66-973924632`, and `Email: Info@buyhomeforless.com`.
 - Reordered the listing-page top mode buttons above the search bar so `Rent` appears before `Sell`.
+- Added DeepL free open-source translation flow for language switching: header dropdown now persists EN/RU/ZH/TH/AR/FA selection, auto-translates visible site text and placeholders through a DeepLX-compatible endpoint (`VITE_DEEPLX_API_URL`, default `https://deeplx.vercel.app/translate`), caches translations in local storage, and keeps English as the default fallback.
