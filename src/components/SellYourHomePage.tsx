@@ -68,12 +68,16 @@ export function SellYourHomePage() {
       <main>
         <section className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-14">
           <div className="grid gap-6 rounded-[28px] bg-[#f4f5f6] p-4 sm:p-5 lg:grid-cols-[1.06fr_1.2fr] lg:items-center lg:gap-10 lg:rounded-[32px] lg:p-10">
-            <div className="order-1 overflow-hidden rounded-[24px] lg:order-2 lg:rounded-[30px]">
+            <div className="relative order-1 overflow-hidden rounded-[24px] lg:order-2 lg:rounded-[30px]">
               <img
                 src={assetPath("images/page-banners/own-property-in-thailand.png")}
                 alt="Sell your home"
                 className="h-[250px] w-full object-cover sm:h-[320px] lg:h-[430px]"
               />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.05)_0%,rgba(0,0,0,0.5)_100%)]" />
+              <p className="absolute bottom-4 left-4 rounded-xl bg-black/45 px-4 py-2 text-lg font-black text-white backdrop-blur-[1px] sm:bottom-6 sm:left-6 sm:text-2xl">
+                Sell your home?
+              </p>
             </div>
 
             <div className="order-2 px-1 pb-1 pt-2 lg:order-1 lg:px-0 lg:pb-0 lg:pt-0">
