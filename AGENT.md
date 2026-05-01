@@ -250,3 +250,5 @@
 - Improved property map geocoding reliability by adding progressive query fallbacks (full address to broader area variants) before showing `No location matched`.
 - Replaced property-location geocoding from Pelias-first to Mapbox-first: Mapbox Search Box `/forward` is now primary, with Mapbox Geocoding v6 and OSM Nominatim fallbacks for better Thai address resilience.
 - Added explicit Mapbox token validation/error handling (`VITE_MAPBOX_ACCESS_TOKEN`) and refreshed property-location helper text to reflect the new API flow.
+- Replaced the property-location map search flow with an open-source Thailand geocoder setup: Nominatim-compatible search endpoint first, with public Nominatim fallback, so the frontend is ready for a self-hosted index built from Geofabrik Thailand extracts.
+- Added new geocoder env settings (`VITE_THAI_NOMINATIM_SEARCH_URL`, `VITE_THAI_NOMINATIM_COUNTRY`, `VITE_THAI_NOMINATIM_LANGUAGE`, optional `VITE_THAI_NOMINATIM_EMAIL`) and removed Mapbox token dependency from property map search.

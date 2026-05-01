@@ -53,13 +53,12 @@ type GeocodedMapPoint = {
   label: string;
 };
 
-const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN?.trim();
-const MAPBOX_SEARCHBOX_FORWARD_URL =
-  import.meta.env.VITE_MAPBOX_SEARCHBOX_FORWARD_URL?.trim() || "https://api.mapbox.com/search/searchbox/v1/forward";
-const MAPBOX_GEOCODING_FORWARD_URL =
-  import.meta.env.VITE_MAPBOX_GEOCODING_FORWARD_URL?.trim() || "https://api.mapbox.com/search/geocode/v6/forward";
-const MAPBOX_COUNTRY = import.meta.env.VITE_MAPBOX_COUNTRY?.trim() || "TH";
-const MAPBOX_LANGUAGE = import.meta.env.VITE_MAPBOX_LANGUAGE?.trim() || "th,en";
+const THAILAND_NOMINATIM_SEARCH_URL =
+  import.meta.env.VITE_THAI_NOMINATIM_SEARCH_URL?.trim() || "https://nominatim.openstreetmap.org/search";
+const THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL = "https://nominatim.openstreetmap.org/search";
+const THAILAND_NOMINATIM_COUNTRY = import.meta.env.VITE_THAI_NOMINATIM_COUNTRY?.trim() || "th";
+const THAILAND_NOMINATIM_LANGUAGE = import.meta.env.VITE_THAI_NOMINATIM_LANGUAGE?.trim() || "th,en";
+const THAILAND_NOMINATIM_EMAIL = import.meta.env.VITE_THAI_NOMINATIM_EMAIL?.trim();
 const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
 const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -146,164 +145,81 @@ function buildAddressQuery(listing: PropertyListing) {
   return parts.join(", ");
 }
 
-async function geocodeWithMapboxSearchBox(query: string, signal: AbortSignal) {
-  if (!query.trim() || !MAPBOX_ACCESS_TOKEN) return null;
-
-  const endpoint = new URL(MAPBOX_SEARCHBOX_FORWARD_URL);
-  endpoint.searchParams.set("q", query);
-  endpoint.searchParams.set("limit", "1");
-  endpoint.searchParams.set("access_token", MAPBOX_ACCESS_TOKEN);
-  endpoint.searchParams.set("country", MAPBOX_COUNTRY);
-  endpoint.searchParams.set("language", MAPBOX_LANGUAGE);
-
-  const response = await fetch(endpoint.toString(), {
-    method: "GET",
-    signal,
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Mapbox Search Box geocoding failed with status ${response.status}`);
-  }
-
-  const payload = (await response.json()) as {
-    features?: Array<{
-      geometry?: { coordinates?: [number, number] };
-      properties?: { full_address?: string; name?: string; place_formatted?: string };
-      place_name?: string;
-    }>;
-  };
-  const firstMatch = payload.features?.[0];
-  const lon = firstMatch?.geometry?.coordinates?.[0];
-  const lat = firstMatch?.geometry?.coordinates?.[1];
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-  const resolvedLat = lat as number;
-  const resolvedLon = lon as number;
-
-  return {
-    lat: resolvedLat,
-    lon: resolvedLon,
-    label:
-      firstMatch?.properties?.full_address ??
-      firstMatch?.place_name ??
-      firstMatch?.properties?.name ??
-      firstMatch?.properties?.place_formatted ??
-      query,
-  };
-}
-
-async function geocodeWithMapboxGeocodingFallback(query: string, signal: AbortSignal) {
-  if (!query.trim() || !MAPBOX_ACCESS_TOKEN) return null;
-
-  const endpoint = new URL(MAPBOX_GEOCODING_FORWARD_URL);
-  endpoint.searchParams.set("q", query);
-  endpoint.searchParams.set("limit", "1");
-  endpoint.searchParams.set("access_token", MAPBOX_ACCESS_TOKEN);
-  endpoint.searchParams.set("country", MAPBOX_COUNTRY);
-  endpoint.searchParams.set("language", MAPBOX_LANGUAGE);
-
-  const response = await fetch(endpoint.toString(), {
-    method: "GET",
-    signal,
-    headers: { Accept: "application/json" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Mapbox Geocoding fallback failed with status ${response.status}`);
-  }
-
-  const payload = (await response.json()) as {
-    features?: Array<{
-      geometry?: { coordinates?: [number, number] };
-      properties?: { full_address?: string; name?: string };
-      place_name?: string;
-      name?: string;
-    }>;
-  };
-  const firstMatch = payload.features?.[0];
-  const lon = firstMatch?.geometry?.coordinates?.[0];
-  const lat = firstMatch?.geometry?.coordinates?.[1];
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-
-  return {
-    lat: lat as number,
-    lon: lon as number,
-    label:
-      firstMatch?.properties?.full_address ??
-      firstMatch?.place_name ??
-      firstMatch?.name ??
-      firstMatch?.properties?.name ??
-      query,
-  };
-}
-
-async function geocodeWithNominatimFallback(query: string, signal: AbortSignal) {
+async function geocodeWithThailandNominatim(
+  query: string,
+  signal: AbortSignal,
+  endpointUrl: string,
+) {
   if (!query.trim()) return null;
 
-  const endpoint = new URL("https://nominatim.openstreetmap.org/search");
+  const endpoint = new URL(endpointUrl);
   endpoint.searchParams.set("format", "jsonv2");
   endpoint.searchParams.set("limit", "1");
   endpoint.searchParams.set("addressdetails", "1");
-  endpoint.searchParams.set("countrycodes", "th");
+  endpoint.searchParams.set("countrycodes", THAILAND_NOMINATIM_COUNTRY);
+  endpoint.searchParams.set("dedupe", "1");
   endpoint.searchParams.set("q", query);
+  if (THAILAND_NOMINATIM_EMAIL) {
+    endpoint.searchParams.set("email", THAILAND_NOMINATIM_EMAIL);
+  }
 
   const response = await fetch(endpoint.toString(), {
     method: "GET",
     signal,
     headers: {
       Accept: "application/json",
-      "Accept-Language": "th,en",
+      "Accept-Language": THAILAND_NOMINATIM_LANGUAGE,
     },
   });
 
   if (!response.ok) {
-    throw new Error(`Geocoding failed with status ${response.status}`);
+    throw new Error(`Thailand geocoding failed with status ${response.status}`);
   }
 
-  const payload = (await response.json()) as Array<{ lat?: string; lon?: string; display_name?: string }>;
+  const payload = (await response.json()) as Array<{
+    lat?: string;
+    lon?: string;
+    display_name?: string;
+    name?: string;
+  }>;
   const firstMatch = payload[0];
-
-  if (!firstMatch?.lat || !firstMatch?.lon) return null;
-
-  const lat = Number.parseFloat(firstMatch.lat);
-  const lon = Number.parseFloat(firstMatch.lon);
+  const lat = firstMatch?.lat ? Number.parseFloat(firstMatch.lat) : Number.NaN;
+  const lon = firstMatch?.lon ? Number.parseFloat(firstMatch.lon) : Number.NaN;
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
   return {
-    lat,
-    lon,
-    label: firstMatch.display_name ?? query,
+    lat: lat as number,
+    lon: lon as number,
+    label: firstMatch?.display_name ?? firstMatch?.name ?? query,
   };
 }
 
 async function geocodeAddressQuery(query: string, signal: AbortSignal) {
   const candidates = buildGeocodeQueryCandidates(query);
 
-  if (!MAPBOX_ACCESS_TOKEN) {
-    return null;
-  }
-
   for (const candidate of candidates) {
     try {
-      const mapboxSearchPoint = await geocodeWithMapboxSearchBox(candidate, signal);
-      if (mapboxSearchPoint) return mapboxSearchPoint;
+      const thailandPoint = await geocodeWithThailandNominatim(candidate, signal, THAILAND_NOMINATIM_SEARCH_URL);
+      if (thailandPoint) return thailandPoint;
     } catch {
-      // Fall through to Mapbox Geocoding and then OSM fallback.
+      // Fall through to public fallback.
     }
   }
 
-  for (const candidate of candidates) {
-    try {
-      const mapboxGeocodePoint = await geocodeWithMapboxGeocodingFallback(candidate, signal);
-      if (mapboxGeocodePoint) return mapboxGeocodePoint;
-    } catch {
-      // Fall through to OSM fallback.
-    }
-  }
+  const usesPublicAsPrimary = THAILAND_NOMINATIM_SEARCH_URL === THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL;
+  if (usesPublicAsPrimary) return null;
 
   for (const candidate of candidates) {
-    const fallbackPoint = await geocodeWithNominatimFallback(candidate, signal);
-    if (fallbackPoint) return fallbackPoint;
+    try {
+      const fallbackPoint = await geocodeWithThailandNominatim(
+        candidate,
+        signal,
+        THAILAND_NOMINATIM_PUBLIC_FALLBACK_URL,
+      );
+      if (fallbackPoint) return fallbackPoint;
+    } catch {
+      // No more fallbacks.
+    }
   }
 
   return null;
@@ -415,9 +331,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
         if (resolvedPoint) {
           setMapPoint(resolvedPoint);
           setMapError(null);
-        } else if (!MAPBOX_ACCESS_TOKEN) {
-          setMapPoint(null);
-          setMapError("Map search needs a Mapbox token. Set VITE_MAPBOX_ACCESS_TOKEN in your .env file.");
         } else {
           setMapPoint(null);
           setMapError("No map result found for this property address yet. Try a nearby district, city, or province.");
@@ -582,10 +495,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     event.preventDefault();
     const query = mapSearchQuery.trim();
     if (!query) return;
-    if (!MAPBOX_ACCESS_TOKEN) {
-      setMapError("Map search needs a Mapbox token. Set VITE_MAPBOX_ACCESS_TOKEN in your .env file.");
-      return;
-    }
 
     const controller = new AbortController();
     setMapLoading(true);
@@ -594,7 +503,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     try {
       const resolvedPoint = await geocodeAddressQuery(query, controller.signal);
       if (!resolvedPoint) {
-        setMapError("No location matched in Mapbox search yet. Try district, city, or province.");
+        setMapError("No location matched yet. Try district, city, or province.");
         return;
       }
 
@@ -1043,7 +952,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Property Location</h2>
                 <p className="mt-3 max-w-4xl break-words text-sm leading-6 text-brand-gray md:text-base">
-                  Backend-ready map logic: this section uses Mapbox Search Box API for location lookup, with Mapbox Geocoding fallback and Thai-focused matching.
+                  Backend-ready map logic: this section uses open-source Thailand geocoding (Nominatim-compatible), designed to work with a self-hosted index built from Geofabrik Thailand extracts.
                 </p>
                 <form onSubmit={handleMapSearch} className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <label className="sr-only" htmlFor={`${listing.id}-map-search`}>
