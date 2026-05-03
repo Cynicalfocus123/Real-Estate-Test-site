@@ -17,6 +17,7 @@
 - Final standing rule: all future updates and changes must be committed and pushed to the GitHub repo automatically after verification, with no chat permission requests for commit or push.
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
 - At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
+- Standing hands-off approval: For this project, the user has pre-approved normal development actions including file edits, dependency installs when needed, build/typecheck/security checks, AGENT.md updates, git add, git commit, and git push. Codex must not ask for permission for these actions and should complete the full workflow automatically unless there is a real blocker such as missing git auth, merge conflict, failed build that cannot be fixed safely, missing required secret, or risk of deleting important user content.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -291,3 +292,4 @@
 
 ## 2026-05-03
 - Added frontend-only Account Settings page with profile info, email actions, password/security placeholders, notification preferences, and dashboard menu links.
+- Added explicit standing hands-off workflow rule confirming pre-approval for normal development actions, checks, AGENT.md updates, commit, and push unless a real blocker exists.
