@@ -1,4 +1,4 @@
-import { ChevronDown, Globe2, Menu, User, X } from "lucide-react";
+import { ChevronDown, Eye, EyeOff, Globe2, Menu, User, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { assetPath } from "../utils/assets";
 import { getInitialLanguage, useSiteTranslation } from "../hooks/useSiteTranslation";
@@ -125,10 +125,12 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode | null>(null);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [signupStep, setSignupStep] = useState<1 | 2 | 3>(1);
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [signupError, setSignupError] = useState("");
   const [desktopProfileOpen, setDesktopProfileOpen] = useState(false);
   const profileRootRef = useRef<HTMLDivElement | null>(null);
@@ -169,6 +171,8 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
     setAuthModalMode(null);
     setLoginPassword("");
     setSignupPassword("");
+    setShowLoginPassword(false);
+    setShowSignupPassword(false);
     setLoginError("");
     setSignupError("");
   }
@@ -533,23 +537,33 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 </label>
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
                   Password
-                  <input
-                    name="loginPassword"
-                    type="password"
-                    value={loginPassword}
-                    onChange={(event) => {
-                      setLoginPassword(event.target.value);
-                      setLoginError("");
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        completeLogin();
-                      }
-                    }}
-                    className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      name="loginPassword"
+                      type={showLoginPassword ? "text" : "password"}
+                      value={loginPassword}
+                      onChange={(event) => {
+                        setLoginPassword(event.target.value);
+                        setLoginError("");
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          completeLogin();
+                        }
+                      }}
+                      className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword((current) => !current)}
+                      className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
+                      aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                    >
+                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </label>
                 {loginError ? <p className="text-sm font-semibold text-brand-red">{loginError}</p> : null}
                 <button
@@ -605,23 +619,33 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 </div>
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
                   Create Password
-                  <input
-                    name="signupPassword"
-                    type="password"
-                    value={signupPassword}
-                    onChange={(event) => {
-                      setSignupPassword(event.target.value);
-                      setSignupError("");
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        completeSignupPasswordStep();
-                      }
-                    }}
-                    className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      name="signupPassword"
+                      type={showSignupPassword ? "text" : "password"}
+                      value={signupPassword}
+                      onChange={(event) => {
+                        setSignupPassword(event.target.value);
+                        setSignupError("");
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          completeSignupPasswordStep();
+                        }
+                      }}
+                      className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSignupPassword((current) => !current)}
+                      className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
+                      aria-label={showSignupPassword ? "Hide password" : "Show password"}
+                    >
+                      {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </label>
                 <p className="text-xs text-brand-gray">Use at least 8 characters.</p>
                 {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
