@@ -1,5 +1,6 @@
 import { ChevronDown, Eye, EyeOff, Globe2, Menu, User, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { assetPath } from "../utils/assets";
 import { getInitialLanguage, useSiteTranslation } from "../hooks/useSiteTranslation";
 import { isValidEmail, sanitizeEmail, useMockAuth } from "../hooks/useMockAuth";
@@ -140,6 +141,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const { mockUser, isSignedIn, loginWithEmail, logout } = useMockAuth();
 
   const displayName = useMemo(() => mockUser?.displayName ?? "", [mockUser]);
+  const canUsePortal = typeof document !== "undefined";
 
   useEffect(() => {
     function onWindowClick(event: MouseEvent) {
@@ -479,42 +481,43 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
         ) : null}
       </header>
 
-      {authModalMode ? (
-        <div
-          className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/55 p-4 pt-6 sm:items-center sm:pt-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Authentication"
-          onClick={closeAuthModal}
-          data-no-translate
-        >
-          <div
-            className="w-full max-w-md border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-black text-brand-dark">
-                  {authModalMode === "login" ? "Login" : "Sign Up"}
-                </h2>
-                {authModalMode === "signup" ? (
-                  <p className="mt-1 text-sm text-brand-gray">
-                    {signupStep === 1 ? "Step 1 of 3: enter your email." : signupStep === 2 ? "Step 2 of 3: create your password." : "Step 3 of 3: account ready."}
-                  </p>
-                ) : null}
-              </div>
-              <button
-                type="button"
-                onClick={closeAuthModal}
-                className="inline-flex h-8 w-8 items-center justify-center border border-brand-line text-brand-dark hover:border-brand-red hover:text-brand-red"
-                aria-label="Close"
+      {authModalMode && canUsePortal
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/55 p-4 pt-6 sm:items-center sm:pt-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Authentication"
+              onClick={closeAuthModal}
+              data-no-translate
+            >
+              <div
+                className="w-full max-w-md border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
+                onClick={(event) => event.stopPropagation()}
               >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-brand-dark">
+                      {authModalMode === "login" ? "Login" : "Sign Up"}
+                    </h2>
+                    {authModalMode === "signup" ? (
+                      <p className="mt-1 text-sm text-brand-gray">
+                        {signupStep === 1 ? "Step 1 of 3: enter your email." : signupStep === 2 ? "Step 2 of 3: create your password." : "Step 3 of 3: account ready."}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeAuthModal}
+                    className="inline-flex h-8 w-8 items-center justify-center border border-brand-line text-brand-dark hover:border-brand-red hover:text-brand-red"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
 
-            {authModalMode === "login" ? (
-              <div className="grid gap-3">
+                {authModalMode === "login" ? (
+                  <div className="grid gap-3">
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
                   Email
                   <input
@@ -573,12 +576,12 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Continue
                 </button>
-                <SocialAuthButtons />
-              </div>
-            ) : null}
+                    <SocialAuthButtons />
+                  </div>
+                ) : null}
 
-            {authModalMode === "signup" && signupStep === 1 ? (
-              <div className="grid gap-3">
+                {authModalMode === "signup" && signupStep === 1 ? (
+                  <div className="grid gap-3">
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
                   Email
                   <input
@@ -607,12 +610,12 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Continue
                 </button>
-                <SocialAuthButtons />
-              </div>
-            ) : null}
+                    <SocialAuthButtons />
+                  </div>
+                ) : null}
 
-            {authModalMode === "signup" && signupStep === 2 ? (
-              <div className="grid gap-3">
+                {authModalMode === "signup" && signupStep === 2 ? (
+                  <div className="grid gap-3">
                 <div className="inline-flex items-center gap-2 text-sm text-brand-gray">
                   <User className="h-4 w-4" />
                   <span>{signupEmail}</span>
@@ -656,12 +659,12 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Create Account
                 </button>
-                <SocialAuthButtons />
-              </div>
-            ) : null}
+                    <SocialAuthButtons />
+                  </div>
+                ) : null}
 
-            {authModalMode === "signup" && signupStep === 3 ? (
-              <div className="grid gap-4">
+                {authModalMode === "signup" && signupStep === 3 ? (
+                  <div className="grid gap-4">
                 <p className="text-sm font-semibold text-brand-dark">
                   Sign up successful. You are now signed in as {displayName || signupEmail.split("@")[0]}.
                 </p>
@@ -672,11 +675,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Continue
                 </button>
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
