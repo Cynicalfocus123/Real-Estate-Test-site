@@ -63,6 +63,29 @@ const languageOptions: SiteLanguage[] = ["EN", "RU", "ZH", "TH", "AR", "FA"];
 
 const placeholderProfileItems = ["My Profile", "Saved Properties", "Account Settings"];
 
+function SocialAuthButtons() {
+  return (
+    <div className="mt-3 grid gap-2">
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-11 items-center justify-center gap-2 border border-brand-line bg-white px-4 text-sm font-bold text-brand-dark opacity-70"
+      >
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-brand-line text-xs font-black">G</span>
+        Continue with Google
+      </button>
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-11 items-center justify-center gap-2 border border-brand-line bg-white px-4 text-sm font-bold text-brand-dark opacity-70"
+      >
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-brand-line text-xs font-black">f</span>
+        Continue with Facebook
+      </button>
+    </div>
+  );
+}
+
 type HeaderProps = {
   logoClassName?: string;
 };
@@ -532,6 +555,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Continue
                 </button>
+                <SocialAuthButtons />
               </div>
             ) : null}
 
@@ -565,6 +589,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Continue
                 </button>
+                <SocialAuthButtons />
               </div>
             ) : null}
 
@@ -603,6 +628,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 >
                   Create Account
                 </button>
+                <SocialAuthButtons />
               </div>
             ) : null}
 
