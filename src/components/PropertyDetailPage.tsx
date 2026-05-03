@@ -278,6 +278,9 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
 }
 
 export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
+  const contactWhatsapp = "+66-973924632";
+  const contactWechat = "+66-973924632";
+  const contactEmail = "Info@buyhomeforless.com";
   const { isFavorite, toggleFavorite, notice } = useFavorites();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryFocusIndex, setGalleryFocusIndex] = useState<number | null>(null);
@@ -289,8 +292,8 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const mapMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const phoneHref = safeTelHref(listing.agent.phone);
-  const emailHref = safeMailtoHref(listing.agent.email);
+  const phoneHref = safeTelHref(contactWhatsapp);
+  const emailHref = safeMailtoHref(contactEmail);
   const defaultAddressQuery = useMemo(() => buildAddressQuery(listing), [listing]);
   const backendMapPoint = useMemo(() => {
     const lat = listing.address?.latitude;
@@ -939,11 +942,15 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     <div className="mt-4 space-y-3 rounded-[20px] bg-[#fff7f4] p-4 text-sm font-bold text-brand-dark">
                       <a href={phoneHref} className="flex items-center gap-3">
                         <Phone className="h-4 w-4 text-brand-red" />
-                        {listing.agent.phone}
+                        Whatsapp: {contactWhatsapp}
                       </a>
+                      <p className="flex items-center gap-3">
+                        <Phone className="h-4 w-4 text-brand-red" />
+                        Wechat: {contactWechat}
+                      </p>
                       <a href={emailHref} className="flex items-center gap-3">
                         <Mail className="h-4 w-4 text-brand-red" />
-                        {listing.agent.email}
+                        Email: {contactEmail}
                       </a>
                     </div>
                   ) : null}
@@ -1151,11 +1158,15 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                         className="flex items-center gap-3 text-sm font-bold text-brand-dark"
                       >
                         <Phone className="h-4 w-4 text-brand-red" />
-                        {listing.agent.phone}
+                        Whatsapp: {contactWhatsapp}
                       </a>
+                      <p className="flex items-center gap-3 text-sm font-bold text-brand-dark">
+                        <Phone className="h-4 w-4 text-brand-red" />
+                        Wechat: {contactWechat}
+                      </p>
                       <a href={emailHref} className="flex items-center gap-3 text-sm font-bold text-brand-dark">
                         <Mail className="h-4 w-4 text-brand-red" />
-                        {listing.agent.email}
+                        Email: {contactEmail}
                       </a>
                     </div>
                   ) : null}
