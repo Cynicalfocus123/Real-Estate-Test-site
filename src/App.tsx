@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AccountSettingsPage } from "./pages/AccountSettingsPage";
 import { AboutUsPage } from "./components/AboutUsPage";
 import { ContactUsPage } from "./components/ContactUsPage";
 import { CostOfLivingThailandPage } from "./components/CostOfLivingThailandPage";
@@ -135,6 +136,9 @@ export function App() {
   const isWhySeniorcarePage =
     currentPath.endsWith("/why-seniorcare-net") ||
     currentHash === "#/why-seniorcare-net";
+  const isAccountSettingsPage =
+    currentPath.endsWith("/account-settings") ||
+    currentHash === "#/account-settings";
 
   useEffect(() => {
     function syncPath() {
@@ -315,6 +319,10 @@ export function App() {
 
   if (isWhySeniorcarePage) {
     return <WhySeniorcarePage />;
+  }
+
+  if (isAccountSettingsPage) {
+    return <AccountSettingsPage />;
   }
 
   return (

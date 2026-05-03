@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const MOCK_AUTH_SESSION_KEY = "bhfl-mock-auth-v1";
+const MOCK_AUTH_CHANGE_EVENT = "bhfl:mock-auth-changed";
 
 export type MockUser = {
   email: string;
@@ -59,6 +60,7 @@ export function setMockUser(emailInput: string) {
     displayName: user.displayName,
   };
   window.sessionStorage.setItem(MOCK_AUTH_SESSION_KEY, JSON.stringify(safeStored));
+  window.dispatchEvent(new CustomEvent(MOCK_AUTH_CHANGE_EVENT));
   return user;
 }
 
@@ -79,6 +81,7 @@ export function getMockUser() {
 
 export function clearMockUser() {
   window.sessionStorage.removeItem(MOCK_AUTH_SESSION_KEY);
+  window.dispatchEvent(new CustomEvent(MOCK_AUTH_CHANGE_EVENT));
 }
 
 export function useMockAuth() {
@@ -90,6 +93,24 @@ export function useMockAuth() {
   });
 
   const isSignedIn = useMemo(() => Boolean(mockUser), [mockUser]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    function syncMockUser() {
+      setMockUserState(getMockUser());
+    }
+
+    window.addEventListener(MOCK_AUTH_CHANGE_EVENT, syncMockUser);
+    window.addEventListener("storage", syncMockUser);
+
+    return () => {
+      window.removeEventListener(MOCK_AUTH_CHANGE_EVENT, syncMockUser);
+      window.removeEventListener("storage", syncMockUser);
+    };
+  }, []);
 
   function loginWithEmail(emailInput: string) {
     const user = setMockUser(emailInput);
@@ -112,4 +133,3 @@ export function useMockAuth() {
     logout,
   };
 }
-

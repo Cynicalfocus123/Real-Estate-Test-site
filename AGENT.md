@@ -288,3 +288,6 @@
 - Fixed mobile auth modal layering by rendering Login/Sign Up modal through a top-level portal (`document.body`) with high z-index so it always appears in front of the full site (including hero video/header) and no longer sits behind page content.
 - Refined mobile auth modal centering and clipping behavior: modal overlay now uses full dynamic viewport height centering (`100dvh`) with explicit max z-index and scroll-safe container sizing so the full Login/Sign Up box stays visible and accessible without top-edge clipping.
 - Adjusted mobile auth modal spacing to sit lower and more centered away from the sticky header by increasing vertical container padding and tightening modal max-height, while preserving full-box visibility and internal scrolling.
+
+## 2026-05-03
+- Added frontend-only Account Settings page with profile info, email actions, password/security placeholders, notification preferences, and dashboard menu links.
