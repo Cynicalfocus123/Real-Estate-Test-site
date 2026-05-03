@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { useMemo, useState } from "react";
 import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
 import { requestAuthModal } from "../utils/authModal";
@@ -9,7 +10,17 @@ import { PropertyListingCard } from "../components/PropertyListingCard";
 
 export function FavoritesPage() {
   const { favoriteIds, isFavorite, toggleFavorite, isSignedIn, notice } = useFavorites();
+  const [activeTab, setActiveTab] = useState<"buy" | "rent">("buy");
   const favorites = propertyListings.filter((listing) => favoriteIds.includes(listing.id));
+  const buyFavorites = useMemo(
+    () => favorites.filter((listing) => listing.mode === "sale"),
+    [favorites],
+  );
+  const rentFavorites = useMemo(
+    () => favorites.filter((listing) => listing.mode === "rent"),
+    [favorites],
+  );
+  const visibleFavorites = activeTab === "buy" ? buyFavorites : rentFavorites;
 
   return (
     <div className="min-h-screen bg-[#f8f5f2] text-brand-dark">
@@ -67,17 +78,54 @@ export function FavoritesPage() {
               <Heart className="h-4 w-4 fill-current text-brand-red" />
               {favorites.length} saved
             </div>
-            <div className="grid gap-6">
-              {favorites.map((listing) => (
-                <PropertyListingCard
-                  key={listing.id}
-                  listing={listing}
-                  mode={listing.mode}
-                  saved={isFavorite(listing.id)}
-                  onToggleSave={toggleFavorite}
-                />
-              ))}
+            <div className="mb-6 inline-flex rounded-xl border border-brand-line bg-white p-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("buy")}
+                className={`rounded-lg px-4 py-2 text-sm font-bold uppercase tracking-wide transition ${
+                  activeTab === "buy"
+                    ? "bg-brand-dark text-white"
+                    : "text-brand-dark hover:text-brand-red"
+                }`}
+                aria-pressed={activeTab === "buy"}
+              >
+                Buy ({buyFavorites.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("rent")}
+                className={`rounded-lg px-4 py-2 text-sm font-bold uppercase tracking-wide transition ${
+                  activeTab === "rent"
+                    ? "bg-brand-dark text-white"
+                    : "text-brand-dark hover:text-brand-red"
+                }`}
+                aria-pressed={activeTab === "rent"}
+              >
+                Rent ({rentFavorites.length})
+              </button>
             </div>
+            {visibleFavorites.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-brand-line bg-white px-6 py-12 text-center">
+                <p className="text-2xl font-black text-brand-dark">
+                  No {activeTab} favorites yet.
+                </p>
+                <p className="mt-3 text-base text-brand-gray">
+                  Save {activeTab} properties to organize them here.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-6">
+                {visibleFavorites.map((listing) => (
+                  <PropertyListingCard
+                    key={listing.id}
+                    listing={listing}
+                    mode={listing.mode}
+                    saved={isFavorite(listing.id)}
+                    onToggleSave={toggleFavorite}
+                  />
+                ))}
+              </div>
+            )}
           </section>
         ) : null}
       </main>
