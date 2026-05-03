@@ -301,3 +301,96 @@
 ## 2026-05-03 (Backend Foundation Update)
 - Started backend foundation with Node/TypeScript GraphQL, PostgreSQL/Prisma schema, auth, admin property management, image upload/optimization, favorites/account APIs, and frontend-ready Buy/Rent/property/map fields.
 - Reorganized repository structure into /frontend and /backend for separate deployment workflows (frontend build to public_html, backend as standalone Node.js app).
+## 2026-05-03 (Backend Express + MySQL Continuation)
+- Confirmed source of truth from current repository files and full `AGENT.md` before coding. Did not re-do completed frontend tasks.
+- Replaced incomplete backend transition state with a working Express + MySQL backend foundation (no Prisma) under `/backend`.
+- Added MySQL schema import file `backend/database.sql` for phpMyAdmin/cPanel setup.
+- Implemented JWT auth with role model: `HEAD_ADMIN`, `ADMIN`, `EMPLOYEE`.
+- Added bootstrap logic to auto-create first Head Admin from env vars when DB has no head admin.
+- Added auth APIs:
+  - `POST /api/auth/register` (bootstrap first head admin, then head-admin-only user creation)
+  - `POST /api/auth/login`
+  - `GET /api/auth/me`
+- Added head-admin employee management APIs:
+  - `GET /api/admin/employees`
+  - `POST /api/admin/employees`
+  - `PATCH /api/admin/employees/:id`
+  - `DELETE /api/admin/employees/:id`
+  - `PATCH /api/admin/head-admin/credentials`
+- Added protected admin listing APIs:
+  - `GET /api/admin/test`
+  - `GET /api/admin/listings`
+  - `POST /api/admin/listings`
+  - `PATCH /api/admin/listings/:id`
+  - `DELETE /api/admin/listings/:id` (soft delete -> `DELETED`)
+  - `POST /api/admin/listings/:id/images` (up to 12 images)
+- Added public listing APIs:
+  - `GET /api/listings`
+  - `GET /api/listings/:id`
+- Added sharp image variant generation for frontend needs: card, banner, detail, mobile, gallery; variants stored in DB and served from `/uploads`.
+- Added security baseline: helmet, CORS, rate-limit, input validation/sanitization, centralized error handler.
+- Updated backend docs and env template for cPanel/TMDHosting-friendly deployment flow.
+
+### Files Created/Edited (Backend)
+- Created:
+  - `backend/database.sql`
+  - `backend/src/server.ts`
+  - `backend/src/db/bootstrap.ts`
+  - `backend/src/db/pool.ts`
+  - `backend/src/db/types.ts`
+  - `backend/src/middleware/auth.ts`
+  - `backend/src/middleware/errorHandler.ts`
+  - `backend/src/routes/authRoutes.ts`
+  - `backend/src/routes/adminUserRoutes.ts`
+  - `backend/src/routes/adminListingRoutes.ts`
+  - `backend/src/routes/listingRoutes.ts`
+  - `backend/src/services/imageService.ts`
+  - `backend/src/types/express.d.ts`
+- Updated:
+  - `backend/package.json`
+  - `backend/package-lock.json`
+  - `backend/tsconfig.json`
+  - `backend/.env.example`
+  - `backend/README.md`
+  - `backend/src/auth/jwt.ts`
+  - `backend/src/config/env.ts`
+  - `backend/src/utils/errors.ts`
+  - `backend/src/utils/sanitize.ts`
+- Removed old unfinished GraphQL/Prisma files from backend source.
+
+### How To Run/Test Locally
+1. `cd backend`
+2. `npm install`
+3. Copy env: `Copy-Item .env.example .env`
+4. In phpMyAdmin, import: `backend/database.sql`
+5. `npm run dev`
+6. Test URLs:
+   - Backend base: `http://localhost:4000`
+   - Health: `http://localhost:4000/health`
+   - Register: `POST http://localhost:4000/api/auth/register`
+   - Login: `POST http://localhost:4000/api/auth/login`
+   - Admin test: `GET http://localhost:4000/api/admin/test` (Bearer token required)
+
+### Environment Variables Needed
+- `PORT`
+- `FRONTEND_ORIGIN`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `HEAD_ADMIN_EMAIL`
+- `HEAD_ADMIN_PASSWORD`
+- `HEAD_ADMIN_NAME`
+- `UPLOAD_DIR`
+- `PUBLIC_UPLOAD_BASE_URL`
+
+### Unfinished Items
+- Frontend is still on mock/localStorage account + favorites flows and is not yet wired to backend auth/listing APIs.
+- No DB seed data beyond optional head-admin bootstrap; add sample listings if needed for demos.
+- Automated tests (unit/integration) are not added yet.
+
+### Next Recommended Step
+- Connect frontend auth/account/favorites/listing data services to these REST endpoints (replace mock localStorage flows gradually while keeping current UI behavior).

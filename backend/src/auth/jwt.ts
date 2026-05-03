@@ -1,42 +1,43 @@
 import jwt from "jsonwebtoken";
-import type { UserRole } from "@prisma/client";
+import type { Secret, SignOptions } from "jsonwebtoken";
 import { env } from "../config/env";
+import type { AdminRole } from "../db/types";
 
-type TokenPayload = {
-  userId: string;
-  role: UserRole;
+type AuthTokenPayload = {
+  sub: number;
+  email: string;
+  role: AdminRole;
 };
 
-export function signAuthToken(payload: TokenPayload): string {
-  return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: "7d",
-    issuer: "buy-home-for-less",
-    audience: "buy-home-for-less-web",
-  });
+export function signAuthToken(user: { id: number; email: string; role: AdminRole }): string {
+  const payload: AuthTokenPayload = {
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+  };
+  const secret: Secret = env.JWT_SECRET;
+  const options: SignOptions = {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  };
+  return jwt.sign(payload, secret, options);
 }
 
-export function verifyAuthToken(token: string): TokenPayload | null {
-  try {
-    const decoded = jwt.verify(token, env.JWT_SECRET, {
-      issuer: "buy-home-for-less",
-      audience: "buy-home-for-less-web",
-    });
-
-    if (!decoded || typeof decoded !== "object") return null;
-    const userId = typeof decoded.userId === "string" ? decoded.userId : null;
-    const role = decoded.role === "ADMIN" ? "ADMIN" : decoded.role === "USER" ? "USER" : null;
-    if (!userId || !role) return null;
-    return { userId, role };
-  } catch {
-    return null;
+export function verifyAuthToken(token: string): AuthTokenPayload {
+  const decoded = jwt.verify(token, env.JWT_SECRET);
+  if (!decoded || typeof decoded !== "object") {
+    throw new Error("Invalid token payload");
   }
+  const payload = decoded as jwt.JwtPayload & {
+    sub?: string | number;
+    email?: string;
+    role?: AdminRole;
+  };
+  if (!payload.sub || !payload.email || !payload.role) {
+    throw new Error("Invalid token payload");
+  }
+  return {
+    sub: typeof payload.sub === "string" ? Number(payload.sub) : payload.sub,
+    email: payload.email,
+    role: payload.role,
+  };
 }
-
-export function extractBearerToken(authorizationHeader?: string): string | null {
-  if (!authorizationHeader) return null;
-  const [scheme, value] = authorizationHeader.split(" ");
-  if (!scheme || !value) return null;
-  if (scheme.toLowerCase() !== "bearer") return null;
-  return value.trim() || null;
-}
-

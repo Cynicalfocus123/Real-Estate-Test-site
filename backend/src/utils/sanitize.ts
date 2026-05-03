@@ -1,37 +1,25 @@
-const SAFE_TEXT_REGEX = /[<>`]/g;
+const CONTROL_CHARS_REGEX = /[\u0000-\u001f\u007f]/g;
 
-export function sanitizeText(value: string, maxLength: number): string {
-  return value.replace(SAFE_TEXT_REGEX, "").replace(/\s+/g, " ").trim().slice(0, maxLength);
+export function sanitizePlainText(value: string, maxLength = 500): string {
+  return value.replace(CONTROL_CHARS_REGEX, "").trim().slice(0, maxLength);
 }
 
-export function sanitizeNullableText(value: unknown, maxLength: number): string | null {
-  if (typeof value !== "string") return null;
-  const next = sanitizeText(value, maxLength);
-  return next.length > 0 ? next : null;
+export function sanitizeEmail(value: string): string {
+  return sanitizePlainText(value, 320).toLowerCase();
 }
 
-export function sanitizeStringArray(values: unknown, itemMaxLength = 120, maxItems = 60): string[] {
-  if (!Array.isArray(values)) return [];
-
-  const deduped = new Set<string>();
-  for (const value of values) {
-    if (typeof value !== "string") continue;
-    const cleaned = sanitizeText(value, itemMaxLength);
-    if (!cleaned) continue;
-    deduped.add(cleaned);
-    if (deduped.size >= maxItems) break;
-  }
-
-  return Array.from(deduped);
+export function sanitizeSlug(value: string): string {
+  const cleaned = sanitizePlainText(value, 120).toLowerCase();
+  return cleaned
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }
 
-export function toSlug(value: string): string {
-  const normalized = sanitizeText(value.toLowerCase(), 120)
-    .normalize("NFKD")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-  return normalized || "property";
+export function sanitizeStringArray(values: string[], maxItems = 50, maxItemLength = 120): string[] {
+  return values
+    .slice(0, maxItems)
+    .map((value) => sanitizePlainText(value, maxItemLength))
+    .filter(Boolean);
 }
-

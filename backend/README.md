@@ -1,105 +1,49 @@
-# Buy Home For Less Backend Foundation
+# Buy Home For Less Backend (Express + MySQL)
 
-Backend foundation for the current React frontend, built with:
-- Node.js + TypeScript
-- Fastify + GraphQL (Mercurius)
-- PostgreSQL + Prisma ORM
+Simple cPanel/TMDHosting-friendly backend for the real estate project.
+
+## Stack
+- Node.js + Express + TypeScript
+- MySQL (`mysql2`)
+- JWT auth
 - bcrypt password hashing
-- JWT-ready auth context
-- Sharp-based image optimization (WebP output)
+- multer + sharp image processing
 
-## What This Includes
-- Public property queries with filters/sort/pagination.
-- Property detail, featured properties, and similar properties.
-- Auth flows: register, login, current user, change password, reset-password placeholder.
-- Account settings APIs (profile fields + notification preferences + email flows).
-- Favorites APIs designed for Buy/Rent tab grouping.
-- Admin property management APIs (create/update/archive/delete-safe).
-- Admin image upload APIs with:
-  - max 12 images per property
-  - type whitelist (`jpg`, `jpeg`, `png`, `webp`, `avif`)
-  - safe path checks
-  - WebP derivatives: thumbnail, card, gallery, hero
-  - metadata persisted in `PropertyImage`
+## Required Features Implemented
+- Login/register flow.
+- Head Admin / Admin / Employee role system.
+- Head Admin can update own email/password.
+- Head Admin can create and manage employee/admin accounts.
+- Protected admin routes.
+- Listing create/edit/delete (soft delete to `DELETED`).
+- Listing status: `DRAFT`, `PUBLISHED`, `ARCHIVED`, `DELETED`.
+- Listing section: `BUY`, `RENT`, `SENIOR_HOME`, `SELL`.
+- Listing categories: `NORMAL`, `FORECLOSURE`, `URGENT_SALE`, `FEATURED`, `NEW_LISTING`, `DISTRESS`, `PRE_FORECLOSURE`, `FIXER_UPPER`.
+- Admin listing table includes section/category/status.
+- Up to 12 images per listing with generated variants:
+  - card
+  - banner
+  - detail
+  - mobile
+  - gallery
+- CORS-ready for frontend localhost.
 
-## Folder Layout
-```
-backend/
-  prisma/schema.prisma
-  src/
-    auth/jwt.ts
-    config/env.ts
-    graphql/{schema,resolvers}.ts
-    lib/prisma.ts
-    services/*.ts
-    utils/*.ts
-    index.ts
-  .env.example
-```
+## Setup
+1. Copy `.env.example` to `.env`.
+2. Create DB and import `database.sql` in phpMyAdmin.
+3. Install deps:
+   - `npm install`
+4. Run:
+   - `npm run dev`
 
-## Environment
-Copy `.env.example` to `.env`:
+## Local URLs
+- Backend base: `http://localhost:4000`
+- Health: `GET /health`
+- Register: `POST /api/auth/register`
+- Login: `POST /api/auth/login`
+- Protected admin test: `GET /api/admin/test`
 
-```bash
-cp .env.example .env
-```
-
-Required values:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `PORT`
-- `FRONTEND_ORIGIN`
-- `UPLOAD_DIR`
-- `PUBLIC_UPLOAD_BASE_URL`
-
-## Install + Run
-```bash
-cd backend
-npm install
-npm run prisma:generate
-npm run build
-npm run dev
-```
-
-GraphQL endpoint:
-- `http://localhost:4000/graphql`
-
-Health check:
-- `http://localhost:4000/health`
-
-## Prisma Notes
-Run migrations (first setup):
-```bash
-npm run prisma:migrate:dev -- --name init_backend_foundation
-```
-
-If you only want to push schema in local dev:
-```bash
-npm run prisma:push
-```
-
-## Frontend Integration Strategy
-- Keep current frontend mock data and behavior intact.
-- Existing frontend can gradually call these GraphQL operations when ready.
-- Do **not** remove frontend mocks until backend API has been verified end-to-end.
-
-## Security Notes
-- CORS restricted to `FRONTEND_ORIGIN`.
-- Basic security headers via `@fastify/helmet`.
-- Rate limiting enabled.
-- Input validation through Zod.
-- Passwords are hashed (never stored plaintext).
-- Auth token expected via `Authorization: Bearer <token>`.
-- Admin mutations enforce `ADMIN` role.
-- Public property queries return only `PUBLISHED` records.
-
-## Image Upload Input Shape
-`uploadPropertyImages(propertyId, files)` currently accepts GraphQL input objects:
-- `filename`
-- `mimeType`
-- `base64Data`
-- optional `altText`
-- optional `isCover`
-
-This is backend-safe and frontend-ready. A multipart transport can be added later without changing stored image variants.
-
+## cPanel / TMDHosting Notes
+- Keep frontend build in `public_html`.
+- Deploy backend as separate Node.js app root outside `public_html`.
+- Set Node app startup file to built output (`dist/server.js`) after running `npm run build`.

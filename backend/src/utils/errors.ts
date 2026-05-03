@@ -1,17 +1,15 @@
-export class AppError extends Error {
-  public readonly code: string;
+export class ApiError extends Error {
   public readonly statusCode: number;
+  public readonly details?: unknown;
 
-  public constructor(message: string, code = "BAD_REQUEST", statusCode = 400) {
+  constructor(statusCode: number, message: string, details?: unknown) {
     super(message);
-    this.code = code;
+    this.name = "ApiError";
     this.statusCode = statusCode;
+    this.details = details;
   }
 }
 
-export function assertCondition(condition: unknown, message: string, code = "BAD_REQUEST", statusCode = 400): asserts condition {
-  if (!condition) {
-    throw new AppError(message, code, statusCode);
-  }
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError;
 }
-
