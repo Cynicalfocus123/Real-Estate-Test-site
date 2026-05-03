@@ -9,13 +9,20 @@ import { dbPool } from "./db/pool";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { adminListingRoutes } from "./routes/adminListingRoutes";
 import { adminUserRoutes } from "./routes/adminUserRoutes";
+import { adminDemoRoutes } from "./routes/adminDemoRoutes";
 import { authRoutes } from "./routes/authRoutes";
 import { listingRoutes } from "./routes/listingRoutes";
 
 async function buildServer() {
   await fs.mkdir(env.UPLOAD_DIR_ABSOLUTE, { recursive: true });
-  await dbPool.query("SELECT 1");
-  await ensureHeadAdmin();
+  let databaseReady = false;
+  try {
+    await dbPool.query("SELECT 1");
+    await ensureHeadAdmin();
+    databaseReady = true;
+  } catch (error) {
+    console.warn("Database bootstrap warning. Server will still start for UI preview/testing.", error);
+  }
 
   const app = express();
   app.disable("x-powered-by");
@@ -48,6 +55,7 @@ async function buildServer() {
       service: "buy-home-for-less-backend",
       version: "0.2.0",
       database: env.DB_NAME,
+      databaseReady,
       now: new Date().toISOString(),
     });
   });
@@ -56,6 +64,20 @@ async function buildServer() {
   app.use("/api/listings", listingRoutes);
   app.use("/api/admin", adminListingRoutes);
   app.use("/api/admin", adminUserRoutes);
+  app.use("/admin-demo", adminDemoRoutes);
+
+  app.get("/", (_request, response) => {
+    response.json({
+      ok: true,
+      service: "buy-home-for-less-backend",
+      links: {
+        health: "/health",
+        adminDemo: "/admin-demo",
+        login: "/api/auth/login",
+        register: "/api/auth/register",
+      },
+    });
+  });
 
   app.use(notFoundHandler);
   app.use(errorHandler);

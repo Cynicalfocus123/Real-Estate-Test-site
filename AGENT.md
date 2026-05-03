@@ -394,3 +394,29 @@
 
 ### Next Recommended Step
 - Connect frontend auth/account/favorites/listing data services to these REST endpoints (replace mock localStorage flows gradually while keeping current UI behavior).
+## 2026-05-03 (Backend Demo UI Link Enablement)
+- Added a browser-visible backend demo interface route at `GET /admin-demo` to let user test mock login/register, admin/employee actions, listing creation, and image upload flows from one page.
+- Added root backend index route `GET /` that returns quick links (`/health`, `/admin-demo`, `/api/auth/login`, `/api/auth/register`).
+- Updated backend startup behavior to allow server boot even when MySQL is unavailable locally:
+  - health now returns `databaseReady: false` if DB is unreachable.
+  - this allows UI preview/testing link to open immediately.
+- Added a safe dev default for `JWT_SECRET` in env parsing so missing local `.env` no longer blocks startup.
+
+### Files Changed
+- `backend/src/routes/adminDemoRoutes.ts` (created)
+- `backend/src/server.ts` (updated)
+- `backend/src/config/env.ts` (updated)
+
+### Localhost URLs (Now Working)
+- Backend root: `http://localhost:4000/`
+- Backend health: `http://localhost:4000/health`
+- Visual backend admin demo UI: `http://localhost:4000/admin-demo`
+- API register: `http://localhost:4000/api/auth/register` (POST)
+- API login: `http://localhost:4000/api/auth/login` (POST)
+
+### Unfinished Items
+- Full API operations still require MySQL running and `database.sql` imported; currently health shows `databaseReady: false` on this machine.
+- Frontend app is still not fully wired from mock storage flows to backend REST endpoints.
+
+### Next Step
+- Start MySQL + import `backend/database.sql`, then re-test all admin demo actions so CRUD operations persist to DB.

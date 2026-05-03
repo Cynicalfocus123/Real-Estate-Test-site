@@ -13,7 +13,7 @@ const envSchema = z.object({
   DB_USER: z.string().min(1).default("root"),
   DB_PASSWORD: z.string().default(""),
   DB_NAME: z.string().min(1).default("buyhomeforless"),
-  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
+  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters").default("dev-change-this-jwt-secret"),
   JWT_EXPIRES_IN: z.string().default("7d"),
   HEAD_ADMIN_EMAIL: z.string().email().optional(),
   HEAD_ADMIN_PASSWORD: z.string().min(8).optional(),
