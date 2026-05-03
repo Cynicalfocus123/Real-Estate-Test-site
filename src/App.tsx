@@ -381,7 +381,7 @@ export function App() {
           </div>
           <div className="mb-8 flex justify-end">
             <a
-              href={safeHref(`${import.meta.env.BASE_URL}properties-for-sale`)}
+              href={safeHref(`${import.meta.env.BASE_URL}buy`)}
               className="inline-flex items-center gap-2 font-bold text-brand-red"
             >
               View All

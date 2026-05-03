@@ -296,3 +296,4 @@
 - Added frontend-only Favorites page connected to property heart buttons with per-user localStorage IDs, profile dropdown/mobile links, empty/login states, and backend-ready service hooks.
 - Updated property detail `Contact Agent` reveal content to show `Whatsapp: +66-973924632`, `Wechat: +66-973924632`, and `Email: Info@buyhomeforless.com` on both mobile and desktop contact panels.
 - Added Buy/Rent tabs on the Favorites page so saved sale listings are organized under Buy and saved rental listings are organized under Rent.
+- Updated the home-page `View All` button to route to `/buy` (Buy listings), while Sell navigation remains routed to `/sell-your-home` info page.
