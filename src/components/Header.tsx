@@ -484,17 +484,19 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
       {authModalMode && canUsePortal
         ? createPortal(
             <div
-              className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/55 p-4 pt-6 sm:items-center sm:pt-4"
+              className="fixed inset-0 overflow-y-auto bg-black/55"
+              style={{ zIndex: 2147483647 }}
               role="dialog"
               aria-modal="true"
               aria-label="Authentication"
               onClick={closeAuthModal}
               data-no-translate
             >
-              <div
-                className="w-full max-w-md border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
-                onClick={(event) => event.stopPropagation()}
-              >
+              <div className="flex min-h-[100dvh] items-center justify-center p-4 sm:p-6">
+                <div
+                  className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
+                  onClick={(event) => event.stopPropagation()}
+                >
                 <div className="mb-4 flex items-start justify-between">
                   <div>
                     <h2 className="text-xl font-black text-brand-dark">
@@ -677,6 +679,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 </button>
                   </div>
                 ) : null}
+              </div>
               </div>
             </div>,
             document.body,
