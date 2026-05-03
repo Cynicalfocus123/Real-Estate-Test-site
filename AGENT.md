@@ -12,6 +12,7 @@
 - Before every update and push, do a security pass limited to XSS, unsafe HTML rendering, unsafe image URLs, unsafe href/src values, unsafe search input, unsafe URL params, missing `rel="noopener noreferrer"`, missing validation, missing security headers, and vulnerable dependencies. Make safe code changes without changing the design, then report what was fixed and what still needs manual review.
 - At the start of every new chat/session, first confirm the git repo is connected and working, keep git connected throughout the session, and commit plus push every completed change automatically unless the user explicitly says not to.
 - User standing instruction: do not ask in chat for git commit or git push permission; after verified changes, commit and push immediately unless the user explicitly says not to.
+- Codex must not ask for commit or push permission. After verified work, commit and push automatically by default unless the user explicitly says not to push.
 - Priority objective: never ask again for git commit or git push after verified work; commit and push automatically by default unless the user explicitly says not to push.
 - Final standing rule: all future updates and changes must be committed and pushed to the GitHub repo automatically after verification, with no chat permission requests for commit or push.
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
