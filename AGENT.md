@@ -420,3 +420,13 @@
 
 ### Next Step
 - Start MySQL + import `backend/database.sql`, then re-test all admin demo actions so CRUD operations persist to DB.
+## 2026-05-03 (Backend Admin Demo + Property System Alignment)
+- Rebuilt `GET /admin-demo` into a step-by-step backend admin demo UI: register first head admin, login, auto-redirect to dashboard, full left sidebar modules, and logout.
+- Added admin sidebar module coverage: Dashboard Overview, Listings, Add Listing, Seller Applications, Registered Users, Employee Accounts, Account Settings, Media/Images, FAQ Manager.
+- Added dashboard API `GET /api/admin/dashboard/overview` with required totals and recent listings/seller applications.
+- Expanded listing backend schema/API to include required pricing, currency, buy/rent/deposit, price label, highlights, amenities, features, property details, furnishing, air conditioner, kitchen, full address, lat/lng, map search label, section/category/status, bedrooms/bathrooms, land/interior size, built year, province, city.
+- Added per-listing FAQ manager data model + APIs (`GET/PUT /api/admin/listings/:id/faqs`) and integrated FAQ input into listing create/update.
+- Added image management endpoints for admin listing media workflow: upload (max 12), reorder, set cover, delete.
+- Added seller application backend flow for frontend Sell Your Home form: `POST /api/seller-applications`, plus admin list/status update endpoints.
+- Added registered users endpoint and account settings update endpoint; kept head-admin-controlled employee create/edit/disable/delete flow.
+- Updated `backend/database.sql` and backend docs to match the new admin/property data model.

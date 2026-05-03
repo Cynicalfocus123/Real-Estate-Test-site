@@ -1,0 +1,103 @@
+CREATE DATABASE IF NOT EXISTS buyhomeforless CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE buyhomeforless;
+
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  full_name VARCHAR(80) NOT NULL,
+  role ENUM('HEAD_ADMIN', 'ADMIN', 'EMPLOYEE') NOT NULL DEFAULT 'EMPLOYEE',
+  status ENUM('ACTIVE', 'DISABLED') NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS listings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(180) NOT NULL,
+  slug VARCHAR(190) NOT NULL UNIQUE,
+  section ENUM('BUY', 'RENT', 'SELL', 'SENIOR_HOME') NOT NULL,
+  category ENUM('FORECLOSURE', 'PRE_FORECLOSURE', 'DISTRESS_PROPERTY', 'FIXER_UPPER', 'URGENT_SALE', 'FEATURED', 'NEW_LISTING') NOT NULL DEFAULT 'NEW_LISTING',
+  status ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED', 'DELETED') NOT NULL DEFAULT 'DRAFT',
+  property_type VARCHAR(120) NULL,
+  price_amount INT UNSIGNED NULL,
+  currency_code VARCHAR(12) NOT NULL DEFAULT 'THB',
+  buy_price INT UNSIGNED NULL,
+  rent_monthly_price INT UNSIGNED NULL,
+  deposit_amount INT UNSIGNED NULL,
+  price_unit_label VARCHAR(80) NULL,
+  description TEXT NULL,
+  highlights JSON NULL,
+  amenities JSON NULL,
+  features JSON NULL,
+  property_details JSON NULL,
+  furnishing_status VARCHAR(80) NULL,
+  has_air_conditioner TINYINT(1) NULL,
+  has_kitchen TINYINT(1) NULL,
+  bedrooms TINYINT UNSIGNED NULL,
+  bathrooms TINYINT UNSIGNED NULL,
+  land_size DECIMAL(12,2) NULL,
+  interior_size_sqm DECIMAL(12,2) NULL,
+  built_year SMALLINT UNSIGNED NULL,
+  street_address VARCHAR(240) NULL,
+  district VARCHAR(120) NULL,
+  subdistrict VARCHAR(120) NULL,
+  city VARCHAR(120) NULL,
+  province VARCHAR(120) NULL,
+  postal_code VARCHAR(20) NULL,
+  country VARCHAR(120) NOT NULL DEFAULT 'Thailand',
+  latitude DECIMAL(10,7) NULL,
+  longitude DECIMAL(10,7) NULL,
+  map_search_label VARCHAR(255) NULL,
+  created_by BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_listings_status_section (status, section),
+  INDEX idx_listings_category (category),
+  INDEX idx_listings_city_province (city, province),
+  CONSTRAINT fk_listings_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS listing_images (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  listing_id BIGINT UNSIGNED NOT NULL,
+  original_name VARCHAR(190) NOT NULL,
+  mime_type VARCHAR(80) NOT NULL,
+  card_url VARCHAR(255) NOT NULL,
+  banner_url VARCHAR(255) NOT NULL,
+  detail_url VARCHAR(255) NOT NULL,
+  mobile_url VARCHAR(255) NOT NULL,
+  gallery_url VARCHAR(255) NOT NULL,
+  sort_order TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  is_cover TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_listing_images_listing_sort (listing_id, sort_order),
+  CONSTRAINT fk_listing_images_listing FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS listing_faqs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  listing_id BIGINT UNSIGNED NOT NULL,
+  question VARCHAR(240) NOT NULL,
+  answer TEXT NOT NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_listing_faqs_listing_sort (listing_id, sort_order),
+  CONSTRAINT fk_listing_faqs_listing FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS seller_applications (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(120) NOT NULL,
+  phone VARCHAR(40) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  property_type VARCHAR(120) NULL,
+  location VARCHAR(255) NOT NULL,
+  message TEXT NULL,
+  status ENUM('NEW', 'CONTACTED', 'IN_REVIEW', 'CLOSED', 'SPAM_REJECTED') NOT NULL DEFAULT 'NEW',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_seller_applications_status_created (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
