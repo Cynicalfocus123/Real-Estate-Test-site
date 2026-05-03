@@ -492,9 +492,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
               onClick={closeAuthModal}
               data-no-translate
             >
-              <div className="flex min-h-[100dvh] items-center justify-center p-4 sm:p-6">
+              <div className="flex min-h-[100dvh] items-center justify-center px-4 py-10 sm:p-8">
                 <div
-                  className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
+                  className="w-full max-w-md max-h-[calc(100dvh-5rem)] overflow-y-auto border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
                   onClick={(event) => event.stopPropagation()}
                 >
                 <div className="mb-4 flex items-start justify-between">
