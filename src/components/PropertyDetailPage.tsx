@@ -18,6 +18,7 @@ import maplibregl from "maplibre-gl";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { propertyListings } from "../data/propertyListings";
+import { useFavorites } from "../hooks/useFavorites";
 import type { ListingMode, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
@@ -277,7 +278,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
 }
 
 export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
-  const [saved, setSaved] = useState(false);
+  const { isFavorite, toggleFavorite, notice } = useFavorites();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryFocusIndex, setGalleryFocusIndex] = useState<number | null>(null);
   const [contactVisible, setContactVisible] = useState(false);
@@ -309,6 +310,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [mapPoint, setMapPoint] = useState<GeocodedMapPoint | null>(backendMapPoint);
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const saved = isFavorite(listing.id);
   const metricSummary = `${getBedroomLabel(listing.beds)} • ${getBathroomLabel(listing.baths)} • ${listing.areaSqm} sqm`;
 
   const previewImages = useMemo(() => {
@@ -540,6 +542,13 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5f2] text-brand-dark">
       <Header logoClassName="h-20 w-auto object-contain sm:h-24 md:h-20" />
       <main className="overflow-x-hidden pb-16 md:pb-20">
+        {notice ? (
+          <div className="mx-auto mt-4 w-full max-w-7xl px-4 lg:px-8">
+            <div className="rounded-xl border border-brand-red/30 bg-[#fff3f1] px-4 py-3 text-sm font-semibold text-brand-red">
+              {notice}
+            </div>
+          </div>
+        ) : null}
         <section className="mx-auto w-full max-w-7xl overflow-hidden px-4 pb-8 pt-0 md:pt-8 lg:px-8">
           <div className="md:hidden -mx-4 mb-5">
             <div className="relative aspect-[4/5] overflow-hidden bg-brand-dark">
@@ -560,7 +569,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 <div className="flex items-center gap-1 rounded-full bg-[rgba(17,24,39,0.78)] px-2 py-2 text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur">
                   <button
                     type="button"
-                    onClick={() => setSaved((current) => !current)}
+                    onClick={() => toggleFavorite(listing.id)}
                     className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
                       saved ? "bg-white text-brand-red" : "text-white"
                     }`}
@@ -830,7 +839,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <div className="mt-5 hidden flex-wrap gap-3 md:flex">
                 <button
                   type="button"
-                  onClick={() => setSaved((current) => !current)}
+                  onClick={() => toggleFavorite(listing.id)}
                   className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-black transition ${
                     saved
                       ? "border-brand-red bg-[#fff1f1] text-brand-red"

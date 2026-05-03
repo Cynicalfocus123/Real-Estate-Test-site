@@ -61,7 +61,7 @@ const navItems: NavItem[] = [
 
 const languageOptions: SiteLanguage[] = ["EN", "RU", "ZH", "TH", "AR", "FA"];
 
-const staticProfileItems = ["My Profile", "Favorites"];
+const staticProfileItems = ["My Profile"];
 
 function SocialAuthButtons() {
   return (
@@ -94,7 +94,15 @@ function isValidPassword(password: string) {
   return password.trim().length >= 8;
 }
 
-function ProfileMenu({ onLogout, accountSettingsHref }: { onLogout: () => void; accountSettingsHref: string }) {
+function ProfileMenu({
+  onLogout,
+  accountSettingsHref,
+  favoritesHref,
+}: {
+  onLogout: () => void;
+  accountSettingsHref: string;
+  favoritesHref: string;
+}) {
   return (
     <div className="absolute right-0 top-full z-50 mt-2 min-w-48 border border-brand-line bg-white py-2 shadow-search">
       {staticProfileItems.map((item) => (
@@ -107,6 +115,12 @@ function ProfileMenu({ onLogout, accountSettingsHref }: { onLogout: () => void; 
           {item}
         </button>
       ))}
+      <a
+        href={safeHref(favoritesHref)}
+        className="block w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wide text-brand-dark hover:bg-neutral-100 hover:text-brand-red"
+      >
+        Favorites
+      </a>
       <a
         href={safeHref(accountSettingsHref)}
         className="block w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wide text-brand-dark hover:bg-neutral-100 hover:text-brand-red"
@@ -142,6 +156,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const profileRootRef = useRef<HTMLDivElement | null>(null);
   const homeUrl = import.meta.env.BASE_URL;
   const accountSettingsUrl = `${import.meta.env.BASE_URL}account-settings`;
+  const favoritesUrl = `${import.meta.env.BASE_URL}favorites`;
   const currentPath = window.location.pathname;
   const { translationError } = useSiteTranslation(language);
   const { mockUser, isSignedIn, loginWithEmail, logout } = useMockAuth();
@@ -368,7 +383,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                       <span className="max-w-28 truncate lowercase">{displayName}</span>
                       <ChevronDown className="h-4 w-4" />
                     </button>
-                    {desktopProfileOpen ? <ProfileMenu onLogout={onLogout} accountSettingsHref={accountSettingsUrl} /> : null}
+                    {desktopProfileOpen ? (
+                      <ProfileMenu
+                        onLogout={onLogout}
+                        accountSettingsHref={accountSettingsUrl}
+                        favoritesHref={favoritesUrl}
+                      />
+                    ) : null}
                   </div>
                 ) : (
                   <>
@@ -447,6 +468,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                       {item}
                     </button>
                   ))}
+                  <a
+                    href={safeHref(favoritesUrl)}
+                    onClick={() => setMenuOpen(false)}
+                    className="py-2 text-left text-xs font-bold uppercase tracking-wide text-brand-dark hover:text-brand-red"
+                  >
+                    Favorites
+                  </a>
                   <a
                     href={safeHref(accountSettingsUrl)}
                     onClick={() => setMenuOpen(false)}

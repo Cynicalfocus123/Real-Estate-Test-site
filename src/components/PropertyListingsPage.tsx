@@ -9,6 +9,7 @@ import type {
   PropertyListing,
 } from "../types/propertyListing";
 import { cleanNumericText, cleanSearchText, safeHref } from "../utils/security";
+import { useFavorites } from "../hooks/useFavorites";
 import { PropertyListingCard } from "./PropertyListingCard";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -220,6 +221,7 @@ export function PropertyListingsPage({
   initialMinPrice?: string;
   initialMaxPrice?: string;
 }) {
+  const { isFavorite, toggleFavorite, notice } = useFavorites();
   const validatedInitialProvince = initialProvince && thaiProvinces.some((province) => province.name === initialProvince)
     ? initialProvince
     : "";
@@ -1394,6 +1396,11 @@ export function PropertyListingsPage({
         ) : null}
 
         <section className="mx-auto max-w-5xl px-4 py-10 lg:px-8">
+          {notice ? (
+            <div className="mb-5 rounded-xl border border-brand-red/30 bg-[#fff3f1] px-4 py-3 text-sm font-semibold text-brand-red">
+              {notice}
+            </div>
+          ) : null}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-2xl font-black text-brand-dark">
@@ -1457,6 +1464,8 @@ export function PropertyListingsPage({
                   key={listing.id}
                   listing={listing}
                   mode={mode}
+                  saved={isFavorite(listing.id)}
+                  onToggleSave={toggleFavorite}
                 />
               ))
             ) : (

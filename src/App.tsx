@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AccountSettingsPage } from "./pages/AccountSettingsPage";
+import { FavoritesPage } from "./pages/FavoritesPage";
 import { AboutUsPage } from "./components/AboutUsPage";
 import { ContactUsPage } from "./components/ContactUsPage";
 import { CostOfLivingThailandPage } from "./components/CostOfLivingThailandPage";
@@ -41,10 +42,12 @@ import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { WhySeniorcarePage } from "./components/WhySeniorcarePage";
 import { propertyListings } from "./data/propertyListings";
 import { safeHref } from "./utils/security";
+import { useFavorites } from "./hooks/useFavorites";
 
 const featuredListings = propertyListings.filter((listing) => listing.mode === "sale").slice(0, 6);
 
 export function App() {
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const listingSearchParams = new URLSearchParams(window.location.search);
@@ -139,6 +142,9 @@ export function App() {
   const isAccountSettingsPage =
     currentPath.endsWith("/account-settings") ||
     currentHash === "#/account-settings";
+  const isFavoritesPage =
+    currentPath.endsWith("/favorites") ||
+    currentHash === "#/favorites";
 
   useEffect(() => {
     function syncPath() {
@@ -325,6 +331,10 @@ export function App() {
     return <AccountSettingsPage />;
   }
 
+  if (isFavoritesPage) {
+    return <FavoritesPage />;
+  }
+
   return (
     <div className="min-h-screen bg-white text-brand-dark">
       <Header />
@@ -380,7 +390,13 @@ export function App() {
           </div>
           <div className="mx-auto grid max-w-6xl gap-8">
             {featuredListings.map((listing) => (
-              <PropertyListingCard key={listing.id} listing={listing} mode="sale" />
+              <PropertyListingCard
+                key={listing.id}
+                listing={listing}
+                mode="sale"
+                saved={isFavorite(listing.id)}
+                onToggleSave={toggleFavorite}
+              />
             ))}
           </div>
         </section>

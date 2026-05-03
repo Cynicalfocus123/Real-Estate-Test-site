@@ -36,9 +36,18 @@ function getRentDepositLabel() {
   return "Deposit 4,000 THB";
 }
 
-export function PropertyListingCard({ listing, mode }: { listing: PropertyListing; mode: ListingMode }) {
+export function PropertyListingCard({
+  listing,
+  mode,
+  saved = false,
+  onToggleSave,
+}: {
+  listing: PropertyListing;
+  mode: ListingMode;
+  saved?: boolean;
+  onToggleSave?: (propertyId: string) => void;
+}) {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [saved, setSaved] = useState(false);
   const slides = useMemo(
     () => [listing.image, ...listingSlideImages.filter((image) => image !== listing.image)].slice(0, 6),
     [listing.image],
@@ -84,7 +93,7 @@ export function PropertyListingCard({ listing, mode }: { listing: PropertyListin
           </div>
           <button
             type="button"
-            onClick={() => setSaved((current) => !current)}
+            onClick={() => onToggleSave?.(listing.id)}
             className={`absolute right-3 top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 transition-all duration-300 hover:scale-105 ${
               saved ? "text-brand-red" : "text-brand-dark"
             }`}

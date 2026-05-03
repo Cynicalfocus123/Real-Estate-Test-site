@@ -293,3 +293,4 @@
 ## 2026-05-03
 - Added frontend-only Account Settings page with profile info, email actions, password/security placeholders, notification preferences, and dashboard menu links.
 - Added explicit standing hands-off workflow rule confirming pre-approval for normal development actions, checks, AGENT.md updates, commit, and push unless a real blocker exists.
+- Added frontend-only Favorites page connected to property heart buttons with per-user localStorage IDs, profile dropdown/mobile links, empty/login states, and backend-ready service hooks.
