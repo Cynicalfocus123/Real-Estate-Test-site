@@ -430,3 +430,9 @@
 - Added seller application backend flow for frontend Sell Your Home form: `POST /api/seller-applications`, plus admin list/status update endpoints.
 - Added registered users endpoint and account settings update endpoint; kept head-admin-controlled employee create/edit/disable/delete flow.
 - Updated `backend/database.sql` and backend docs to match the new admin/property data model.
+## 2026-05-04 (Admin Demo Flow + Missing Listing Inputs Fix)
+- Fixed `/admin-demo` auth flow so it is step-based instead of showing everything at once: Step 1 register first head admin (only when missing), then Step 2 login, then dashboard/sidebar.
+- Added auth bootstrap detection endpoint `GET /api/auth/bootstrap-status` for step gating.
+- Upgraded Add Listing demo form to include missing requested property inputs directly in that flow: highlights, amenities, features, property details, FAQ lines, image gallery upload (up to 12), cover-image selection, full address fields, lat/lng, and map lookup support.
+- Added backend map geocode proxy `GET /api/map/geocode` (OsmAnd/Nominatim-compatible) to fill listing location fields from search results.
+- Kept map storage backend-side as address + latitude + longitude-related listing fields; no Prisma introduced.

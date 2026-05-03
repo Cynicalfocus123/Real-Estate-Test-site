@@ -20,6 +20,11 @@ const envSchema = z.object({
   HEAD_ADMIN_NAME: z.string().min(1).max(80).optional(),
   UPLOAD_DIR: z.string().min(1).default("uploads"),
   PUBLIC_UPLOAD_BASE_URL: z.string().url().default("http://localhost:4000/uploads"),
+  OSMAND_SEARCH_URL: z.string().url().default("https://nominatim.openstreetmap.org/search"),
+  OSMAND_LANGUAGE: z.string().min(1).default("en,th"),
+  OSMAND_COUNTRY_CODE: z.string().min(2).max(10).default("th"),
+  OSMAND_EMAIL: z.string().email().optional(),
+  GEOCODER_USER_AGENT: z.string().min(4).default("buy-home-for-less-admin-demo/1.0"),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -13,6 +13,7 @@ import { adminDemoRoutes } from "./routes/adminDemoRoutes";
 import { adminUserRoutes } from "./routes/adminUserRoutes";
 import { authRoutes } from "./routes/authRoutes";
 import { listingRoutes } from "./routes/listingRoutes";
+import { mapRoutes } from "./routes/mapRoutes";
 import { sellerApplicationAdminRoutes, sellerApplicationPublicRoutes } from "./routes/sellerApplicationRoutes";
 
 async function buildServer() {
@@ -70,6 +71,7 @@ async function buildServer() {
 
   app.use("/admin-demo", adminDemoRoutes);
   app.use("/api/auth", authRoutes);
+  app.use("/api/map", mapRoutes);
   app.use("/api/seller-applications", sellerApplicationPublicRoutes);
   app.use("/api/listings", listingRoutes);
   app.use("/api/admin", adminListingRoutes);

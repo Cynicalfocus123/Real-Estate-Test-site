@@ -80,7 +80,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     const sortOrder = existingCount + i;
     const isCover = sortOrder === 0;
 
-    await executeSql(
+    const insertResult = await executeSql(
       `INSERT INTO listing_images
       (listing_id, original_name, mime_type, card_url, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -99,6 +99,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     );
 
     created.push({
+      id: Number(insertResult.insertId),
       cardUrl,
       bannerUrl,
       detailUrl,

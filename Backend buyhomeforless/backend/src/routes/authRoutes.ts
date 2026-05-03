@@ -23,6 +23,19 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+authRoutes.get("/bootstrap-status", async (_request, response, next) => {
+  try {
+    const rows = await queryRows<(RowDataPacket & { count: number })[]>(
+      "SELECT COUNT(*) AS count FROM users WHERE role = 'HEAD_ADMIN'",
+    );
+    response.json({
+      headAdminExists: (rows[0]?.count ?? 0) > 0,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 authRoutes.post("/register", async (request, response, next) => {
   try {
     const parsed = registerSchema.safeParse(request.body);
