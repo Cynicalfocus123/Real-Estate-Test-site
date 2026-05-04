@@ -452,3 +452,9 @@
 - Mock register/login now opens the full sidebar workflow without waiting for MySQL.
 - Add/Edit Listing v3 form shows sectioned Basic Info, Pricing, Rent Pricing, Details, Features, Amenities, FAQ, Images, Location, and Publish Settings with `Deposit amount` directly under `Rent per month`.
 - Checks run: backend `npm run typecheck`; frontend `npm run build`.
+
+## 2026-05-04 (Per-Listing FAQ + Section Pricing)
+- Removed standalone FAQ Manager from the admin demo sidebar; FAQs now live inside each Add/Edit Listing workflow.
+- Replaced raw FAQ lines with repeatable accordion-style FAQ items (question + answer) matching the frontend product detail FAQ accordion model.
+- Base Pricing now only shows `Price amount` and `Currency dropdown`; section-specific Buy/Rent pricing shows only when the selected listing section needs it.
+- Checks run: backend `npm run typecheck`.

@@ -40,6 +40,10 @@ const adminDemoHtml = `<!doctype html>
     .formSection { border: 1px solid #d8e1ee; border-radius: 8px; padding: 12px; background: #fbfdff; margin: 10px 0; }
     .formSection h4 { margin: 0 0 10px; }
     .spanAll { grid-column: 1 / -1; }
+    .sectionOnly.hidden { display: none !important; }
+    .faqItem { border: 1px solid #d8e1ee; border-radius: 8px; background: #fff; padding: 10px; margin-top: 8px; }
+    .faqItem summary { cursor: pointer; font-weight: 700; }
+    .faqItem .grid { margin-top: 10px; }
     .jumpBar, .actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
     .jumpBar a { color: #17406f; border: 1px solid #bcc8d8; border-radius: 8px; padding: 6px 8px; text-decoration: none; background: #fff; font-size: 12px; }
     .notice { border: 1px solid #f4c56a; background: #fff7df; color: #6f4b00; font-weight: 700; }
@@ -96,7 +100,6 @@ const adminDemoHtml = `<!doctype html>
         <div id="view-employees" class="view card hidden"></div>
         <div id="view-account" class="view card hidden"></div>
         <div id="view-media" class="view card hidden"></div>
-        <div id="view-faq" class="view card hidden"></div>
       </section>
       <div class="card"><div id="msg" class="mono"></div></div>
     </main>
@@ -121,7 +124,6 @@ const adminDemoHtml = `<!doctype html>
     ["employees", "Employee Accounts"],
     ["account", "Account Settings"],
     ["media", "Media / Images"],
-    ["faq", "FAQ Manager"],
     ["logout", "Logout"]
   ];
   const el = {
@@ -397,7 +399,49 @@ const adminDemoHtml = `<!doctype html>
     form.amenities.value = jsonListToText(listing.amenities);
     form.features.value = jsonListToText(listing.features);
     form.propertyDetails.value = jsonListToText(listing.property_details || listing.propertyDetails);
-    form.faqs.value = (detail.faqs || []).map(function(i){ return i.question + "|" + i.answer; }).join("\\n");
+    renderFaqItems(form, detail.faqs || []);
+  }
+  function syncFaqItems(form) {
+    const rows = Array.from(document.querySelectorAll(".faqItem"));
+    form.faqs.value = rows.map(function(row){
+      const q = row.querySelector("[data-faq-question]").value.trim();
+      const a = row.querySelector("[data-faq-answer]").value.trim();
+      return q && a ? q + "|" + a : "";
+    }).filter(Boolean).join("\\n");
+    rows.forEach(function(row, index){
+      const q = row.querySelector("[data-faq-question]").value.trim();
+      row.querySelector("summary").textContent = q || "FAQ item " + (index + 1);
+    });
+  }
+  function addFaqItem(form, item) {
+    const wrap = document.getElementById("faqItems");
+    const details = document.createElement("details");
+    details.className = "faqItem";
+    details.open = true;
+    details.innerHTML = "<summary></summary><div class='grid two'><label>Question<input data-faq-question maxlength='240' /></label><label>Answer<textarea data-faq-answer rows='3'></textarea></label><div><button type='button' data-remove-faq>Remove FAQ</button></div></div>";
+    details.querySelector("[data-faq-question]").value = item && item.question ? item.question : "";
+    details.querySelector("[data-faq-answer]").value = item && item.answer ? item.answer : "";
+    details.querySelector("[data-remove-faq]").onclick = function(){ details.remove(); syncFaqItems(form); };
+    details.querySelector("[data-faq-question]").oninput = function(){ syncFaqItems(form); };
+    details.querySelector("[data-faq-answer]").oninput = function(){ syncFaqItems(form); };
+    wrap.appendChild(details);
+    syncFaqItems(form);
+  }
+  function renderFaqItems(form, items) {
+    const wrap = document.getElementById("faqItems");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    const source = items.length ? items : [{ question: "", answer: "" }];
+    source.forEach(function(item){ addFaqItem(form, item); });
+  }
+  function syncSectionPricing(form) {
+    const section = form.section.value;
+    const showBuy = section === "BUY";
+    const showRent = section === "RENT";
+    document.querySelectorAll(".buyPricing").forEach(function(node){ node.classList.toggle("hidden", !showBuy); });
+    document.querySelectorAll(".rentPricing").forEach(function(node){ node.classList.toggle("hidden", !showRent); });
+    document.getElementById("sectionPricing").classList.toggle("hidden", !(showBuy || showRent));
+    document.getElementById("sectionPricingTitle").textContent = showRent ? "Rent Pricing" : "Buy Pricing";
   }
   async function loadAddListing(editId){
     const box = document.getElementById("view-add-listing");
@@ -405,15 +449,15 @@ const adminDemoHtml = `<!doctype html>
     box.innerHTML =
       "<h3 style='margin-top:0'>" + (editing ? "Edit Listing #" + esc(editId) : "Add Listing") + "</h3>" +
       "<div class='small'>Full workflow form with backend rent deposit field and media controls.</div>" +
-      "<div class='jumpBar'><a href='#basicInfo'>Basic Info</a><a href='#pricing'>Pricing</a><a href='#rentPricing'>Rent Pricing</a><a href='#details'>Details</a><a href='#features'>Features</a><a href='#amenities'>Amenities</a><a href='#faqSection'>FAQ</a><a href='#images'>Images</a><a href='#location'>Location</a><a href='#publish'>Publish Settings</a></div>" +
+      "<div class='jumpBar'><a href='#basicInfo'>Basic Info</a><a href='#pricing'>Pricing</a><a href='#sectionPricing'>Section Pricing</a><a href='#details'>Details</a><a href='#features'>Features</a><a href='#amenities'>Amenities</a><a href='#faqSection'>FAQ</a><a href='#images'>Images</a><a href='#location'>Location</a><a href='#publish'>Publish Settings</a></div>" +
       "<form id='listingForm' style='margin-top:8px'>" +
       "<section class='formSection' id='basicInfo'><h4>Basic Info</h4><div class='grid two'><label>Property title<input name='title' required maxlength='180' /></label><label>Property type<input name='propertyType' maxlength='120' /></label><label>Section<select name='section'><option>BUY</option><option>RENT</option><option>SELL</option><option>SENIOR_HOME</option></select></label><label>Category<select name='category'><option>FORECLOSURE</option><option>PRE_FORECLOSURE</option><option>DISTRESS_PROPERTY</option><option>FIXER_UPPER</option><option>URGENT_SALE</option><option>FEATURED</option><option>NEW_LISTING</option></select></label><label class='spanAll'>Property description<textarea name='description' rows='4'></textarea></label></div></section>" +
-      "<section class='formSection' id='pricing'><h4>Pricing</h4><div class='grid two'><label>Price amount<input name='priceAmount' type='number' min='0' /></label><label>Currency dropdown<select name='currencyCode'><option>THB</option><option>USD</option><option>EUR</option><option>CNY</option></select></label><label>Buy price<input name='buyPrice' type='number' min='0' /></label><label>Price label/unit<input name='priceUnitLabel' maxlength='80' /></label></div></section>" +
-      "<section class='formSection' id='rentPricing'><h4>Rent Pricing</h4><div class='grid two'><label>Rent per month<input name='rentMonthlyPrice' type='number' min='0' /></label><label>Deposit amount<input name='depositAmount' type='number' min='0' /></label></div></section>" +
+      "<section class='formSection' id='pricing'><h4>Pricing</h4><div class='grid two'><label>Price amount<input name='priceAmount' type='number' min='0' /></label><label>Currency dropdown<select name='currencyCode'><option>THB</option><option>USD</option><option>EUR</option><option>CNY</option></select></label></div></section>" +
+      "<section class='formSection' id='sectionPricing'><h4 id='sectionPricingTitle'>Section Pricing</h4><div class='grid two'><label class='sectionOnly buyPricing'>Buy price<input name='buyPrice' type='number' min='0' /></label><label class='sectionOnly rentPricing'>Rent per month<input name='rentMonthlyPrice' type='number' min='0' /></label><label class='sectionOnly rentPricing'>Deposit amount<input name='depositAmount' type='number' min='0' /></label><label class='sectionOnly buyPricing rentPricing'>Price label/unit<input name='priceUnitLabel' maxlength='80' /></label></div></section>" +
       "<section class='formSection' id='details'><h4>Details</h4><div class='grid two'><label>Bedrooms<input name='bedrooms' type='number' min='0' /></label><label>Bathrooms<input name='bathrooms' type='number' min='0' /></label><label>Land size<input name='landSize' type='number' min='0' step='0.01' /></label><label>Interior size / sqm<input name='interiorSizeSqm' type='number' min='0' step='0.01' /></label><label>Built year<input name='builtYear' type='number' min='1800' max='2100' /></label><label>Furnishing status<input name='furnishingStatus' maxlength='80' /></label><label>Air conditioner<select name='hasAirConditioner'><option value=''>Unknown</option><option value='true'>Yes</option><option value='false'>No</option></select></label><label>Kitchen<select name='hasKitchen'><option value=''>Unknown</option><option value='true'>Yes</option><option value='false'>No</option></select></label><label class='spanAll'>Property details field<textarea name='propertyDetails' rows='3'></textarea></label></div></section>" +
       "<section class='formSection' id='features'><h4>Features</h4><label>Features field<textarea name='features' rows='4'></textarea></label></section>" +
       "<section class='formSection' id='amenities'><h4>Amenities</h4><label>Amenities field<textarea name='amenities' rows='4'></textarea></label><label style='margin-top:10px'>Highlights field<textarea name='highlights' rows='3'></textarea></label></section>" +
-      "<section class='formSection' id='faqSection'><h4>FAQ</h4><label>FAQ manager for this listing<textarea name='faqs' rows='5' placeholder='Question?|Answer'></textarea></label></section>" +
+      "<section class='formSection' id='faqSection'><h4>FAQ</h4><div class='small'>Add multiple product-detail FAQ items. The frontend displays these as an accordion on each listing detail page.</div><input name='faqs' type='hidden' /><div id='faqItems'></div><button type='button' id='addFaqBtn'>Add FAQ item</button></section>" +
       "<section class='formSection' id='images'><h4>Images</h4><div class='grid two'><label>Multiple image upload up to 12 images<input name='images' type='file' accept='image/*' multiple /></label><label>Select cover image<input name='coverIndex' type='number' min='1' max='12' placeholder='1' /></label><label>Image reorder IDs<input name='inlineReorderIds' placeholder='3,1,2' /></label><label>Delete image ID<input name='inlineDeleteImageId' type='number' min='1' /></label></div><div class='small'>Use Media / Images page for full reorder, cover, and delete controls after upload.</div></section>" +
       "<section class='formSection' id='location'><h4>Location</h4><div class='grid two'><label>Street address<input name='streetAddress' maxlength='240' /></label><label>District<input name='district' maxlength='120' /></label><label>Subdistrict<input name='subdistrict' maxlength='120' /></label><label>City<input name='city' maxlength='120' /></label><label>Province<input name='province' maxlength='120' /></label><label>Postal code<input name='postalCode' maxlength='20' /></label><label>Country<input name='country' value='Thailand' maxlength='120' /></label><label>Latitude<input name='latitude' type='number' step='0.0000001' /></label><label>Longitude<input name='longitude' type='number' step='0.0000001' /></label><label>Map label<input name='mapSearchLabel' maxlength='255' /></label><label>Map lookup/search<input name='mapLookupQuery' maxlength='240' /></label><div><button type='button' id='mapLookupBtn'>Map lookup/search</button></div><div><select id='mapLookupResults'><option value=''>Select map result</option></select></div></div></section>" +
       "<section class='formSection' id='publish'><h4>Publish Settings</h4><div class='grid two'><label>Status dropdown<select name='status'><option>DRAFT</option><option>PUBLISHED</option><option>ARCHIVED</option><option>DELETED</option></select></label></div></section>" +
@@ -422,6 +466,10 @@ const adminDemoHtml = `<!doctype html>
       "<div id='listingCreateResult' class='small' style='margin-top:8px'></div>";
     const form = document.getElementById("listingForm");
     const results = document.getElementById("mapLookupResults");
+    form.section.onchange = function(){ syncSectionPricing(form); };
+    document.getElementById("addFaqBtn").onclick = function(){ addFaqItem(form, { question: "", answer: "" }); };
+    renderFaqItems(form, []);
+    syncSectionPricing(form);
     let lookupItems = [];
     document.getElementById("mapLookupBtn").onclick = async function(){
       const q = String(form.mapLookupQuery.value || "").trim();
@@ -530,12 +578,13 @@ const adminDemoHtml = `<!doctype html>
       form.priceUnitLabel.value = form.priceUnitLabel.value || "per month";
       form.amenities.value = form.amenities.value || "Pool\\nGym";
       form.features.value = form.features.value || "Furnished\\nAir conditioner\\nKitchen";
-      form.faqs.value = form.faqs.value || "Is deposit editable?|Yes, depositAmount saves to the listing record.";
+      renderFaqItems(form, [{ question: "Is deposit editable?", answer: "Yes, depositAmount saves to the listing record." }]);
       await saveListing("DRAFT");
     };
     if (editing) {
       const detail = await secureApi("/api/admin/listings/" + editId);
       fillFormFromListing(form, detail);
+      syncSectionPricing(form);
     }
   }
   async function loadSeller(){
@@ -633,23 +682,6 @@ const adminDemoHtml = `<!doctype html>
       setMsg("Image deleted.");
     };
   }
-  async function loadFaq(){
-    document.getElementById("view-faq").innerHTML =
-      "<h3 style='margin-top:0'>FAQ Manager</h3><div class='row'><label>Listing ID<input id='faqListingId' type='number' min='1' value='" + esc(state.latestCreatedListingId || "") + "' /></label><button id='faqLoad'>Load FAQ</button></div><label style='margin-top:8px'>FAQ lines (Q|A per line)<textarea id='faqLines' rows='10'></textarea></label><button class='primary' id='faqSave'>Save FAQ</button>";
-    document.getElementById("faqLoad").onclick = async function(){
-      const listingId = document.getElementById("faqListingId").value;
-      if (!listingId) { setMsg("Listing ID required."); return; }
-      const data = await secureApi("/api/admin/listings/" + listingId + "/faqs");
-      document.getElementById("faqLines").value = (data.items || []).map(function(i){ return i.question + "|" + i.answer; }).join("\\n");
-      setMsg("FAQ loaded.");
-    };
-    document.getElementById("faqSave").onclick = async function(){
-      const listingId = document.getElementById("faqListingId").value;
-      if (!listingId) { setMsg("Listing ID required."); return; }
-      await jsonApi("/api/admin/listings/" + listingId + "/faqs", "PUT", { items: faqLines(document.getElementById("faqLines").value) }, true);
-      setMsg("FAQ saved.");
-    };
-  }
   async function renderViews(){
     showView(state.active);
     if (state.active === "dashboard") return loadDashboard();
@@ -660,7 +692,6 @@ const adminDemoHtml = `<!doctype html>
     if (state.active === "employees") return loadEmployees();
     if (state.active === "account") return loadAccount();
     if (state.active === "media") return loadMedia();
-    if (state.active === "faq") return loadFaq();
   }
   async function initAuthFlow(){
     let bootstrap = { headAdminExists: true };
