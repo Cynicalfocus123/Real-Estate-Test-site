@@ -51,6 +51,7 @@ export type PropertyListing = {
   province: string;
   priceLabel: string;
   priceValue: number;
+  depositAmount?: number;
   beds: number;
   baths: number;
   areaSqm: number;

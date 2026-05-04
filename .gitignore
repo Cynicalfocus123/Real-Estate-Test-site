@@ -16,5 +16,7 @@ site image/
 frontend/node_modules/
 backend/node_modules/
 backend/dist/
+backend/*.log
+backend/admin-demo-script-check.js
 backend/uploads/*
 !backend/uploads/.gitkeep

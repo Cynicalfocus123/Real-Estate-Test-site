@@ -1,0 +1,21 @@
+export const LISTING_SECTIONS = ["BUY", "RENT", "SELL", "SENIOR_HOME"] as const;
+
+export const LISTING_CATEGORIES = [
+  "FORECLOSURE",
+  "PRE_FORECLOSURE",
+  "DISTRESS_PROPERTY",
+  "FIXER_UPPER",
+  "URGENT_SALE",
+  "FEATURED",
+  "NEW_LISTING",
+] as const;
+
+export const LISTING_STATUSES = ["DRAFT", "PUBLISHED", "ARCHIVED", "DELETED"] as const;
+
+export const SELLER_APPLICATION_STATUSES = [
+  "NEW",
+  "CONTACTED",
+  "IN_REVIEW",
+  "CLOSED",
+  "SPAM_REJECTED",
+] as const;

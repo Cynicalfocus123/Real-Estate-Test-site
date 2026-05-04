@@ -8,10 +8,13 @@ import { ensureHeadAdmin } from "./db/bootstrap";
 import { dbPool } from "./db/pool";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { adminListingRoutes } from "./routes/adminListingRoutes";
-import { adminUserRoutes } from "./routes/adminUserRoutes";
+import { adminDashboardRoutes } from "./routes/adminDashboardRoutes";
 import { adminDemoRoutes } from "./routes/adminDemoRoutes";
+import { adminUserRoutes } from "./routes/adminUserRoutes";
 import { authRoutes } from "./routes/authRoutes";
 import { listingRoutes } from "./routes/listingRoutes";
+import { mapRoutes } from "./routes/mapRoutes";
+import { sellerApplicationAdminRoutes, sellerApplicationPublicRoutes } from "./routes/sellerApplicationRoutes";
 
 async function buildServer() {
   await fs.mkdir(env.UPLOAD_DIR_ABSOLUTE, { recursive: true });
@@ -28,6 +31,7 @@ async function buildServer() {
   app.disable("x-powered-by");
   app.use(
     helmet({
+      contentSecurityPolicy: false,
       crossOriginResourcePolicy: { policy: "cross-origin" },
     }),
   );
@@ -60,12 +64,6 @@ async function buildServer() {
     });
   });
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/listings", listingRoutes);
-  app.use("/api/admin", adminListingRoutes);
-  app.use("/api/admin", adminUserRoutes);
-  app.use("/admin-demo", adminDemoRoutes);
-
   app.get("/", (_request, response) => {
     response.json({
       ok: true,
@@ -73,11 +71,21 @@ async function buildServer() {
       links: {
         health: "/health",
         adminDemo: "/admin-demo",
-        login: "/api/auth/login",
-        register: "/api/auth/register",
+        authRegister: "/api/auth/register",
+        authLogin: "/api/auth/login",
       },
     });
   });
+
+  app.use("/admin-demo", adminDemoRoutes);
+  app.use("/api/auth", authRoutes);
+  app.use("/api/map", mapRoutes);
+  app.use("/api/seller-applications", sellerApplicationPublicRoutes);
+  app.use("/api/listings", listingRoutes);
+  app.use("/api/admin", adminListingRoutes);
+  app.use("/api/admin", adminDashboardRoutes);
+  app.use("/api/admin", sellerApplicationAdminRoutes);
+  app.use("/api/admin", adminUserRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -429,6 +429,7 @@ function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
 
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
   ...listing,
+  depositAmount: listing.mode === "rent" ? listing.priceValue * 2 : undefined,
   agent: defaultAgent,
   address: buildPropertyAddress(listing),
   features: buildPropertyFeatures(listing),

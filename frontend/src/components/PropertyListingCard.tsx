@@ -32,8 +32,9 @@ function getBathroomLabel(baths: number) {
   return `${baths} Bath`;
 }
 
-function getRentDepositLabel() {
-  return "Deposit 4,000 THB";
+function getRentDepositLabel(listing: PropertyListing) {
+  if (!listing.depositAmount) return "Deposit amount available on request";
+  return `Deposit ${listing.depositAmount.toLocaleString("en-US")} THB`;
 }
 
 export function PropertyListingCard({
@@ -155,7 +156,7 @@ export function PropertyListingCard({
             <div className="shrink-0 sm:text-right">
               <p className="text-xl font-black text-brand-red md:text-2xl">{listing.priceLabel}</p>
               {listing.mode === "rent" ? (
-                <p className="mt-1 text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel()}</p>
+                <p className="mt-1 text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel(listing)}</p>
               ) : null}
               <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-gray">
                 For {mode}

@@ -80,7 +80,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     const sortOrder = existingCount + i;
     const isCover = sortOrder === 0;
 
-    await executeSql(
+    const insertResult = await executeSql(
       `INSERT INTO listing_images
       (listing_id, original_name, mime_type, card_url, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -99,6 +99,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     );
 
     created.push({
+      id: Number(insertResult.insertId),
       cardUrl,
       bannerUrl,
       detailUrl,
@@ -109,4 +110,35 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     });
   }
   return created;
+}
+
+function getLocalFilePathFromPublicUrl(url: string) {
+  const base = env.PUBLIC_UPLOAD_BASE_URL.replace(/\/+$/, "");
+  if (!url.startsWith(base)) {
+    return null;
+  }
+  const relative = url.slice(base.length).replace(/^\/+/, "");
+  if (!relative) {
+    return null;
+  }
+  return path.resolve(env.UPLOAD_DIR_ABSOLUTE, relative);
+}
+
+export async function deleteListingImageFiles(imageUrls: string[]) {
+  await Promise.all(
+    imageUrls.map(async (url) => {
+      const localPath = getLocalFilePathFromPublicUrl(url);
+      if (!localPath) {
+        return;
+      }
+      try {
+        await fs.unlink(localPath);
+      } catch (error) {
+        const maybeNodeError = error as NodeJS.ErrnoException;
+        if (maybeNodeError.code !== "ENOENT") {
+          throw error;
+        }
+      }
+    }),
+  );
 }

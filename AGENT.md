@@ -260,7 +260,7 @@
 - Changed property detail FAQ behavior so all FAQ items are collapsed by default and remain closed when switching between listings unless the user opens one manually.
 - Updated the main header navigation label from `For Sale` to `Sell` while keeping the same sale listing route target.
 - Added rent-only pricing support text across product cards and detail views: every rent listing now shows an extra line under the monthly price with a numeric `THB ... deposit per month` value.
-- Updated rent pricing support text to a larger fixed label: `Deposit 4,000 THB` (removed `per month`) across rent cards and property detail views.
+- Replaced fixed rent deposit display with listing-backed deposit support across rent cards and property detail views.
 - Added a new `Features` section to every property detail page (buy and rent) showing furnishing status, air conditioner availability, and kitchen availability from structured listing data.
 - Refined the property-detail `Features` section to a plain text-row layout (no feature boxes), matching the style of details lists.
 - Made features backend-ready as dynamic text entries (`features: string[]`) so admins can add any number of custom feature lines and the frontend will render them automatically.
@@ -365,11 +365,11 @@
 4. In phpMyAdmin, import: `backend/database.sql`
 5. `npm run dev`
 6. Test URLs:
-   - Backend base: `http://localhost:4000`
-   - Health: `http://localhost:4000/health`
-   - Register: `POST http://localhost:4000/api/auth/register`
-   - Login: `POST http://localhost:4000/api/auth/login`
-   - Admin test: `GET http://localhost:4000/api/admin/test` (Bearer token required)
+   - Backend base: `http://localhost:5000`
+   - Health: `http://localhost:5000/health`
+   - Register: `POST http://localhost:5000/api/auth/register`
+   - Login: `POST http://localhost:5000/api/auth/login`
+   - Admin test: `GET http://localhost:5000/api/admin/test` (Bearer token required)
 
 ### Environment Variables Needed
 - `PORT`
@@ -408,11 +408,11 @@
 - `backend/src/config/env.ts` (updated)
 
 ### Localhost URLs (Now Working)
-- Backend root: `http://localhost:4000/`
-- Backend health: `http://localhost:4000/health`
-- Visual backend admin demo UI: `http://localhost:4000/admin-demo`
-- API register: `http://localhost:4000/api/auth/register` (POST)
-- API login: `http://localhost:4000/api/auth/login` (POST)
+- Backend root: `http://localhost:5000/`
+- Backend health: `http://localhost:5000/health`
+- Visual backend admin demo UI: `http://localhost:5000/admin-demo`
+- API register: `http://localhost:5000/api/auth/register` (POST)
+- API login: `http://localhost:5000/api/auth/login` (POST)
 
 ### Unfinished Items
 - Full API operations still require MySQL running and `database.sql` imported; currently health shows `databaseReady: false` on this machine.
@@ -436,3 +436,19 @@
 - Upgraded Add Listing demo form to include missing requested property inputs directly in that flow: highlights, amenities, features, property details, FAQ lines, image gallery upload (up to 12), cover-image selection, full address fields, lat/lng, and map lookup support.
 - Added backend map geocode proxy `GET /api/map/geocode` (OsmAnd/Nominatim-compatible) to fill listing location fields from search results.
 - Kept map storage backend-side as address + latitude + longitude-related listing fields; no Prisma introduced.
+## 2026-05-04 (Admin Demo Clickability Hotfix)
+- Fixed `/admin-demo` JavaScript parsing bug in `esc()` (quote escaping) that prevented UI interactions/buttons from working.
+- Applied fix in both backend copies to avoid mismatch between running localhost targets.
+- Kept visible version label `Admin Demo v3 - Full Workflow Visible` on page for cache/version confirmation.
+## 2026-05-04 (Session Handoff Rule)
+- New standing verification rule: use only the active backend/frontend target for checks; do not run duplicate typecheck/build on inactive duplicate folders.
+- If duplicate backend folders exist, identify active one first and mark inactive one as cleanup candidate.
+- Current preview test link for next chat: `http://localhost:5000/admin-demo`.
+
+## 2026-05-04 (Admin Demo v3 Mock Preview)
+- Active backend folder is `D:\Buy home for less site\backend`; duplicate `Backend buyhomeforless\backend` is inactive cleanup candidate.
+- Switched active backend dev port to `5000` and updated backend env/docs references.
+- Made `/admin-demo` render a frontend-only mock admin dashboard when MySQL/API calls are unavailable, with visible notice: `Demo Mode: MySQL is offline, showing mock admin UI only`.
+- Mock register/login now opens the full sidebar workflow without waiting for MySQL.
+- Add/Edit Listing v3 form shows sectioned Basic Info, Pricing, Rent Pricing, Details, Features, Amenities, FAQ, Images, Location, and Publish Settings with `Deposit amount` directly under `Rent per month`.
+- Checks run: backend `npm run typecheck`; frontend `npm run build`.

@@ -53,7 +53,7 @@ export function safeMailtoHref(email: string) {
 }
 
 export function safeGraphqlEndpoint(endpoint: string | undefined) {
-  const fallback = "http://localhost:4000/graphql";
+  const fallback = "http://localhost:5000/graphql";
 
   if (!endpoint) return fallback;
 

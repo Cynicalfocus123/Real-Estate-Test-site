@@ -1,24 +1,14 @@
 import { Router } from "express";
 import type { RowDataPacket } from "mysql2/promise";
 import { z } from "zod";
+import { LISTING_CATEGORIES, LISTING_SECTIONS } from "../constants/listing";
 import { queryRows } from "../db/pool";
 import { ApiError } from "../utils/errors";
 import { sanitizePlainText } from "../utils/sanitize";
 
 const querySchema = z.object({
-  section: z.enum(["BUY", "RENT", "SENIOR_HOME", "SELL"]).optional(),
-  category: z
-    .enum([
-      "NORMAL",
-      "FORECLOSURE",
-      "URGENT_SALE",
-      "FEATURED",
-      "NEW_LISTING",
-      "DISTRESS",
-      "PRE_FORECLOSURE",
-      "FIXER_UPPER",
-    ])
-    .optional(),
+  section: z.enum(LISTING_SECTIONS).optional(),
+  category: z.enum(LISTING_CATEGORIES).optional(),
   search: z.string().max(120).optional(),
   city: z.string().max(120).optional(),
   province: z.string().max(120).optional(),
@@ -62,11 +52,11 @@ listingRoutes.get("/", async (request, response, next) => {
       params.push(safeSearch, safeSearch);
     }
     if (data.minPrice !== undefined) {
-      where.push("COALESCE(l.price, l.rent_price, 0) >= ?");
+      where.push("COALESCE(l.price_amount, l.buy_price, l.rent_monthly_price, 0) >= ?");
       params.push(data.minPrice);
     }
     if (data.maxPrice !== undefined) {
-      where.push("COALESCE(l.price, l.rent_price, 0) <= ?");
+      where.push("COALESCE(l.price_amount, l.buy_price, l.rent_monthly_price, 0) <= ?");
       params.push(data.maxPrice);
     }
 
@@ -89,16 +79,20 @@ listingRoutes.get("/", async (request, response, next) => {
         status: string;
         city: string | null;
         province: string | null;
-        price: number | null;
-        rent_price: number | null;
+        price_amount: number | null;
+        currency_code: string;
+        buy_price: number | null;
+        rent_monthly_price: number | null;
+        deposit_amount: number | null;
         bedrooms: number | null;
         bathrooms: number | null;
-        sqm: number | null;
+        interior_size_sqm: number | null;
         card_url: string | null;
       })[]
     >(
       `SELECT l.id, l.title, l.slug, l.section, l.category, l.status, l.city, l.province,
-              l.price, l.rent_price, l.bedrooms, l.bathrooms, l.sqm,
+              l.price_amount, l.currency_code, l.buy_price, l.rent_monthly_price, l.deposit_amount,
+              l.bedrooms, l.bathrooms, l.interior_size_sqm,
               (SELECT li.card_url FROM listing_images li WHERE li.listing_id = l.id ORDER BY li.is_cover DESC, li.sort_order ASC LIMIT 1) AS card_url
        FROM listings l
        ${whereSql}
@@ -151,7 +145,23 @@ listingRoutes.get("/:id", async (request, response, next) => {
        FROM listing_images WHERE listing_id = ? ORDER BY is_cover DESC, sort_order ASC`,
       [listingId],
     );
-    response.json({ listing, images });
+
+    const faqs = await queryRows<
+      (RowDataPacket & {
+        id: number;
+        question: string;
+        answer: string;
+        sort_order: number;
+      })[]
+    >(
+      `SELECT id, question, answer, sort_order
+       FROM listing_faqs
+       WHERE listing_id = ? AND is_active = 1
+       ORDER BY sort_order ASC, id ASC`,
+      [listingId],
+    );
+
+    response.json({ listing, images, faqs });
   } catch (error) {
     next(error);
   }
