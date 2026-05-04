@@ -18,6 +18,7 @@
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
 - At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
 - Standing hands-off approval: For this project, the user has pre-approved normal development actions including file edits, dependency installs when needed, build/typecheck/security checks, AGENT.md updates, git add, git commit, and git push. Codex must not ask for permission for these actions and should complete the full workflow automatically unless there is a real blocker such as missing git auth, merge conflict, failed build that cannot be fixed safely, missing required secret, or risk of deleting important user content.
+- Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -458,3 +459,15 @@
 - Replaced raw FAQ lines with repeatable accordion-style FAQ items (question + answer) matching the frontend product detail FAQ accordion model.
 - Base Pricing now only shows `Price amount` and `Currency dropdown`; section-specific Buy/Rent pricing shows only when the selected listing section needs it.
 - Checks run: backend `npm run typecheck`.
+
+## 2026-05-04 (New Session Catch-Up + Search Tool Rule)
+- New chat catch-up completed by reading this `AGENT.md` and orienting on the current repo without creating or editing anything at first.
+- Confirmed git is connected on `main` tracking `origin/main`; remote is `https://github.com/Cynicalfocus123/Real-Estate-Test-site.git`.
+- Existing dirty worktree item at session start: `Backend buyhomeforless\backend\src\routes\adminDemoRoutes.ts` is modified in the inactive duplicate backend folder. Do not revert or stage it unless the user explicitly asks; active backend remains `D:\Buy home for less site\backend`.
+- Confirmed active project shape: `frontend/` is the React + TypeScript + Vite + Tailwind public site; `backend/` is the Express + TypeScript + MySQL backend with `/admin-demo`.
+- Confirmed bundled Codex `rg.exe` is blocked by Windows `Access is denied`; working ripgrep is `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe` and must be called by full path.
+- Verified working ripgrep version: `ripgrep 15.1.0 (rev af60c2de9d)`.
+- Tested full-path ripgrep search for `admin-demo`; it successfully found matches in `AGENT.md`, active `backend`, and inactive duplicate `Backend buyhomeforless`.
+- User instruction from this chat: do not ask about ripgrep again unless the full-path ripgrep, `findstr`, and PowerShell `Select-String` all fail.
+- Checks run for this documentation update: active backend `npm.cmd run typecheck`, active frontend `npm.cmd run build`, backend `npm.cmd audit --audit-level=moderate`, frontend `npm.cmd audit --audit-level=moderate`.
+- Security pass note: focused XSS scan found existing `innerHTML` usage in active `backend/src/routes/adminDemoRoutes.ts`; quick review showed admin demo dynamic table values route through `esc()` and other instances are static form/template rendering. Keep this on the manual-review list if admin demo starts rendering richer API/user content.
