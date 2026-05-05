@@ -18,6 +18,7 @@
 - At the start of every new chat/session and before every push, run the required security pass and any needed build/deploy verification before committing and pushing changes.
 - At the start of every new chat/session, always open or refresh the right-side local preview at `http://localhost:5173/Real-Estate-Test-site/` so the current site is visible while working.
 - Standing hands-off approval: For this project, the user has pre-approved normal development actions including file edits, dependency installs when needed, build/typecheck/security checks, AGENT.md updates, git add, git commit, and git push. Codex must not ask for permission for these actions and should complete the full workflow automatically unless there is a real blocker such as missing git auth, merge conflict, failed build that cannot be fixed safely, missing required secret, or risk of deleting important user content.
+- Always update this `AGENT.md` with the latest standing rules, completed changes, checks run, and relevant project notes without asking permission. Objective: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking or wasting token usage.
 - Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
 - Update this file whenever corrections or fixes are applied.
 
@@ -471,3 +472,9 @@
 - User instruction from this chat: do not ask about ripgrep again unless the full-path ripgrep, `findstr`, and PowerShell `Select-String` all fail.
 - Checks run for this documentation update: active backend `npm.cmd run typecheck`, active frontend `npm.cmd run build`, backend `npm.cmd audit --audit-level=moderate`, frontend `npm.cmd audit --audit-level=moderate`.
 - Security pass note: focused XSS scan found existing `innerHTML` usage in active `backend/src/routes/adminDemoRoutes.ts`; quick review showed admin demo dynamic table values route through `esc()` and other instances are static form/template rendering. Keep this on the manual-review list if admin demo starts rendering richer API/user content.
+
+## 2026-05-05 (Standing Agent Log Rule)
+- Added standing rule: always update `AGENT.md` with latest rules, completed changes, checks run, and relevant project notes without asking permission.
+- User objective clarified: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking permission or wasting token/usage.
+- Checks run for this documentation update: active frontend `npm run build`, active frontend `npm audit --audit-level=moderate`.
+- Security pass note: focused frontend XSS scan for unsafe HTML/render/link patterns found no matches in `frontend/src`.
