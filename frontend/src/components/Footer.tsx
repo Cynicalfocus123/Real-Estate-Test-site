@@ -26,6 +26,9 @@ export function Footer() {
             <li><a href={safeHref(`${baseUrl}contact-us`)}>Contact Us</a></li>
             <li><a href={safeHref(`${baseUrl}faq`)}>FAQ</a></li>
             <li><a href={safeHref("#news")}>News</a></li>
+            <li><a href={safeHref("#career")}>Career</a></li>
+            <li><a href={safeHref("#become-our-real-estate-agent")}>Become our Real Estate Agent</a></li>
+            <li><a href={safeHref(`${baseUrl}sell-your-home`)}>Sell Your Property</a></li>
           </ul>
         </div>
         <div>
@@ -34,11 +37,8 @@ export function Footer() {
             <li><a href={safeHref("#terms-and-conditions")}>Terms and Conditions</a></li>
             <li><a href={safeHref("#privacy")}>Privacy</a></li>
             <li><a href={safeHref("#investor-relations")}>Investor Relations</a></li>
-            <li><a href={safeHref("#career")}>Career</a></li>
             <li><a href={safeHref("#world-wide-office")}>World-wide Office</a></li>
             <li><a href={safeHref("#complaint")}>Complaint</a></li>
-            <li><a href={safeHref("#become-our-real-estate-agent")}>Become our Real Estate Agent</a></li>
-            <li><a href={safeHref(`${baseUrl}sell-your-home`)}>Sell Your Property</a></li>
           </ul>
         </div>
         <div>

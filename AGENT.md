@@ -658,3 +658,18 @@
 - Focused security/XSS pass:
   - fallback scan run with `findstr` for unsafe patterns (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `javascript:`) in `frontend/src` returned no matches.
   - All new links use existing `safeHref`; no unsafe HTML injection added.
+
+## 2026-05-05 (Footer Company Link Reorder)
+- Updated `frontend/src/components/Footer.tsx` to move requested links under the `Company` column:
+  - `Career`
+  - `Become our Real Estate Agent`
+  - `Sell Your Property`
+- Removed those three links from the red `More` column to match requested placement.
+- Kept `Sell Your Property` linked to existing internal `/sell-your-home` route via safe `safeHref` + `BASE_URL` pattern.
+
+- Checks run:
+  - frontend `npm run build` (pass).
+  - frontend `npm audit --audit-level=high` (pass; 0 vulnerabilities).
+
+- Focused security/XSS pass:
+  - `findstr` scan for unsafe patterns (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `javascript:`) in `frontend/src` returned no matches.
