@@ -491,3 +491,15 @@
 - Filter logic update: property type now maps from UI categories to listing data (for example `Townhome` -> `Townhouse`, `Villa` -> house variants), view matching uses safe keyword checks against listing text, and new room/building size controls are numeric-sanitized.
 - Checks run: active frontend `npm run build`; active frontend `npm audit --audit-level=moderate`.
 - Security pass note: focused XSS/security scan for unsafe HTML/render/link/script patterns in `frontend/src` found no unsafe matches; new numeric inputs are sanitized through existing `cleanNumericText` helper.
+
+## 2026-05-05 (Next Frontend Planning Prompt)
+- New requested frontend task prompt: when users click the `Senior Home` button on the listing page, route them to a senior-home listing page that uses the same listing layout as buy/rent, with top heading text `Senior Home Listing` instead of `For Sale`.
+- Product detail layout request: move `What's special` text above the bed/bath/meta row and below the `Property Details` heading/text area.
+- Home/villa detail request: add a backend-ready `Down Payment and Mortgage` section on detail pages so admins can later provide those numbers from the backend.
+- Rent listing/card/detail request: rent product boxes and rent detail pages should show deposit by months, for example `Deposit 2 months` or `Deposit 3 months`, instead of only a currency deposit.
+- Rent-only detail request: add text plus icon under property details showing `Furnished` or `Unfurnished`.
+- Buy, rent, and senior-home detail request: add a text plus icon section under property details called `View`, connected to the filter view option, showing values such as beach, rural, mountain, lake, waterfall, cities, etc.
+- Priority reminders for new chats: read all of `AGENT.md` before starting, keep/open the live frontend site in the side browser on port `5173` every time, and commit plus push every finished verified change without asking.
+- Checks run for this documentation update: active frontend `npm run build`.
+- Security pass note: focused frontend XSS scan for unsafe HTML/render/link patterns in `frontend/src` found no matches.
+- Dependency audit note: active frontend `npm audit --audit-level=moderate` required escalation and was not run because approval was declined.
