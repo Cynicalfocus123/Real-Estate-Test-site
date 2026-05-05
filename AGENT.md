@@ -673,3 +673,42 @@
 
 - Focused security/XSS pass:
   - `findstr` scan for unsafe patterns (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `javascript:`) in `frontend/src` returned no matches.
+
+## 2026-05-05 (Backend Listing-Level SEO Settings)
+- Active backend only: implemented changes in `D:\Buy home for less site\backend`; left inactive duplicate `Backend buyhomeforless\backend` untouched.
+- Added listing-level SEO fields to backend listing CRUD:
+  - `seoTitle`, `metaDescription`, `seoKeywords`, `slug`, `canonicalUrl`
+  - `indexStatus`, `followStatus`
+  - `ogTitle`, `ogDescription`, `ogImage`
+  - `twitterTitle`, `twitterDescription`, `twitterImage`
+  - `schemaType`
+  - per-image `altText` and `caption`
+- Updated `backend/database.sql` with SEO columns on `listings` and image SEO columns on `listing_images`.
+- Added backend startup schema guard `ensureListingSeoSchema()` so existing MySQL installs can add missing listing SEO/image SEO columns when the database is online.
+- Added backend validation/sanitization helpers for canonical URLs and social image references:
+  - canonical URL must be `http` or `https`.
+  - social image references must be `http`, `https`, or local `/uploads/...`.
+  - all SEO/admin text remains plain sanitized text; no unsafe HTML rendering was added.
+- Added image SEO metadata save route: `PUT /api/admin/listings/:id/images/seo`.
+- Updated public listing detail image payloads to include `alt_text` and `caption` for future frontend image SEO rendering.
+- Updated `/admin-demo` mock mode Add/Edit Listing form:
+  - SEO Settings section appears after `Publish Settings`.
+  - visible Google-style preview and compact social sharing preview added.
+  - mock SEO fields are visible and usable without MySQL.
+  - mock listing PATCH now persists SEO edits in frontend mock state.
+  - auto-fill creates SEO title, meta description, slug, OG/Twitter titles/descriptions, and schema type from listing data.
+  - manual SEO edits are tracked with `data-manual` and are not overwritten by later auto-fill updates.
+  - image alt text and caption inputs are shown per mock/existing image.
+- Google/Search Console readiness notes added in schema comments:
+  - future sitemap generation should use `slug` plus `index_status`.
+  - future robots/meta tag output should use index/follow controls.
+  - future frontend page rendering should output canonical, social metadata, image alt/caption, and JSON-LD from listing records.
+  - do not fake Google Search Console integration or store Google credentials in listing records.
+- Checks run:
+  - active backend `npm run typecheck` (pass; rerun with escalation after sandbox setup failure).
+  - active backend `npm run build` (pass).
+  - active backend `npm audit --audit-level=high` (pass; 0 vulnerabilities).
+  - rendered `/admin-demo` script syntax extraction with Node (pass).
+- Focused security/XSS pass:
+  - scanned backend source for `dangerouslySetInnerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` URL patterns; no unsafe app code matches found.
+  - reviewed new `innerHTML` admin demo usage: dynamic table values still route through `esc()`, preview text uses `textContent`, and social preview image `src` is only set after safe `/uploads/` or `http(s)` validation.

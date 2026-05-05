@@ -47,6 +47,14 @@ const adminDemoHtml = `<!doctype html>
     .jumpBar, .actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
     .jumpBar a { color: #17406f; border: 1px solid #bcc8d8; border-radius: 8px; padding: 6px 8px; text-decoration: none; background: #fff; font-size: 12px; }
     .notice { border: 1px solid #f4c56a; background: #fff7df; color: #6f4b00; font-weight: 700; }
+    .previewBox { border: 1px solid #d8e1ee; border-radius: 8px; background: #fff; padding: 10px; }
+    .googleTitle { color: #1a0dab; font-size: 16px; line-height: 1.25; }
+    .googleUrl { color: #006621; font-size: 12px; margin-top: 2px; word-break: break-word; }
+    .googleDesc { color: #4d5156; font-size: 13px; margin-top: 4px; }
+    .socialPreview { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: stretch; }
+    .socialImage { background: #e8eef7; border-radius: 6px; min-height: 74px; overflow: hidden; }
+    .socialImage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .imageSeoItem { border: 1px solid #d8e1ee; border-radius: 8px; background: #fff; padding: 10px; margin-top: 8px; }
     @media (max-width: 760px) {
       html, body { overflow: auto; }
       .shell { display: block; height: auto; overflow: visible; }
@@ -171,7 +179,22 @@ const adminDemoHtml = `<!doctype html>
       longitude: 100.5231, map_search_label: "Bangkok, Thailand", description: "Demo listing",
       highlights: '["Rent ready","Deposit saved from backend field"]',
       amenities: '["Pool","Gym"]', features: '["Furnished","Air conditioner","Kitchen"]',
-      property_details: '["Near BTS","Pet friendly"]'
+      property_details: '["Near BTS","Pet friendly"]',
+      slug: "demo-rent-listing-bangkok",
+      seo_title: "Demo Rent Listing | Buy Home For Less",
+      meta_description: "Demo Rent Listing in Bangkok, Bangkok. Rent property with 2 bedrooms, 2 bathrooms. Demo listing",
+      seo_keywords: '["bangkok","rent","condo"]',
+      canonical_url: "https://buyhomeforless.com/listings/demo-rent-listing-bangkok",
+      index_status: "index",
+      follow_status: "follow",
+      og_title: "Demo Rent Listing | Buy Home For Less",
+      og_description: "Demo rent property with editable listing-level SEO metadata.",
+      og_image: "/uploads/demo.jpg",
+      twitter_title: "Demo Rent Listing | Buy Home For Less",
+      twitter_description: "Twitter/X card text is controlled per listing.",
+      twitter_image: "/uploads/demo.jpg",
+      schema_type: "RealEstateListing",
+      images: [{ id: 1, original_name: "demo.jpg", card_url: "/uploads/demo.jpg", alt_text: "Bangkok condo living room", caption: "Demo listing cover image", sort_order: 0, is_cover: 1 }]
     };
   }
   function ensureMockListings() {
@@ -199,16 +222,48 @@ const adminDemoHtml = `<!doctype html>
         latitude: body.latitude, longitude: body.longitude, map_search_label: body.mapSearchLabel,
         description: body.description, highlights: JSON.stringify(body.highlights || []),
         amenities: JSON.stringify(body.amenities || []), features: JSON.stringify(body.features || []),
-        property_details: JSON.stringify(body.propertyDetails || [])
+        property_details: JSON.stringify(body.propertyDetails || []),
+        slug: body.slug, seo_title: body.seoTitle, meta_description: body.metaDescription,
+        seo_keywords: JSON.stringify(body.seoKeywords || []), canonical_url: body.canonicalUrl,
+        index_status: body.indexStatus, follow_status: body.followStatus, og_title: body.ogTitle,
+        og_description: body.ogDescription, og_image: body.ogImage, twitter_title: body.twitterTitle,
+        twitter_description: body.twitterDescription, twitter_image: body.twitterImage, schema_type: body.schemaType,
+        images: [{ id: 1, original_name: "mock-upload.jpg", card_url: body.ogImage || "/uploads/demo.jpg", alt_text: "", caption: "", sort_order: 0, is_cover: 1 }]
       });
       return Promise.resolve({ id: id });
     }
     const listingMatch = path.match(/^\\/api\\/admin\\/listings\\/(\\d+)$/);
     if (listingMatch && method === "GET") {
       const listing = state.mockListings.find(function(item){ return item.id === Number(listingMatch[1]); }) || sampleListing();
-      return Promise.resolve({ listing: listing, images: [{ id: 1, original_name: "demo.jpg", card_url: "/uploads/demo.jpg", sort_order: 0, is_cover: 1 }], faqs: [{ id: 1, question: "Is deposit editable?", answer: "Yes, it is stored as depositAmount.", sort_order: 0, is_active: 1 }] });
+      return Promise.resolve({ listing: listing, images: listing.images || sampleListing().images, faqs: [{ id: 1, question: "Is deposit editable?", answer: "Yes, it is stored as depositAmount.", sort_order: 0, is_active: 1 }] });
     }
-    if (listingMatch && method === "PATCH") return Promise.resolve({ ok: true });
+    if (listingMatch && method === "PATCH") {
+      const body = JSON.parse(options.body || "{}");
+      const listing = state.mockListings.find(function(item){ return item.id === Number(listingMatch[1]); });
+      if (listing) {
+        Object.assign(listing, {
+          title: body.title, section: body.section, category: body.category, status: body.status,
+          price_amount: body.priceAmount, currency_code: body.currencyCode, buy_price: body.buyPrice,
+          rent_monthly_price: body.rentMonthlyPrice, deposit_amount: body.depositAmount,
+          price_unit_label: body.priceUnitLabel, city: body.city, province: body.province,
+          street_address: body.streetAddress, district: body.district, subdistrict: body.subdistrict,
+          postal_code: body.postalCode, country: body.country, latitude: body.latitude,
+          longitude: body.longitude, map_search_label: body.mapSearchLabel, description: body.description,
+          highlights: JSON.stringify(body.highlights || []), amenities: JSON.stringify(body.amenities || []),
+          features: JSON.stringify(body.features || []), property_details: JSON.stringify(body.propertyDetails || []),
+          slug: body.slug, seo_title: body.seoTitle, meta_description: body.metaDescription,
+          seo_keywords: JSON.stringify(body.seoKeywords || []), canonical_url: body.canonicalUrl,
+          index_status: body.indexStatus, follow_status: body.followStatus, og_title: body.ogTitle,
+          og_description: body.ogDescription, og_image: body.ogImage, twitter_title: body.twitterTitle,
+          twitter_description: body.twitterDescription, twitter_image: body.twitterImage, schema_type: body.schemaType
+        });
+        (body.imageSeo || []).forEach(function(meta){
+          const img = (listing.images || []).find(function(item){ return item.id === meta.id; });
+          if (img) { img.alt_text = meta.altText || ""; img.caption = meta.caption || ""; }
+        });
+      }
+      return Promise.resolve({ ok: true });
+    }
     if (path.indexOf("/images") > -1) return Promise.resolve({ ok: true, total: 0, items: [] });
     if (path.indexOf("/faqs") > -1) return Promise.resolve({ ok: true, total: 1, items: [{ question: "Demo question?", answer: "Demo answer." }] });
     if (path === "/api/admin/seller-applications") return Promise.resolve({ items: [{ id: 1, full_name: "Demo Seller", phone: "000", email: "seller@example.com", property_type: "Condo", location: "Bangkok", message: "Sell my home", created_at: "demo", status: "NEW" }] });
@@ -267,6 +322,10 @@ const adminDemoHtml = `<!doctype html>
   function textOrNull(v){ const t = String(v || "").trim(); return t ? t : null; }
   function lines(v){ return String(v || "").split(/\\r?\\n/).map(function(x){ return x.trim(); }).filter(Boolean); }
   function faqLines(v){ return lines(v).map(function(line){ const i = line.indexOf("|"); if (i < 0) return null; const q = line.slice(0, i).trim(); const a = line.slice(i+1).trim(); return q && a ? {question:q,answer:a} : null; }).filter(Boolean); }
+  function slugify(v){ return String(v || "").toLowerCase().replace(/[^a-z0-9\\s-]/g, "").trim().replace(/\\s+/g, "-").replace(/-+/g, "-").slice(0, 120); }
+  function compact(v, max){ return String(v || "").replace(/\\s+/g, " ").trim().slice(0, max); }
+  function keywordLines(v){ return String(v || "").split(/[\\n,]+/).map(function(x){ return compact(x, 80); }).filter(Boolean).slice(0, 30); }
+  function looksSafeImage(v){ const s = String(v || "").trim(); return s.indexOf("/uploads/") === 0 || /^https?:\\/\\//i.test(s); }
   function showAuthStep(step) {
     el.registerCard.classList.add("hidden");
     el.loginCard.classList.add("hidden");
@@ -400,6 +459,22 @@ const adminDemoHtml = `<!doctype html>
     form.features.value = jsonListToText(listing.features);
     form.propertyDetails.value = jsonListToText(listing.property_details || listing.propertyDetails);
     renderFaqItems(form, detail.faqs || []);
+    form.slug.value = listing.slug || "";
+    form.seoTitle.value = listing.seo_title || listing.seoTitle || "";
+    form.metaDescription.value = listing.meta_description || listing.metaDescription || "";
+    form.seoKeywords.value = jsonListToText(listing.seo_keywords || listing.seoKeywords);
+    form.canonicalUrl.value = listing.canonical_url || listing.canonicalUrl || "";
+    form.indexStatus.value = listing.index_status || listing.indexStatus || "index";
+    form.followStatus.value = listing.follow_status || listing.followStatus || "follow";
+    form.ogTitle.value = listing.og_title || listing.ogTitle || "";
+    form.ogDescription.value = listing.og_description || listing.ogDescription || "";
+    form.ogImage.value = listing.og_image || listing.ogImage || "";
+    form.twitterTitle.value = listing.twitter_title || listing.twitterTitle || "";
+    form.twitterDescription.value = listing.twitter_description || listing.twitterDescription || "";
+    form.twitterImage.value = listing.twitter_image || listing.twitterImage || "";
+    form.schemaType.value = listing.schema_type || listing.schemaType || "RealEstateListing";
+    renderImageSeoItems(detail.images || []);
+    updateSeoPreviews(form);
   }
   function syncFaqItems(form) {
     const rows = Array.from(document.querySelectorAll(".faqItem"));
@@ -434,6 +509,69 @@ const adminDemoHtml = `<!doctype html>
     const source = items.length ? items : [{ question: "", answer: "" }];
     source.forEach(function(item){ addFaqItem(form, item); });
   }
+  function renderImageSeoItems(images) {
+    const wrap = document.getElementById("imageSeoItems");
+    if (!wrap) return;
+    const source = images && images.length ? images : [{ id: 1, original_name: "mock-upload.jpg", card_url: "/uploads/demo.jpg", alt_text: "", caption: "", sort_order: 0, is_cover: 1 }];
+    wrap.innerHTML = "";
+    source.forEach(function(img){
+      const div = document.createElement("div");
+      div.className = "imageSeoItem";
+      div.dataset.imageId = String(img.id || "");
+      div.innerHTML = "<div class='small'>Image #" + esc(img.id || "") + " " + esc(img.original_name || img.card_url || "") + "</div><div class='grid two'><label>Image alt text<input data-image-alt maxlength='180' /></label><label>Image caption<input data-image-caption maxlength='240' /></label></div>";
+      div.querySelector("[data-image-alt]").value = img.alt_text || img.altText || "";
+      div.querySelector("[data-image-caption]").value = img.caption || "";
+      wrap.appendChild(div);
+    });
+  }
+  function collectImageSeoItems() {
+    return Array.from(document.querySelectorAll(".imageSeoItem")).map(function(row){
+      return { id: Number(row.dataset.imageId), altText: textOrNull(row.querySelector("[data-image-alt]").value), caption: textOrNull(row.querySelector("[data-image-caption]").value) };
+    }).filter(function(item){ return Number.isFinite(item.id) && item.id > 0; });
+  }
+  function autoSeo(form) {
+    const site = "Buy Home For Less";
+    const location = [form.city.value, form.province.value].filter(Boolean).join(", ");
+    const title = compact(form.title.value || "Property listing", 120);
+    const type = compact(form.propertyType.value || "property", 40);
+    const slug = slugify([title, form.city.value, form.province.value].filter(Boolean).join(" "));
+    const meta = compact([title, location ? "in " + location : "", type, form.bedrooms.value ? form.bedrooms.value + " bedrooms" : "", form.bathrooms.value ? form.bathrooms.value + " bathrooms" : "", form.description.value].filter(Boolean).join(". "), 320);
+    const pairs = [
+      ["seoTitle", title + " | " + site],
+      ["metaDescription", meta],
+      ["slug", slug],
+      ["ogTitle", title + " | " + site],
+      ["ogDescription", meta],
+      ["twitterTitle", title + " | " + site],
+      ["twitterDescription", meta],
+      ["schemaType", "RealEstateListing"]
+    ];
+    pairs.forEach(function(pair){
+      const input = form[pair[0]];
+      if (input && input.dataset.manual !== "true") input.value = pair[1];
+    });
+  }
+  function updateSeoPreviews(form) {
+    autoSeo(form);
+    const url = form.canonicalUrl.value || ("https://buyhomeforless.com/listings/" + (form.slug.value || "listing-slug"));
+    document.getElementById("googlePreviewTitle").textContent = form.seoTitle.value || form.title.value || "SEO title";
+    document.getElementById("googlePreviewUrl").textContent = url;
+    document.getElementById("googlePreviewDesc").textContent = form.metaDescription.value || "Meta description preview";
+    document.getElementById("socialPreviewTitle").textContent = form.ogTitle.value || form.seoTitle.value || "Open Graph title";
+    document.getElementById("socialPreviewDesc").textContent = form.ogDescription.value || form.metaDescription.value || "Open Graph description";
+    const img = document.getElementById("socialPreviewImg");
+    const src = form.ogImage.value || form.twitterImage.value;
+    img.textContent = "";
+    if (looksSafeImage(src)) {
+      img.innerHTML = "";
+      const image = document.createElement("img");
+      image.alt = "";
+      image.src = src;
+      img.appendChild(image);
+    } else {
+      img.textContent = "OG image";
+    }
+  }
   function syncSectionPricing(form) {
     const section = form.section.value;
     const showBuy = section === "BUY";
@@ -449,7 +587,7 @@ const adminDemoHtml = `<!doctype html>
     box.innerHTML =
       "<h3 style='margin-top:0'>" + (editing ? "Edit Listing #" + esc(editId) : "Add Listing") + "</h3>" +
       "<div class='small'>Full workflow form with backend rent deposit field and media controls.</div>" +
-      "<div class='jumpBar'><a href='#basicInfo'>Basic Info</a><a href='#pricing'>Pricing</a><a href='#sectionPricing'>Section Pricing</a><a href='#details'>Details</a><a href='#features'>Features</a><a href='#amenities'>Amenities</a><a href='#faqSection'>FAQ</a><a href='#images'>Images</a><a href='#location'>Location</a><a href='#publish'>Publish Settings</a></div>" +
+      "<div class='jumpBar'><a href='#basicInfo'>Basic Info</a><a href='#pricing'>Pricing</a><a href='#sectionPricing'>Section Pricing</a><a href='#details'>Details</a><a href='#features'>Features</a><a href='#amenities'>Amenities</a><a href='#faqSection'>FAQ</a><a href='#images'>Images</a><a href='#location'>Location</a><a href='#publish'>Publish Settings</a><a href='#seoSettings'>SEO Settings</a></div>" +
       "<form id='listingForm' style='margin-top:8px'>" +
       "<section class='formSection' id='basicInfo'><h4>Basic Info</h4><div class='grid two'><label>Property title<input name='title' required maxlength='180' /></label><label>Property type<input name='propertyType' maxlength='120' /></label><label>Section<select name='section'><option>BUY</option><option>RENT</option><option>SELL</option><option>SENIOR_HOME</option></select></label><label>Category<select name='category'><option>FORECLOSURE</option><option>PRE_FORECLOSURE</option><option>DISTRESS_PROPERTY</option><option>FIXER_UPPER</option><option>URGENT_SALE</option><option>FEATURED</option><option>NEW_LISTING</option></select></label><label class='spanAll'>Property description<textarea name='description' rows='4'></textarea></label></div></section>" +
       "<section class='formSection' id='pricing'><h4>Pricing</h4><div class='grid two'><label>Price amount<input name='priceAmount' type='number' min='0' /></label><label>Currency dropdown<select name='currencyCode'><option>THB</option><option>USD</option><option>EUR</option><option>CNY</option></select></label></div></section>" +
@@ -461,6 +599,7 @@ const adminDemoHtml = `<!doctype html>
       "<section class='formSection' id='images'><h4>Images</h4><div class='grid two'><label>Multiple image upload up to 12 images<input name='images' type='file' accept='image/*' multiple /></label><label>Select cover image<input name='coverIndex' type='number' min='1' max='12' placeholder='1' /></label><label>Image reorder IDs<input name='inlineReorderIds' placeholder='3,1,2' /></label><label>Delete image ID<input name='inlineDeleteImageId' type='number' min='1' /></label></div><div class='small'>Use Media / Images page for full reorder, cover, and delete controls after upload.</div></section>" +
       "<section class='formSection' id='location'><h4>Location</h4><div class='grid two'><label>Street address<input name='streetAddress' maxlength='240' /></label><label>District<input name='district' maxlength='120' /></label><label>Subdistrict<input name='subdistrict' maxlength='120' /></label><label>City<input name='city' maxlength='120' /></label><label>Province<input name='province' maxlength='120' /></label><label>Postal code<input name='postalCode' maxlength='20' /></label><label>Country<input name='country' value='Thailand' maxlength='120' /></label><label>Latitude<input name='latitude' type='number' step='0.0000001' /></label><label>Longitude<input name='longitude' type='number' step='0.0000001' /></label><label>Map label<input name='mapSearchLabel' maxlength='255' /></label><label>Map lookup/search<input name='mapLookupQuery' maxlength='240' /></label><div><button type='button' id='mapLookupBtn'>Map lookup/search</button></div><div><select id='mapLookupResults'><option value=''>Select map result</option></select></div></div></section>" +
       "<section class='formSection' id='publish'><h4>Publish Settings</h4><div class='grid two'><label>Status dropdown<select name='status'><option>DRAFT</option><option>PUBLISHED</option><option>ARCHIVED</option><option>DELETED</option></select></label></div></section>" +
+      "<section class='formSection' id='seoSettings'><h4>SEO Settings</h4><div class='small'>Listing-level SEO metadata for future page meta tags, sitemap slugs, robots controls, social cards, and structured data output. Google Search Console verification stays a future site-level config task.</div><div class='grid two' style='margin-top:10px'><label>SEO title<input name='seoTitle' maxlength='180' data-seo-auto='true' /></label><label>URL slug<input name='slug' maxlength='180' data-seo-auto='true' /></label><label class='spanAll'>Meta description<textarea name='metaDescription' rows='3' maxlength='320' data-seo-auto='true'></textarea></label><label>SEO keywords/tags<textarea name='seoKeywords' rows='3' placeholder='Comma or one per line'></textarea></label><label>Canonical URL<input name='canonicalUrl' maxlength='500' placeholder='https://buyhomeforless.com/listings/example' /></label><label>Index status<select name='indexStatus'><option value='index'>index</option><option value='noindex'>noindex</option></select></label><label>Follow status<select name='followStatus'><option value='follow'>follow</option><option value='nofollow'>nofollow</option></select></label><label>Open Graph title<input name='ogTitle' maxlength='180' data-seo-auto='true' /></label><label>Open Graph image<input name='ogImage' maxlength='500' placeholder='/uploads/example.webp or https://...' /></label><label class='spanAll'>Open Graph description<textarea name='ogDescription' rows='2' maxlength='320' data-seo-auto='true'></textarea></label><label>Twitter/X card title<input name='twitterTitle' maxlength='180' data-seo-auto='true' /></label><label>Twitter/X card image<input name='twitterImage' maxlength='500' placeholder='/uploads/example.webp or https://...' /></label><label class='spanAll'>Twitter/X card description<textarea name='twitterDescription' rows='2' maxlength='320' data-seo-auto='true'></textarea></label><label>Schema type<input name='schemaType' maxlength='80' value='RealEstateListing' data-seo-auto='true' /></label></div><h4 class='sectionTitle'>Image SEO</h4><div id='imageSeoItems'></div><h4 class='sectionTitle'>Google Preview</h4><div class='previewBox'><div id='googlePreviewTitle' class='googleTitle'></div><div id='googlePreviewUrl' class='googleUrl'></div><div id='googlePreviewDesc' class='googleDesc'></div></div><h4 class='sectionTitle'>Social Preview</h4><div class='previewBox socialPreview'><div id='socialPreviewImg' class='socialImage'></div><div><strong id='socialPreviewTitle'></strong><div id='socialPreviewDesc' class='small' style='margin-top:4px'></div></div></div></section>" +
       "<div class='actions'><button class='primary' type='submit' data-submit-status='DRAFT'>Save Draft</button><button class='primary' type='submit' data-submit-status='PUBLISHED'>Publish</button><button type='reset'>Reset</button><button class='warn' type='button' id='testSubmitBtn'>Test Submit</button></div>" +
       "</form>" +
       "<div id='listingCreateResult' class='small' style='margin-top:8px'></div>";
@@ -469,7 +608,18 @@ const adminDemoHtml = `<!doctype html>
     form.section.onchange = function(){ syncSectionPricing(form); };
     document.getElementById("addFaqBtn").onclick = function(){ addFaqItem(form, { question: "", answer: "" }); };
     renderFaqItems(form, []);
+    renderImageSeoItems([]);
     syncSectionPricing(form);
+    Array.from(form.querySelectorAll("[data-seo-auto]")).forEach(function(input){
+      input.addEventListener("input", function(){ input.dataset.manual = "true"; updateSeoPreviews(form); });
+    });
+    ["title","propertyType","bedrooms","bathrooms","description","city","province"].forEach(function(name){
+      form[name].addEventListener("input", function(){ updateSeoPreviews(form); });
+    });
+    ["seoKeywords","canonicalUrl","indexStatus","followStatus","ogImage","twitterImage"].forEach(function(name){
+      form[name].addEventListener("input", function(){ updateSeoPreviews(form); });
+    });
+    updateSeoPreviews(form);
     let lookupItems = [];
     document.getElementById("mapLookupBtn").onclick = async function(){
       const q = String(form.mapLookupQuery.value || "").trim();
@@ -507,6 +657,20 @@ const adminDemoHtml = `<!doctype html>
         section: form.section.value,
         category: form.category.value,
         status: form.status.value,
+        slug: textOrNull(form.slug.value),
+        seoTitle: textOrNull(form.seoTitle.value),
+        metaDescription: textOrNull(form.metaDescription.value),
+        seoKeywords: keywordLines(form.seoKeywords.value),
+        canonicalUrl: textOrNull(form.canonicalUrl.value),
+        indexStatus: form.indexStatus.value,
+        followStatus: form.followStatus.value,
+        ogTitle: textOrNull(form.ogTitle.value),
+        ogDescription: textOrNull(form.ogDescription.value),
+        ogImage: textOrNull(form.ogImage.value),
+        twitterTitle: textOrNull(form.twitterTitle.value),
+        twitterDescription: textOrNull(form.twitterDescription.value),
+        twitterImage: textOrNull(form.twitterImage.value),
+        schemaType: textOrNull(form.schemaType.value) || "RealEstateListing",
         currencyCode: form.currencyCode.value,
         country: textOrNull(form.country.value) || "Thailand",
         priceAmount: toInt(form.priceAmount.value),
@@ -536,7 +700,8 @@ const adminDemoHtml = `<!doctype html>
         amenities: lines(form.amenities.value),
         features: lines(form.features.value),
         propertyDetails: lines(form.propertyDetails.value),
-        faqs: faqLines(form.faqs.value)
+        faqs: faqLines(form.faqs.value),
+        imageSeo: collectImageSeoItems()
       };
     }
     async function saveListing(statusOverride) {

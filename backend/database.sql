@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS listings (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(180) NOT NULL,
   slug VARCHAR(190) NOT NULL UNIQUE,
+  seo_title VARCHAR(180) NULL,
+  meta_description VARCHAR(320) NULL,
+  seo_keywords JSON NULL,
+  canonical_url VARCHAR(500) NULL,
+  index_status ENUM('index', 'noindex') NOT NULL DEFAULT 'index',
+  follow_status ENUM('follow', 'nofollow') NOT NULL DEFAULT 'follow',
+  og_title VARCHAR(180) NULL,
+  og_description VARCHAR(320) NULL,
+  og_image VARCHAR(500) NULL,
+  twitter_title VARCHAR(180) NULL,
+  twitter_description VARCHAR(320) NULL,
+  twitter_image VARCHAR(500) NULL,
+  schema_type VARCHAR(80) NOT NULL DEFAULT 'RealEstateListing',
   section ENUM('BUY', 'RENT', 'SELL', 'SENIOR_HOME') NOT NULL,
   category ENUM('FORECLOSURE', 'PRE_FORECLOSURE', 'DISTRESS_PROPERTY', 'FIXER_UPPER', 'URGENT_SALE', 'FEATURED', 'NEW_LISTING') NOT NULL DEFAULT 'NEW_LISTING',
   status ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED', 'DELETED') NOT NULL DEFAULT 'DRAFT',
@@ -64,6 +77,8 @@ CREATE TABLE IF NOT EXISTS listing_images (
   original_name VARCHAR(190) NOT NULL,
   mime_type VARCHAR(80) NOT NULL,
   card_url VARCHAR(255) NOT NULL,
+  alt_text VARCHAR(180) NULL,
+  caption VARCHAR(240) NULL,
   banner_url VARCHAR(255) NOT NULL,
   detail_url VARCHAR(255) NOT NULL,
   mobile_url VARCHAR(255) NOT NULL,
@@ -74,6 +89,12 @@ CREATE TABLE IF NOT EXISTS listing_images (
   INDEX idx_listing_images_listing_sort (listing_id, sort_order),
   CONSTRAINT fk_listing_images_listing FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- SEO TODO hooks:
+-- 1. Generate listing sitemap entries from listings.slug where status = 'PUBLISHED' and index_status = 'index'.
+-- 2. Apply index_status/follow_status to robots meta tags and robots.txt route rules.
+-- 3. Render listing canonical_url, Open Graph, Twitter/X, image alt/caption, and schema_type as page-level metadata/JSON-LD.
+-- 4. Add Google Search Console verification through environment/config only; do not store Google credentials in listing records.
 
 CREATE TABLE IF NOT EXISTS listing_faqs (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

@@ -17,6 +17,30 @@ export function sanitizeSlug(value: string): string {
     .replace(/-+/g, "-");
 }
 
+export function sanitizeHttpUrl(value: string, maxLength = 500): string | null {
+  const cleaned = sanitizePlainText(value, maxLength);
+  if (!cleaned) {
+    return null;
+  }
+  try {
+    const url = new URL(cleaned);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString().slice(0, maxLength) : null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+export function sanitizeImageReference(value: string, maxLength = 500): string | null {
+  const cleaned = sanitizePlainText(value, maxLength);
+  if (!cleaned) {
+    return null;
+  }
+  if (cleaned.startsWith("/uploads/")) {
+    return cleaned.slice(0, maxLength);
+  }
+  return sanitizeHttpUrl(cleaned, maxLength);
+}
+
 export function sanitizeStringArray(values: string[], maxItems = 50, maxItemLength = 120): string[] {
   return values
     .slice(0, maxItems)

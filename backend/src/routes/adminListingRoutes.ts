@@ -7,7 +7,7 @@ import { executeSql, queryRows } from "../db/pool";
 import { requireAuth, requireOneOfRoles } from "../middleware/auth";
 import { deleteListingImageFiles, saveListingImages } from "../services/imageService";
 import { ApiError } from "../utils/errors";
-import { sanitizePlainText, sanitizeSlug, sanitizeStringArray } from "../utils/sanitize";
+import { sanitizeHttpUrl, sanitizeImageReference, sanitizePlainText, sanitizeSlug, sanitizeStringArray } from "../utils/sanitize";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -19,9 +19,28 @@ const listingFaqSchema = z.object({
   answer: z.string().min(1).max(5000),
 });
 
+const imageSeoSchema = z.object({
+  id: z.number().int().positive(),
+  altText: z.string().max(180).nullable().optional(),
+  caption: z.string().max(240).nullable().optional(),
+});
+
 const listingSchema = z.object({
   title: z.string().min(1).max(180),
   slug: z.string().max(180).optional(),
+  seoTitle: z.string().max(180).nullable().optional(),
+  metaDescription: z.string().max(320).nullable().optional(),
+  seoKeywords: z.array(z.string()).max(30).optional(),
+  canonicalUrl: z.string().max(500).nullable().optional(),
+  indexStatus: z.enum(["index", "noindex"]).default("index"),
+  followStatus: z.enum(["follow", "nofollow"]).default("follow"),
+  ogTitle: z.string().max(180).nullable().optional(),
+  ogDescription: z.string().max(320).nullable().optional(),
+  ogImage: z.string().max(500).nullable().optional(),
+  twitterTitle: z.string().max(180).nullable().optional(),
+  twitterDescription: z.string().max(320).nullable().optional(),
+  twitterImage: z.string().max(500).nullable().optional(),
+  schemaType: z.string().max(80).default("RealEstateListing"),
   section: z.enum(LISTING_SECTIONS),
   category: z.enum(LISTING_CATEGORIES),
   status: z.enum(LISTING_STATUSES).default("DRAFT"),
@@ -56,6 +75,7 @@ const listingSchema = z.object({
   longitude: z.number().min(-180).max(180).nullable().optional(),
   mapSearchLabel: z.string().max(255).nullable().optional(),
   faqs: z.array(listingFaqSchema).max(50).optional(),
+  imageSeo: z.array(imageSeoSchema).max(12).optional(),
 });
 
 const listingUpdateSchema = listingSchema.partial();
@@ -68,6 +88,10 @@ const imageReorderSchema = z.object({
   imageIds: z.array(z.number().int().positive()).min(1).max(12),
 });
 
+const imageSeoListSchema = z.object({
+  items: z.array(imageSeoSchema).max(12),
+});
+
 const listingIdSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
@@ -77,6 +101,28 @@ function sanitizeMaybeText(value: string | null | undefined, maxLength: number) 
     return null;
   }
   return sanitizePlainText(value, maxLength);
+}
+
+function sanitizeMaybeUrl(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+  const clean = sanitizeHttpUrl(value, 500);
+  if (!clean) {
+    throw new ApiError(400, "Invalid URL");
+  }
+  return clean;
+}
+
+function sanitizeMaybeImageRef(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+  const clean = sanitizeImageReference(value, 500);
+  if (!clean) {
+    throw new ApiError(400, "Invalid image URL");
+  }
+  return clean;
 }
 
 function sanitizeFaqs(items: z.infer<typeof listingFaqSchema>[]) {
@@ -96,6 +142,19 @@ function cleanListingInput(data: z.infer<typeof listingSchema>) {
   return {
     title,
     slug,
+    seoTitle: sanitizeMaybeText(data.seoTitle, 180),
+    metaDescription: sanitizeMaybeText(data.metaDescription, 320),
+    seoKeywords: JSON.stringify(sanitizeStringArray(data.seoKeywords ?? [], 30, 80)),
+    canonicalUrl: sanitizeMaybeUrl(data.canonicalUrl),
+    indexStatus: data.indexStatus,
+    followStatus: data.followStatus,
+    ogTitle: sanitizeMaybeText(data.ogTitle, 180),
+    ogDescription: sanitizeMaybeText(data.ogDescription, 320),
+    ogImage: sanitizeMaybeImageRef(data.ogImage),
+    twitterTitle: sanitizeMaybeText(data.twitterTitle, 180),
+    twitterDescription: sanitizeMaybeText(data.twitterDescription, 320),
+    twitterImage: sanitizeMaybeImageRef(data.twitterImage),
+    schemaType: sanitizePlainText(data.schemaType, 80) || "RealEstateListing",
     section: data.section,
     category: data.category,
     status: data.status,
@@ -130,7 +189,17 @@ function cleanListingInput(data: z.infer<typeof listingSchema>) {
     longitude: data.longitude ?? null,
     mapSearchLabel: sanitizeMaybeText(data.mapSearchLabel, 255),
     faqs: sanitizeFaqs(data.faqs ?? []),
+    imageSeo: data.imageSeo ?? [],
   };
+}
+
+async function updateImageSeo(listingId: number, items: z.infer<typeof imageSeoSchema>[]) {
+  for (const item of items) {
+    await executeSql(
+      "UPDATE listing_images SET alt_text = ?, caption = ? WHERE id = ? AND listing_id = ?",
+      [sanitizeMaybeText(item.altText, 180), sanitizeMaybeText(item.caption, 240), item.id, listingId],
+    );
+  }
 }
 
 async function replaceListingFaqs(listingId: number, faqs: ReturnType<typeof sanitizeFaqs>) {
@@ -214,6 +283,8 @@ adminListingRoutes.get("/listings/:id", async (request, response, next) => {
       (RowDataPacket & {
         id: number;
         original_name: string;
+        alt_text: string | null;
+        caption: string | null;
         card_url: string;
         banner_url: string;
         detail_url: string;
@@ -223,7 +294,7 @@ adminListingRoutes.get("/listings/:id", async (request, response, next) => {
         is_cover: number;
       })[]
     >(
-      `SELECT id, original_name, card_url, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover
+      `SELECT id, original_name, alt_text, caption, card_url, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover
        FROM listing_images
        WHERE listing_id = ?
        ORDER BY is_cover DESC, sort_order ASC`,
@@ -262,7 +333,9 @@ adminListingRoutes.post("/listings", async (request, response, next) => {
 
     const result = await executeSql(
       `INSERT INTO listings (
-        title, slug, section, category, status, property_type,
+        title, slug, seo_title, meta_description, seo_keywords, canonical_url, index_status, follow_status,
+        og_title, og_description, og_image, twitter_title, twitter_description, twitter_image, schema_type,
+        section, category, status, property_type,
         price_amount, currency_code, buy_price, rent_monthly_price, deposit_amount, price_unit_label,
         description, highlights, amenities, features, property_details,
         furnishing_status, has_air_conditioner, has_kitchen,
@@ -270,7 +343,9 @@ adminListingRoutes.post("/listings", async (request, response, next) => {
         street_address, district, subdistrict, city, province, postal_code, country,
         latitude, longitude, map_search_label, created_by
       ) VALUES (
-        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?,
         ?, ?, ?,
@@ -281,6 +356,19 @@ adminListingRoutes.post("/listings", async (request, response, next) => {
       [
         clean.title,
         clean.slug,
+        clean.seoTitle,
+        clean.metaDescription,
+        clean.seoKeywords,
+        clean.canonicalUrl,
+        clean.indexStatus,
+        clean.followStatus,
+        clean.ogTitle,
+        clean.ogDescription,
+        clean.ogImage,
+        clean.twitterTitle,
+        clean.twitterDescription,
+        clean.twitterImage,
+        clean.schemaType,
         clean.section,
         clean.category,
         clean.status,
@@ -320,6 +408,7 @@ adminListingRoutes.post("/listings", async (request, response, next) => {
 
     const listingId = Number(result.insertId);
     await replaceListingFaqs(listingId, clean.faqs);
+    await updateImageSeo(listingId, clean.imageSeo);
 
     response.status(201).json({ id: listingId });
   } catch (error) {
@@ -357,6 +446,45 @@ adminListingRoutes.patch("/listings/:id", async (request, response, next) => {
         throw new ApiError(400, "Invalid slug");
       }
       setField("slug", slug);
+    }
+    if (input.seoTitle !== undefined) {
+      setField("seo_title", sanitizeMaybeText(input.seoTitle, 180));
+    }
+    if (input.metaDescription !== undefined) {
+      setField("meta_description", sanitizeMaybeText(input.metaDescription, 320));
+    }
+    if (input.seoKeywords !== undefined) {
+      setField("seo_keywords", JSON.stringify(sanitizeStringArray(input.seoKeywords, 30, 80)));
+    }
+    if (input.canonicalUrl !== undefined) {
+      setField("canonical_url", sanitizeMaybeUrl(input.canonicalUrl));
+    }
+    if (input.indexStatus !== undefined) {
+      setField("index_status", input.indexStatus);
+    }
+    if (input.followStatus !== undefined) {
+      setField("follow_status", input.followStatus);
+    }
+    if (input.ogTitle !== undefined) {
+      setField("og_title", sanitizeMaybeText(input.ogTitle, 180));
+    }
+    if (input.ogDescription !== undefined) {
+      setField("og_description", sanitizeMaybeText(input.ogDescription, 320));
+    }
+    if (input.ogImage !== undefined) {
+      setField("og_image", sanitizeMaybeImageRef(input.ogImage));
+    }
+    if (input.twitterTitle !== undefined) {
+      setField("twitter_title", sanitizeMaybeText(input.twitterTitle, 180));
+    }
+    if (input.twitterDescription !== undefined) {
+      setField("twitter_description", sanitizeMaybeText(input.twitterDescription, 320));
+    }
+    if (input.twitterImage !== undefined) {
+      setField("twitter_image", sanitizeMaybeImageRef(input.twitterImage));
+    }
+    if (input.schemaType !== undefined) {
+      setField("schema_type", sanitizePlainText(input.schemaType, 80) || "RealEstateListing");
     }
     if (input.section !== undefined) {
       setField("section", input.section);
@@ -469,7 +597,25 @@ adminListingRoutes.patch("/listings/:id", async (request, response, next) => {
     if (input.faqs !== undefined) {
       await replaceListingFaqs(listingId, sanitizeFaqs(input.faqs));
     }
+    if (input.imageSeo !== undefined) {
+      await updateImageSeo(listingId, input.imageSeo);
+    }
 
+    response.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+adminListingRoutes.put("/listings/:id/images/seo", async (request, response, next) => {
+  try {
+    const listingId = parseListingIdOrThrow(request.params.id);
+    await ensureListingExists(listingId);
+    const parsed = imageSeoListSchema.safeParse(request.body);
+    if (!parsed.success) {
+      throw new ApiError(400, "Invalid image SEO payload", parsed.error.flatten());
+    }
+    await updateImageSeo(listingId, parsed.data.items);
     response.json({ ok: true });
   } catch (error) {
     next(error);

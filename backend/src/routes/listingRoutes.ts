@@ -133,6 +133,8 @@ listingRoutes.get("/:id", async (request, response, next) => {
       (RowDataPacket & {
         id: number;
         card_url: string;
+        alt_text: string | null;
+        caption: string | null;
         banner_url: string;
         detail_url: string;
         mobile_url: string;
@@ -141,7 +143,7 @@ listingRoutes.get("/:id", async (request, response, next) => {
         is_cover: number;
       })[]
     >(
-      `SELECT id, card_url, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover
+      `SELECT id, card_url, alt_text, caption, banner_url, detail_url, mobile_url, gallery_url, sort_order, is_cover
        FROM listing_images WHERE listing_id = ? ORDER BY is_cover DESC, sort_order ASC`,
       [listingId],
     );

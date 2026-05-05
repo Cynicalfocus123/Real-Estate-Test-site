@@ -4,7 +4,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { env } from "./config/env";
-import { ensureHeadAdmin } from "./db/bootstrap";
+import { ensureHeadAdmin, ensureListingSeoSchema } from "./db/bootstrap";
 import { dbPool } from "./db/pool";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { adminListingRoutes } from "./routes/adminListingRoutes";
@@ -21,6 +21,7 @@ async function buildServer() {
   let databaseReady = false;
   try {
     await dbPool.query("SELECT 1");
+    await ensureListingSeoSchema();
     await ensureHeadAdmin();
     databaseReady = true;
   } catch (error) {
