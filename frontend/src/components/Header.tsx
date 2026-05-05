@@ -3,7 +3,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { assetPath } from "../utils/assets";
 import { getInitialLanguage, useSiteTranslation } from "../hooks/useSiteTranslation";
-import { isValidEmail, sanitizeEmail, useMockAuth } from "../hooks/useMockAuth";
+import {
+  getDisplayNameFromIdentifier,
+  isValidEmailOrPhone,
+  sanitizeAuthIdentifier,
+  useMockAuth,
+} from "../hooks/useMockAuth";
 import { type SiteLanguage } from "../services/translationService";
 import { type AuthModalMode, OPEN_AUTH_MODAL_EVENT } from "../utils/authModal";
 import { safeHref } from "../utils/security";
@@ -159,7 +164,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const favoritesUrl = `${import.meta.env.BASE_URL}favorites`;
   const currentPath = window.location.pathname;
   const { translationError } = useSiteTranslation(language);
-  const { mockUser, isSignedIn, loginWithEmail, logout } = useMockAuth();
+  const { mockUser, isSignedIn, loginWithIdentifier, logout } = useMockAuth();
 
   const displayName = useMemo(() => mockUser?.displayName ?? "", [mockUser]);
   const canUsePortal = typeof document !== "undefined";
@@ -240,10 +245,10 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   }
 
   function completeLogin() {
-    const email = sanitizeEmail(loginEmail);
+    const identifier = sanitizeAuthIdentifier(loginEmail);
     const password = loginPassword;
-    if (!isValidEmail(email)) {
-      setLoginError("Please enter a valid email address.");
+    if (!isValidEmailOrPhone(identifier)) {
+      setLoginError("Please enter a valid email or phone number.");
       return;
     }
 
@@ -252,7 +257,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
       return;
     }
 
-    const result = loginWithEmail(email);
+    const result = loginWithIdentifier(identifier);
     if (!result.ok) {
       setLoginError("Unable to sign in. Please try again.");
       return;
@@ -266,13 +271,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   }
 
   function completeSignupEmailStep() {
-    const email = sanitizeEmail(signupEmail);
-    if (!isValidEmail(email)) {
-      setSignupError("Please enter a valid email address.");
+    const identifier = sanitizeAuthIdentifier(signupEmail);
+    if (!isValidEmailOrPhone(identifier)) {
+      setSignupError("Please enter a valid email or phone number.");
       return;
     }
 
-    setSignupEmail(email);
+    setSignupEmail(identifier);
     setSignupError("");
     setSignupStep(2);
   }
@@ -285,7 +290,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
       return;
     }
 
-    const result = loginWithEmail(signupEmail);
+    const result = loginWithIdentifier(signupEmail);
     if (!result.ok) {
       setSignupError("Unable to complete sign up.");
       return;
@@ -569,7 +574,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                     </h2>
                     {authModalMode === "signup" ? (
                       <p className="mt-1 text-sm text-brand-gray">
-                        {signupStep === 1 ? "Step 1 of 3: enter your email." : signupStep === 2 ? "Step 2 of 3: create your password." : "Step 3 of 3: account ready."}
+                        {signupStep === 1 ? "Step 1 of 3: enter your email or phone number." : signupStep === 2 ? "Step 2 of 3: create your password." : "Step 3 of 3: account ready."}
                       </p>
                     ) : null}
                   </div>
@@ -586,13 +591,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 {authModalMode === "login" ? (
                   <div className="grid gap-3">
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Email
+                  Email or phone number
                   <input
                     name="loginEmail"
-                    type="email"
+                    type="text"
                     value={loginEmail}
                     onChange={(event) => {
-                      setLoginEmail(sanitizeEmail(event.target.value));
+                      setLoginEmail(sanitizeAuthIdentifier(event.target.value));
                       setLoginError("");
                     }}
                     onKeyDown={(event) => {
@@ -602,6 +607,8 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                       }
                     }}
                     className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                    placeholder="Email or phone number"
+                    autoComplete="username"
                     required
                   />
                 </label>
@@ -650,13 +657,13 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 {authModalMode === "signup" && signupStep === 1 ? (
                   <div className="grid gap-3">
                 <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Email
+                  Email or phone number
                   <input
                     name="signupEmail"
-                    type="email"
+                    type="text"
                     value={signupEmail}
                     onChange={(event) => {
-                      setSignupEmail(sanitizeEmail(event.target.value));
+                      setSignupEmail(sanitizeAuthIdentifier(event.target.value));
                       setSignupError("");
                     }}
                     onKeyDown={(event) => {
@@ -666,6 +673,8 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                       }
                     }}
                     className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                    placeholder="Email or phone number"
+                    autoComplete="username"
                     required
                   />
                 </label>
@@ -733,7 +742,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                 {authModalMode === "signup" && signupStep === 3 ? (
                   <div className="grid gap-4">
                 <p className="text-sm font-semibold text-brand-dark">
-                  Sign up successful. You are now signed in as {displayName || signupEmail.split("@")[0]}.
+                  Sign up successful. You are now signed in as {displayName || getDisplayNameFromIdentifier(signupEmail)}.
                 </p>
                 <button
                   type="button"

@@ -84,5 +84,8 @@ export type PropertyListing = {
   specialCategory?: ListingSpecialCategory;
   furnishing?: PropertyFurnishing;
   view?: PropertyView;
-  downPaymentAndMortgage?: string;
+  downPaymentAmount?: string;
+  mortgageTerm?: string;
+  mortgageInterestRate?: string;
+  estimatedMonthlyMortgage?: string;
 };

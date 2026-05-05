@@ -64,7 +64,10 @@ export const BACKEND_PROPERTIES_QUERY = gql`
         location
         furnishing
         view
-        downPaymentAndMortgage
+        downPaymentAmount
+        mortgageTerm
+        mortgageInterestRate
+        estimatedMonthlyMortgage
         priceLabel
         coverImageUrl
       }

@@ -545,6 +545,50 @@
   - direct HTTP check to `http://localhost:5173/Real-Estate-Test-site/` returned `200`.
   - in-app browser automation refresh attempt timed out due browser runtime/CDP (`Page.enable`) timeout in this session.
 
+## 2026-05-05 (Detail Finance Rows + Email/Phone Auth Input)
+- Refined `Down Payment and Mortgage` section on product detail pages in `frontend/src/components/PropertyDetailPage.tsx`:
+  - kept section separated from surrounding content with top spacing.
+  - removed boxed/card styling for finance lines.
+  - rendered simple backend-ready text rows only:
+    - `Down Payment`
+    - `Mortgage Term`
+    - `Interest Rate`
+    - `Estimated Monthly Mortgage`
+  - each row now falls back to `Admin will add from backend` when backend values are missing.
+- Updated property listing model for backend-ready finance fields:
+  - `frontend/src/types/propertyListing.ts` now defines:
+    - `downPaymentAmount`
+    - `mortgageTerm`
+    - `mortgageInterestRate`
+    - `estimatedMonthlyMortgage`
+  - `frontend/src/data/propertyListings.ts` now seeds these fields for home/villa listings as empty backend-ready fields.
+- Updated backend query contract placeholders in `frontend/src/graphql/backendFoundationQueries.ts`:
+  - replaced prior single finance text field with finance row fields:
+    - `downPaymentAmount`
+    - `mortgageTerm`
+    - `mortgageInterestRate`
+    - `estimatedMonthlyMortgage`
+- Updated Login/Sign Up auth flow to support email or phone (desktop + mobile modal in shared header UI):
+  - `frontend/src/components/Header.tsx`:
+    - field labels changed to `Email or phone number`.
+    - placeholders changed to `Email or phone number`.
+    - validation now accepts either email or phone.
+    - signup step helper text updated to mention email or phone.
+    - success display-name fallback updated for phone identifiers.
+  - `frontend/src/hooks/useMockAuth.ts`:
+    - added backend-ready identifier model with auth type (`email` or `phone`).
+    - added `sanitizeAuthIdentifier`, `isValidPhoneNumber`, `isValidEmailOrPhone`, and `getDisplayNameFromIdentifier`.
+    - login now supports either email or phone via `loginWithIdentifier` (existing `loginWithEmail` kept as alias compatibility wrapper).
+- In-app browser refresh:
+  - refreshed `http://localhost:5173/Real-Estate-Test-site/property/rent-huahin-garden-04` successfully in this session.
+
+- Checks run:
+  - active frontend `npm run build` (pass).
+- Security pass note:
+  - focused frontend XSS/security scan in `frontend/src` found no unsafe patterns for:
+    - `dangerouslySetInnerHTML`, `innerHTML`, `document.write`, `eval`, unsafe `javascript:` URLs, or unsafe `target="_blank"` usage.
+  - safe URL and input sanitization usage remains in place (`safeHref`, `safeMailtoHref`, `safeTelHref`, `cleanSearchText`, `cleanNumericText`).
+
 ## 2026-05-05 (Next Small Frontend Prompt)
 - New requested frontend refinement prompt: `Down Payment and Mortgage` on product detail pages must be separated from surrounding content with clear spacing, but should not use individual boxes/cards behind each line. It should remain simple text rows/labels where backend/admin data numbers can be displayed later.
 - New auth prompt: desktop and mobile Login/Sign Up flows must allow users to sign up or log in by phone number as well as email. The field label/placeholder should say `Email or phone number` (or equivalent concise wording), and phone number should be backend-ready to store in the user registration/user profile data.

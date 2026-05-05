@@ -335,6 +335,12 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const showDownPaymentAndMortgage = isHomeOrVilla(listing);
   const viewLabel = listing.view ?? "Not specified";
   const furnishingLabel = listing.furnishing ?? "Unfurnished";
+  const financeRows = [
+    { label: "Down Payment", value: listing.downPaymentAmount },
+    { label: "Mortgage Term", value: listing.mortgageTerm },
+    { label: "Interest Rate", value: listing.mortgageInterestRate },
+    { label: "Estimated Monthly Mortgage", value: listing.estimatedMonthlyMortgage },
+  ];
 
   const previewImages = useMemo(() => {
     const sourceImages = listing.galleryImages.length > 0 ? listing.galleryImages : [listing.image];
@@ -948,12 +954,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   ) : null}
                 </div>
                 {showDownPaymentAndMortgage ? (
-                  <div className="mt-6 rounded-[20px] border border-[#e6ddd6] bg-[#fffaf6] px-4 py-4 md:px-5">
+                  <div className="mt-8 pt-1">
                     <h3 className="break-words text-lg font-black text-brand-dark">Down Payment and Mortgage</h3>
-                    <p className="mt-2 break-words text-base leading-7 text-brand-gray">
-                      {listing.downPaymentAndMortgage ??
-                        "Backend-ready: Admin will set down payment and mortgage values from the property management system."}
-                    </p>
+                    <div className="mt-3 space-y-2">
+                      {financeRows.map((row) => (
+                        <p key={`${listing.id}-${row.label}`} className="break-words text-base leading-7 text-brand-gray">
+                          <span className="font-black text-brand-dark">{row.label}:</span>{" "}
+                          {row.value?.trim() ? row.value : "Admin will add from backend"}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 ) : null}
 

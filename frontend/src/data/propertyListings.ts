@@ -472,15 +472,20 @@ function buildPropertyView(listing: PropertyListingSeed): PropertyView {
   return "Rural";
 }
 
-function buildDownPaymentAndMortgage(listing: PropertyListingSeed) {
+function buildDownPaymentAndMortgageFields(listing: PropertyListingSeed) {
   const isHomeOrVilla =
     listing.homeType === "House" ||
     listing.homeType === "Single Detach House" ||
     listing.homeType === "Semi Detached House" ||
     /villa/i.test(listing.title);
-  if (!isHomeOrVilla) return undefined;
+  if (!isHomeOrVilla) return {};
 
-  return "Backend-ready: Admin will set down payment and mortgage values from the property management system.";
+  return {
+    downPaymentAmount: "",
+    mortgageTerm: "",
+    mortgageInterestRate: "",
+    estimatedMonthlyMortgage: "",
+  };
 }
 
 function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
@@ -520,6 +525,7 @@ function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
 
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
   ...listing,
+  ...buildDownPaymentAndMortgageFields(listing),
   listingChannel: listing.id.startsWith("senior-") ? "senior-home" : "standard",
   depositAmount: listing.mode === "rent" ? listing.priceValue * 2 : undefined,
   depositMonths: listing.mode === "rent" ? 2 : undefined,
@@ -534,5 +540,4 @@ export const propertyListings: PropertyListing[] = basePropertyListings.map((lis
   propertyTypeLabel: getPropertyTypeLabel(listing),
   furnishing: getFurnishing(listing),
   view: buildPropertyView(listing),
-  downPaymentAndMortgage: buildDownPaymentAndMortgage(listing),
 }));
