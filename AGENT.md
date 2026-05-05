@@ -629,3 +629,32 @@
   - scanned frontend source for unsafe patterns: `dangerouslySetInnerHTML`, direct `innerHTML` writes, `insertAdjacentHTML`, `eval`, `new Function`, and `javascript:` URLs (no matches found).
   - verified no new `target="_blank"` links were introduced without rel protections.
   - verified new auth flow does not store passwords or plain-text OTP values in browser storage.
+
+## 2026-05-05 (Footer Red Links + Layout Update)
+- Updated `frontend/src/components/Footer.tsx` to match requested four-column footer layout while keeping the dark background and existing logo/contact structure intact:
+  - Left column: footer logo + short description (unchanged).
+  - Middle column: Company links (kept existing links).
+  - New third column: requested red links list added.
+  - Right column: contact details + social icons (kept existing info).
+- Added new footer links:
+  - Terms and Conditions
+  - Privacy
+  - Investor Relations
+  - Career
+  - World-wide Office
+  - Complaint
+  - Become our Real Estate Agent
+  - Sell Your Property
+- Link safety and routing:
+  - `Sell Your Property` now routes to existing internal sell page: `/sell-your-home` via `safeHref` and `BASE_URL`.
+  - Other new links use safe internal hash placeholders (`#terms-and-conditions`, `#privacy`, etc.) following current project pattern (no unsafe href values).
+- Kept footer responsive by extending grid from 3 columns to 4 columns at large breakpoint and 2 columns on medium screens.
+- Kept header/footer logo rule intact (footer logo preserved).
+
+- Checks run:
+  - frontend `npm run build` (pass).
+  - frontend `npm audit --audit-level=high` (pass; 0 vulnerabilities).
+
+- Focused security/XSS pass:
+  - fallback scan run with `findstr` for unsafe patterns (`dangerouslySetInnerHTML`, `innerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `javascript:`) in `frontend/src` returned no matches.
+  - All new links use existing `safeHref`; no unsafe HTML injection added.

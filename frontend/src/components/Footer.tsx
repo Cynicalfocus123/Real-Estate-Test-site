@@ -3,9 +3,11 @@ import { assetPath } from "../utils/assets";
 import { safeHref } from "../utils/security";
 
 export function Footer() {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <footer className="bg-brand-dark text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.2fr_0.8fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.95fr_1fr] lg:px-8">
         <div>
           <img
             src={assetPath("images/buy-home-for-less-footer-logo.png")}
@@ -20,10 +22,23 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-bold uppercase text-white">Company</h3>
           <ul className="mt-5 space-y-3 text-sm text-neutral-300">
-            <li><a href={safeHref(`${import.meta.env.BASE_URL}about-us`)}>About Us</a></li>
-            <li><a href={safeHref(`${import.meta.env.BASE_URL}contact-us`)}>Contact Us</a></li>
-            <li><a href={safeHref(`${import.meta.env.BASE_URL}faq`)}>FAQ</a></li>
+            <li><a href={safeHref(`${baseUrl}about-us`)}>About Us</a></li>
+            <li><a href={safeHref(`${baseUrl}contact-us`)}>Contact Us</a></li>
+            <li><a href={safeHref(`${baseUrl}faq`)}>FAQ</a></li>
             <li><a href={safeHref("#news")}>News</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-sm font-bold uppercase text-white">More</h3>
+          <ul className="mt-5 space-y-3 text-sm font-semibold text-brand-red">
+            <li><a href={safeHref("#terms-and-conditions")}>Terms and Conditions</a></li>
+            <li><a href={safeHref("#privacy")}>Privacy</a></li>
+            <li><a href={safeHref("#investor-relations")}>Investor Relations</a></li>
+            <li><a href={safeHref("#career")}>Career</a></li>
+            <li><a href={safeHref("#world-wide-office")}>World-wide Office</a></li>
+            <li><a href={safeHref("#complaint")}>Complaint</a></li>
+            <li><a href={safeHref("#become-our-real-estate-agent")}>Become our Real Estate Agent</a></li>
+            <li><a href={safeHref(`${baseUrl}sell-your-home`)}>Sell Your Property</a></li>
           </ul>
         </div>
         <div>
