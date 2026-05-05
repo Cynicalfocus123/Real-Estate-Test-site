@@ -110,6 +110,35 @@ function isValidPassword(password: string) {
 }
 
 type SignupStep = "identifier" | "verifyPhone" | "profile";
+type IdentifierMode = "email" | "phone";
+
+const COUNTRY_DIAL_CODES = [
+  { flag: "🇹🇭", code: "+66", name: "Thailand" },
+  { flag: "🇺🇸", code: "+1", name: "United States" },
+  { flag: "🇬🇧", code: "+44", name: "United Kingdom" },
+  { flag: "🇦🇺", code: "+61", name: "Australia" },
+  { flag: "🇨🇦", code: "+1", name: "Canada" },
+  { flag: "🇩🇪", code: "+49", name: "Germany" },
+  { flag: "🇫🇷", code: "+33", name: "France" },
+  { flag: "🇨🇳", code: "+86", name: "China" },
+  { flag: "🇯🇵", code: "+81", name: "Japan" },
+  { flag: "🇮🇳", code: "+91", name: "India" },
+];
+
+function sanitizeAreaCode(value: string) {
+  const cleaned = value.replace(/[^\d+]/g, "");
+  if (!cleaned) return "+";
+  if (cleaned.startsWith("+")) return cleaned;
+  return `+${cleaned.replace(/\+/g, "")}`;
+}
+
+function sanitizeLocalPhoneNumber(value: string) {
+  return value.replace(/\D/g, "").slice(0, 15);
+}
+
+function composePhoneIdentifier(areaCode: string, localNumber: string) {
+  return sanitizeAuthIdentifier(`${sanitizeAreaCode(areaCode)}${sanitizeLocalPhoneNumber(localNumber)}`);
+}
 
 function ProfileMenu({
   onLogout,
@@ -161,6 +190,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const [language, setLanguage] = useState<SiteLanguage>(getInitialLanguage);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode | null>(null);
   const [loginIdentifier, setLoginIdentifier] = useState("");
+  const [loginIdentifierMode, setLoginIdentifierMode] = useState<IdentifierMode>("phone");
+  const [loginCountryCode, setLoginCountryCode] = useState("+66");
+  const [loginLocalPhone, setLoginLocalPhone] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginOtpCode, setLoginOtpCode] = useState("");
@@ -170,6 +202,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const [loginError, setLoginError] = useState("");
   const [signupStep, setSignupStep] = useState<SignupStep>("identifier");
   const [signupIdentifier, setSignupIdentifier] = useState("");
+  const [signupIdentifierMode, setSignupIdentifierMode] = useState<IdentifierMode>("phone");
+  const [signupCountryCode, setSignupCountryCode] = useState("+66");
+  const [signupLocalPhone, setSignupLocalPhone] = useState("");
   const [signupProfileName, setSignupProfileName] = useState("");
   const [signupOtpCode, setSignupOtpCode] = useState("");
   const [signupPhoneChallengeId, setSignupPhoneChallengeId] = useState("");
@@ -240,6 +275,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
 
   function resetLoginState() {
     setLoginIdentifier("");
+    setLoginIdentifierMode("phone");
+    setLoginCountryCode("+66");
+    setLoginLocalPhone("");
     setLoginPassword("");
     setLoginOtpCode("");
     setLoginPhoneChallengeId("");
@@ -252,6 +290,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   function resetSignupState() {
     setSignupStep("identifier");
     setSignupIdentifier("");
+    setSignupIdentifierMode("phone");
+    setSignupCountryCode("+66");
+    setSignupLocalPhone("");
     setSignupProfileName("");
     setSignupOtpCode("");
     setSignupPhoneChallengeId("");
@@ -285,6 +326,28 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
     if (!identifier) return "unknown" as const;
     if (identifier.includes("@")) return "email" as const;
     return isValidPhoneNumber(identifier) ? ("phone" as const) : ("unknown" as const);
+  }
+
+  function setLoginPhoneFromParts(nextAreaCode: string, nextLocalPhone: string) {
+    const areaCode = sanitizeAreaCode(nextAreaCode);
+    const localPhone = sanitizeLocalPhoneNumber(nextLocalPhone);
+    setLoginCountryCode(areaCode);
+    setLoginLocalPhone(localPhone);
+    setLoginIdentifier(composePhoneIdentifier(areaCode, localPhone));
+    setLoginError("");
+    setLoginInfo("");
+    setLoginPhoneChallengeId("");
+    setLoginOtpCode("");
+  }
+
+  function setSignupPhoneFromParts(nextAreaCode: string, nextLocalPhone: string) {
+    const areaCode = sanitizeAreaCode(nextAreaCode);
+    const localPhone = sanitizeLocalPhoneNumber(nextLocalPhone);
+    setSignupCountryCode(areaCode);
+    setSignupLocalPhone(localPhone);
+    setSignupIdentifier(composePhoneIdentifier(areaCode, localPhone));
+    setSignupError("");
+    setSignupInfo("");
   }
 
   function goToDashboard() {
@@ -750,34 +813,110 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
 
                   {authModalMode === "login" ? (
                     <div className="grid gap-3">
-                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                        Email or phone number
-                        <input
-                          name="loginIdentifier"
-                          type="text"
-                          value={loginIdentifier}
-                          onChange={(event) => {
-                            const next = sanitizeAuthIdentifier(event.target.value);
-                            setLoginIdentifier(next);
+                      <div className="inline-flex w-full border border-brand-line p-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoginIdentifierMode("phone");
+                            setLoginIdentifier(composePhoneIdentifier(loginCountryCode, loginLocalPhone));
                             setLoginError("");
                             setLoginInfo("");
-                            if (next !== loginIdentifier) {
-                              setLoginPhoneChallengeId("");
-                              setLoginOtpCode("");
-                            }
                           }}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              void completeLogin();
-                            }
+                          className={`h-9 flex-1 text-xs font-bold uppercase tracking-wide ${
+                            loginIdentifierMode === "phone" ? "bg-brand-dark text-white" : "text-brand-dark"
+                          }`}
+                        >
+                          Phone
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoginIdentifierMode("email");
+                            setLoginIdentifier("");
+                            setLoginError("");
+                            setLoginInfo("");
+                            setLoginPhoneChallengeId("");
+                            setLoginOtpCode("");
                           }}
-                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                          placeholder="Email or phone number"
-                          autoComplete="username"
-                          required
-                        />
-                      </label>
+                          className={`h-9 flex-1 text-xs font-bold uppercase tracking-wide ${
+                            loginIdentifierMode === "email" ? "bg-brand-dark text-white" : "text-brand-dark"
+                          }`}
+                        >
+                          Email
+                        </button>
+                      </div>
+
+                      {loginIdentifierMode === "phone" ? (
+                        <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                          Phone number
+                          <div className="flex gap-2">
+                            <div className="flex h-11 w-40 items-center border border-brand-line">
+                              <select
+                                value={loginCountryCode}
+                                onChange={(event) => setLoginPhoneFromParts(event.target.value, loginLocalPhone)}
+                                className="h-full w-16 border-r border-brand-line bg-white px-1 text-center text-base outline-none"
+                                aria-label="Select country flag"
+                              >
+                                {COUNTRY_DIAL_CODES.map((item) => (
+                                  <option key={`${item.name}-${item.code}`} value={item.code}>
+                                    {item.flag}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                type="text"
+                                value={loginCountryCode}
+                                onChange={(event) => setLoginPhoneFromParts(event.target.value, loginLocalPhone)}
+                                className="h-full w-full px-2 text-sm outline-none focus:text-brand-dark"
+                                placeholder="+66"
+                                aria-label="Area code"
+                              />
+                            </div>
+                            <input
+                              name="loginIdentifier"
+                              type="text"
+                              value={loginLocalPhone}
+                              onChange={(event) => setLoginPhoneFromParts(loginCountryCode, event.target.value)}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  void completeLogin();
+                                }
+                              }}
+                              className="h-11 flex-1 border border-brand-line px-3 outline-none focus:border-brand-red"
+                              placeholder="Enter phone number"
+                              autoComplete="tel-national"
+                              inputMode="tel"
+                              required
+                            />
+                          </div>
+                        </label>
+                      ) : (
+                        <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                          Email address
+                          <input
+                            name="loginIdentifier"
+                            type="email"
+                            value={loginIdentifier}
+                            onChange={(event) => {
+                              const next = sanitizeAuthIdentifier(event.target.value);
+                              setLoginIdentifier(next);
+                              setLoginError("");
+                              setLoginInfo("");
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void completeLogin();
+                              }
+                            }}
+                            className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                            placeholder="Enter email address"
+                            autoComplete="username"
+                            required
+                          />
+                        </label>
+                      )}
 
                       {loginIdentifierType(loginIdentifier) === "phone" ? (
                         <>
@@ -876,29 +1015,107 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
 
                   {authModalMode === "signup" && signupStep === "identifier" ? (
                     <div className="grid gap-3">
-                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                        Email or phone number
-                        <input
-                          name="signupIdentifier"
-                          type="text"
-                          value={signupIdentifier}
-                          onChange={(event) => {
-                            setSignupIdentifier(sanitizeAuthIdentifier(event.target.value));
+                      <div className="inline-flex w-full border border-brand-line p-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSignupIdentifierMode("phone");
+                            setSignupIdentifier(composePhoneIdentifier(signupCountryCode, signupLocalPhone));
                             setSignupError("");
                             setSignupInfo("");
                           }}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              void onContinueSignupIdentifier();
-                            }
+                          className={`h-9 flex-1 text-xs font-bold uppercase tracking-wide ${
+                            signupIdentifierMode === "phone" ? "bg-brand-dark text-white" : "text-brand-dark"
+                          }`}
+                        >
+                          Phone
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSignupIdentifierMode("email");
+                            setSignupIdentifier("");
+                            setSignupError("");
+                            setSignupInfo("");
                           }}
-                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                          placeholder="Email or phone number"
-                          autoComplete="username"
-                          required
-                        />
-                      </label>
+                          className={`h-9 flex-1 text-xs font-bold uppercase tracking-wide ${
+                            signupIdentifierMode === "email" ? "bg-brand-dark text-white" : "text-brand-dark"
+                          }`}
+                        >
+                          Email
+                        </button>
+                      </div>
+
+                      {signupIdentifierMode === "phone" ? (
+                        <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                          Phone number
+                          <div className="flex gap-2">
+                            <div className="flex h-11 w-40 items-center border border-brand-line">
+                              <select
+                                value={signupCountryCode}
+                                onChange={(event) => setSignupPhoneFromParts(event.target.value, signupLocalPhone)}
+                                className="h-full w-16 border-r border-brand-line bg-white px-1 text-center text-base outline-none"
+                                aria-label="Select country flag"
+                              >
+                                {COUNTRY_DIAL_CODES.map((item) => (
+                                  <option key={`${item.name}-${item.code}`} value={item.code}>
+                                    {item.flag}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                type="text"
+                                value={signupCountryCode}
+                                onChange={(event) => setSignupPhoneFromParts(event.target.value, signupLocalPhone)}
+                                className="h-full w-full px-2 text-sm outline-none focus:text-brand-dark"
+                                placeholder="+66"
+                                aria-label="Area code"
+                              />
+                            </div>
+                            <input
+                              name="signupIdentifier"
+                              type="text"
+                              value={signupLocalPhone}
+                              onChange={(event) => setSignupPhoneFromParts(signupCountryCode, event.target.value)}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  void onContinueSignupIdentifier();
+                                }
+                              }}
+                              className="h-11 flex-1 border border-brand-line px-3 outline-none focus:border-brand-red"
+                              placeholder="Enter phone number"
+                              autoComplete="tel-national"
+                              inputMode="tel"
+                              required
+                            />
+                          </div>
+                        </label>
+                      ) : (
+                        <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                          Email address
+                          <input
+                            name="signupIdentifier"
+                            type="email"
+                            value={signupIdentifier}
+                            onChange={(event) => {
+                              setSignupIdentifier(sanitizeAuthIdentifier(event.target.value));
+                              setSignupError("");
+                              setSignupInfo("");
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void onContinueSignupIdentifier();
+                              }
+                            }}
+                            className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                            placeholder="Enter email address"
+                            autoComplete="username"
+                            required
+                          />
+                        </label>
+                      )}
                       <p className="text-xs font-semibold text-brand-gray">
                         Dev-only mock phone auth: {DEV_ONLY_MOCK_PHONE_NUMBER} / {DEV_ONLY_MOCK_OTP_CODE}
                       </p>
@@ -910,7 +1127,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                         disabled={signupBusy}
                         className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red disabled:cursor-not-allowed disabled:opacity-70"
                       >
-                        {isValidPhoneNumber(signupIdentifier) && !signupIdentifier.includes("@") ? "Send code" : "Continue"}
+                        {signupIdentifierMode === "phone" ? "Send code" : "Continue"}
                       </button>
                       <SocialAuthButtons />
                     </div>
