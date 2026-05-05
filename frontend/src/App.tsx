@@ -100,6 +100,8 @@ export function App() {
     currentPath.endsWith("/buy") || currentHash === "#/buy";
   const isPropertyListingsRentPage =
     currentPath.endsWith("/properties-for-rent") || currentHash === "#/properties-for-rent";
+  const isPropertyListingsSeniorPage =
+    currentPath.endsWith("/senior-home-listing") || currentHash === "#/senior-home-listing";
   const isSellYourHomePage =
     currentPath.endsWith("/sell-your-home") || currentHash === "#/sell-your-home";
   const isRetirementVisaPage =
@@ -252,6 +254,22 @@ export function App() {
       <PropertyListingsPage
         initialMode="rent"
         pageVariant="rent"
+        initialProvince={listingProvince}
+        initialQuery={listingQuery}
+        initialHomeType={listingHomeType}
+        initialBedroom={listingBedroom}
+        initialBathroom={listingBathroom}
+        initialMinPrice={listingMinPrice}
+        initialMaxPrice={listingMaxPrice}
+      />
+    );
+  }
+
+  if (isPropertyListingsSeniorPage) {
+    return (
+      <PropertyListingsPage
+        initialMode="sale"
+        pageVariant="senior"
         initialProvince={listingProvince}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}

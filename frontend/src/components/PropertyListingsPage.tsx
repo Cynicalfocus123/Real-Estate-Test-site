@@ -49,8 +49,8 @@ const listingToolbarModeOptions = [
   {
     label: "Senior Home",
     value: "sale" as ListingMode,
-    href: `${import.meta.env.BASE_URL}sell-your-home`,
-    pageVariant: "sale" as const,
+    href: `${import.meta.env.BASE_URL}senior-home-listing`,
+    pageVariant: "senior" as const,
   },
 ] as const;
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
@@ -153,7 +153,7 @@ function matchesView(listing: PropertyListing, selectedViews: ViewOption[]) {
   if (selectedViews.length === 0) return true;
 
   const searchable =
-    `${listing.title} ${listing.city} ${listing.province} ${listing.description} ${listing.statusLabel} ${listing.nearby.join(" ")} ${listing.amenities.join(" ")}`.toLowerCase();
+    `${listing.title} ${listing.city} ${listing.province} ${listing.description} ${listing.statusLabel} ${listing.nearby.join(" ")} ${listing.amenities.join(" ")} ${listing.view ?? ""}`.toLowerCase();
 
   return selectedViews.every((view) => {
     if (view === "Beach") return /beach|sea|ocean|coast/.test(searchable);
@@ -249,7 +249,7 @@ export function PropertyListingsPage({
   initialMaxPrice,
 }: {
   initialMode?: ListingMode;
-  pageVariant?: "buy" | "sale" | "rent";
+  pageVariant?: "buy" | "sale" | "rent" | "senior";
   initialProvince?: string;
   initialQuery?: string;
   initialHomeType?: string;
@@ -337,6 +337,7 @@ export function PropertyListingsPage({
     () => normalizeSearchValue(sanitizedQuery).split(" ").filter(Boolean),
     [sanitizedQuery],
   );
+  const isSeniorVariant = pageVariant === "senior";
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -488,14 +489,20 @@ export function PropertyListingsPage({
     };
   }, [sanitizedQuery]);
 
-  const modeListings = useMemo(
-    () => propertyListings.filter((listing) => listing.mode === mode),
-    [mode],
-  );
-  const draftModeListings = useMemo(
-    () => propertyListings.filter((listing) => listing.mode === draftMode),
-    [draftMode],
-  );
+  const modeListings = useMemo(() => {
+    const baseModeListings = propertyListings.filter((listing) => listing.mode === mode);
+    if (isSeniorVariant) {
+      return baseModeListings.filter((listing) => listing.listingChannel === "senior-home");
+    }
+    return baseModeListings.filter((listing) => listing.listingChannel !== "senior-home");
+  }, [isSeniorVariant, mode]);
+  const draftModeListings = useMemo(() => {
+    const baseModeListings = propertyListings.filter((listing) => listing.mode === draftMode);
+    if (isSeniorVariant) {
+      return baseModeListings.filter((listing) => listing.listingChannel === "senior-home");
+    }
+    return baseModeListings.filter((listing) => listing.listingChannel !== "senior-home");
+  }, [draftMode, isSeniorVariant]);
   const amenityOptions = useMemo(
     () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
     [modeListings],
@@ -799,7 +806,7 @@ export function PropertyListingsPage({
           <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
               <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">
-                {mode === "sale" ? "For Sale" : "For Rent"}
+                {isSeniorVariant ? "Senior Home Listing" : mode === "sale" ? "For Sale" : "For Rent"}
               </p>
               <h1 className="mt-2 font-serif text-3xl font-normal leading-tight text-brand-dark sm:text-4xl">
                 Property Listings by City and Province

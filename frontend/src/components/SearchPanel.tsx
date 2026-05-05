@@ -352,7 +352,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
         : nextMode === "sell"
           ? "sell-your-home"
           : nextMode === "senior"
-          ? "properties-for-sale"
+          ? "senior-home-listing"
           : "buy"
     }`;
     const queryString = params.toString();

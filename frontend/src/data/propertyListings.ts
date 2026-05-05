@@ -1,4 +1,11 @@
-import type { PropertyAddress, PropertyAgent, PropertyFaq, PropertyListing } from "../types/propertyListing";
+import type {
+  PropertyAddress,
+  PropertyAgent,
+  PropertyFaq,
+  PropertyFurnishing,
+  PropertyListing,
+  PropertyView,
+} from "../types/propertyListing";
 
 type PropertyListingSeed = Omit<
   PropertyListing,
@@ -246,6 +253,60 @@ const basePropertyListings: PropertyListingSeed[] = [
     statusLabel: "Income Asset",
   },
   {
+    id: "senior-hua-hin-care-villa-01",
+    mode: "sale",
+    title: "Senior Care Villa with Garden Walkway",
+    city: "Hua Hin",
+    province: "Prachuap Khiri Khan",
+    priceLabel: "THB 9,800,000",
+    priceValue: 9800000,
+    beds: 2,
+    baths: 2,
+    areaSqm: 168,
+    homeType: "House",
+    builtYear: 2023,
+    nearby: ["Hua Hin Beach", "International Clinic", "Bluport"],
+    amenities: ["Garden", "Wheelchair Access", "Security", "Parking"],
+    image: "images/province-banners/hua-hin-prachuap-khiri-khan.png",
+    statusLabel: "Senior Home",
+  },
+  {
+    id: "senior-chiang-mai-wellness-villa-02",
+    mode: "sale",
+    title: "Wellness Villa near Mountain Air Zone",
+    city: "Hang Dong",
+    province: "Chiang Mai",
+    priceLabel: "THB 11,200,000",
+    priceValue: 11200000,
+    beds: 3,
+    baths: 3,
+    areaSqm: 210,
+    homeType: "Single Detach House",
+    builtYear: 2022,
+    nearby: ["Mountain View Point", "Wellness Center", "Kad Farang"],
+    amenities: ["Single-Level Plan", "Security", "Parking", "Garden"],
+    image: "images/province-banners/chiang-mai.png",
+    statusLabel: "Senior Home",
+  },
+  {
+    id: "senior-phuket-lake-condo-03",
+    mode: "sale",
+    title: "Senior Condo with Lake and Clinic Access",
+    city: "Choeng Thale",
+    province: "Phuket",
+    priceLabel: "THB 7,600,000",
+    priceValue: 7600000,
+    beds: 1,
+    baths: 1,
+    areaSqm: 62,
+    homeType: "Condo",
+    builtYear: 2024,
+    nearby: ["Bang Tao Beach", "Lake Promenade", "Community Clinic"],
+    amenities: ["Lift", "Security", "Pool", "Shuttle"],
+    image: "images/province-banners/phuket.png",
+    statusLabel: "Senior Home",
+  },
+  {
     id: "rent-bkk-thonglor-01",
     mode: "rent",
     title: "Thonglor Designer Condo for Long Stay",
@@ -391,6 +452,37 @@ function getPropertyTypeLabel(listing: PropertyListingSeed) {
   return listing.specialCategory ?? listing.statusLabel;
 }
 
+function getFurnishing(listing: PropertyListingSeed): PropertyFurnishing {
+  if (listing.mode === "rent" || listing.homeType === "Condo" || listing.homeType === "Apartment") {
+    return "Furnished";
+  }
+
+  return "Unfurnished";
+}
+
+function buildPropertyView(listing: PropertyListingSeed): PropertyView {
+  const searchable =
+    `${listing.title} ${listing.city} ${listing.province} ${listing.statusLabel} ${listing.nearby.join(" ")}`.toLowerCase();
+
+  if (/water\s*fall|waterfall/.test(searchable)) return "Waterfall";
+  if (/mountain|hill/.test(searchable)) return "Mountain";
+  if (/lake/.test(searchable)) return "Lake";
+  if (/beach|sea|coast/.test(searchable)) return "Beach";
+  if (/city|downtown|urban|cbd/.test(searchable)) return "Cities";
+  return "Rural";
+}
+
+function buildDownPaymentAndMortgage(listing: PropertyListingSeed) {
+  const isHomeOrVilla =
+    listing.homeType === "House" ||
+    listing.homeType === "Single Detach House" ||
+    listing.homeType === "Semi Detached House" ||
+    /villa/i.test(listing.title);
+  if (!isHomeOrVilla) return undefined;
+
+  return "Backend-ready: Admin will set down payment and mortgage values from the property management system.";
+}
+
 function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
   const seededAddress = addressSeedByListingId[listing.id] ?? {};
 
@@ -411,8 +503,7 @@ function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
 }
 
 function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
-  const furnishing =
-    listing.mode === "rent" || listing.homeType === "Condo" || listing.homeType === "Apartment" ? "Furnished" : "Unfurnished";
+  const furnishing = getFurnishing(listing);
   const hasAirConditioner = listing.homeType !== "Land";
   const hasKitchen = listing.homeType !== "Land";
 
@@ -429,7 +520,9 @@ function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
 
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
   ...listing,
+  listingChannel: listing.id.startsWith("senior-") ? "senior-home" : "standard",
   depositAmount: listing.mode === "rent" ? listing.priceValue * 2 : undefined,
+  depositMonths: listing.mode === "rent" ? 2 : undefined,
   agent: defaultAgent,
   address: buildPropertyAddress(listing),
   features: buildPropertyFeatures(listing),
@@ -439,4 +532,7 @@ export const propertyListings: PropertyListing[] = basePropertyListings.map((lis
   galleryImages: buildGalleryImages(listing.image, index),
   garageSpaces: getGarageSpaces(listing),
   propertyTypeLabel: getPropertyTypeLabel(listing),
+  furnishing: getFurnishing(listing),
+  view: buildPropertyView(listing),
+  downPaymentAndMortgage: buildDownPaymentAndMortgage(listing),
 }));

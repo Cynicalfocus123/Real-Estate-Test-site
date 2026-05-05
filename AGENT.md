@@ -503,3 +503,42 @@
 - Checks run for this documentation update: active frontend `npm run build`.
 - Security pass note: focused frontend XSS scan for unsafe HTML/render/link patterns in `frontend/src` found no matches.
 - Dependency audit note: active frontend `npm audit --audit-level=moderate` required escalation and was not run because approval was declined.
+
+## 2026-05-05 (Senior Listing + Detail Behavior Update)
+- Added a dedicated senior listing route and flow:
+  - `App.tsx` now routes `/senior-home-listing` to `PropertyListingsPage` with `pageVariant="senior"`.
+  - `PropertyListingsPage.tsx` toolbar `Senior Home` button now links to `/senior-home-listing` (no longer `/sell-your-home`).
+  - Hero search `Senior Home` tab in `SearchPanel.tsx` now routes to `/senior-home-listing`.
+- Updated listing-page behavior so variant filtering is channel-aware:
+  - Added `listingChannel` support (`standard` / `senior-home`) and filtered Senior page listings to only `senior-home` records.
+  - Standard Buy/Sale and Rent listing pages now exclude `senior-home` records.
+  - Senior listing top eyebrow text now reads `Senior Home Listing` instead of `For Sale`.
+- Added backend-ready listing data parameters and types for detail behavior:
+  - New fields in `types/propertyListing.ts`: `listingChannel`, `depositMonths`, `furnishing`, `view`, `downPaymentAndMortgage`.
+  - Updated `data/propertyListings.ts` mock mapping:
+    - rent listings now use `depositMonths` with test value `2`.
+    - generated `view` value from listing text.
+    - generated `furnishing` value.
+    - generated backend-ready `downPaymentAndMortgage` text for home/villa-like properties.
+  - Added 3 senior-home sample listings to populate the new senior listing page.
+- Updated rent deposit labels to month-based wording:
+  - `PropertyListingCard.tsx` now shows deposit as `Deposit X month(s)` using `depositMonths`.
+  - `PropertyDetailPage.tsx` now shows deposit as `Deposit X month(s)` using `depositMonths` (including similar cards/sections).
+- Updated property detail layout and sections (`PropertyDetailPage.tsx`):
+  - moved `What's Special` content to immediately under `Property Details` heading and above the detail meta grid.
+  - added `View` text + icon row under property details for buy/rent/senior detail pages.
+  - added rent-only `Furnished`/`Unfurnished` text + icon row under property details.
+  - added `Down Payment and Mortgage` backend-ready section for home/villa detail pages.
+  - updated back-to-listings routing so senior-home detail pages return to `/senior-home-listing`.
+- Updated backend GraphQL-ready query shape (`frontend/src/graphql/backendFoundationQueries.ts`) to include new frontend-consumed fields:
+  - `listingChannel`, `depositMonths`, `furnishing`, `view`, `downPaymentAndMortgage`.
+
+- Checks run:
+  - active frontend `npm run build` (pass).
+  - active frontend `npm audit --audit-level=moderate` (pass; 0 vulnerabilities).
+- Security pass note:
+  - focused XSS/security scan in `frontend/src` for unsafe HTML injection patterns (`dangerouslySetInnerHTML`, `innerHTML`, `document.write`, `eval`, `javascript:` URLs, unsafe `target="_blank"` usage) returned no matches.
+  - new fields (`depositMonths`, `view`, `furnishing`, `downPaymentAndMortgage`) render as plain React text nodes; no unsafe HTML insertion added.
+- Preview note:
+  - direct HTTP check to `http://localhost:5173/Real-Estate-Test-site/` returned `200`.
+  - in-app browser automation refresh attempt timed out due browser runtime/CDP (`Page.enable`) timeout in this session.

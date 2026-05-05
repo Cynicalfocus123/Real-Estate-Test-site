@@ -33,8 +33,9 @@ function getBathroomLabel(baths: number) {
 }
 
 function getRentDepositLabel(listing: PropertyListing) {
-  if (!listing.depositAmount) return "Deposit amount available on request";
-  return `Deposit ${listing.depositAmount.toLocaleString("en-US")} THB`;
+  if (!listing.depositMonths) return "Deposit months available on request";
+  const unitLabel = listing.depositMonths === 1 ? "month" : "months";
+  return `Deposit ${listing.depositMonths} ${unitLabel}`;
 }
 
 export function PropertyListingCard({

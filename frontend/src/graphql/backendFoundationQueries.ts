@@ -38,9 +38,11 @@ export const BACKEND_PROPERTIES_QUERY = gql`
         saleCategory
         propertyType
         status
+        listingChannel
         price
         rentPrice
         depositAmount
+        depositMonths
         depositText
         bedrooms
         bathrooms
@@ -60,6 +62,9 @@ export const BACKEND_PROPERTIES_QUERY = gql`
         features
         amenities
         location
+        furnishing
+        view
+        downPaymentAndMortgage
         priceLabel
         coverImageUrl
       }
@@ -75,4 +80,3 @@ export const BACKEND_MY_FAVORITES_QUERY = gql`
   }
   ${BACKEND_PROPERTY_SUMMARY_FIELDS}
 `;
-

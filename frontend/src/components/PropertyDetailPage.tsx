@@ -19,7 +19,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
-import type { ListingMode, PropertyListing } from "../types/propertyListing";
+import type { PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
@@ -27,8 +27,14 @@ import { safeHref, safeMailtoHref, safeTelHref } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-function buildListingHref(mode: ListingMode) {
-  return mode === "rent" ? `${import.meta.env.BASE_URL}properties-for-rent` : `${import.meta.env.BASE_URL}properties-for-sale`;
+function buildListingHref(listing: PropertyListing) {
+  if (listing.mode === "rent") {
+    return `${import.meta.env.BASE_URL}properties-for-rent`;
+  }
+  if (listing.listingChannel === "senior-home") {
+    return `${import.meta.env.BASE_URL}senior-home-listing`;
+  }
+  return `${import.meta.env.BASE_URL}properties-for-sale`;
 }
 
 function getBedroomLabel(beds: number) {
@@ -40,8 +46,9 @@ function getBathroomLabel(baths: number) {
 }
 
 function getRentDepositLabel(listing: PropertyListing) {
-  if (!listing.depositAmount) return "Deposit amount available on request";
-  return `Deposit ${listing.depositAmount.toLocaleString("en-US")} THB`;
+  if (!listing.depositMonths) return "Deposit months available on request";
+  const unitLabel = listing.depositMonths === 1 ? "month" : "months";
+  return `Deposit ${listing.depositMonths} ${unitLabel}`;
 }
 
 function getAgentInitials(name: string) {
@@ -51,6 +58,15 @@ function getAgentInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+function isHomeOrVilla(listing: PropertyListing) {
+  return (
+    listing.homeType === "House" ||
+    listing.homeType === "Single Detach House" ||
+    listing.homeType === "Semi Detached House" ||
+    /villa/i.test(listing.title)
+  );
 }
 
 type GeocodedMapPoint = {
@@ -316,6 +332,9 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [mapError, setMapError] = useState<string | null>(null);
   const saved = isFavorite(listing.id);
   const metricSummary = `${getBedroomLabel(listing.beds)} • ${getBathroomLabel(listing.baths)} • ${listing.areaSqm} sqm`;
+  const showDownPaymentAndMortgage = isHomeOrVilla(listing);
+  const viewLabel = listing.view ?? "Not specified";
+  const furnishingLabel = listing.furnishing ?? "Unfurnished";
 
   const previewImages = useMemo(() => {
     const sourceImages = listing.galleryImages.length > 0 ? listing.galleryImages : [listing.image];
@@ -564,7 +583,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.22)_0%,rgba(15,23,42,0.02)_34%,rgba(15,23,42,0.6)_100%)]" />
               <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-3">
                 <a
-                  href={safeHref(buildListingHref(listing.mode))}
+                  href={safeHref(buildListingHref(listing))}
                   className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(17,24,39,0.78)] text-white shadow-[0_10px_24px_rgba(15,23,42,0.3)] backdrop-blur"
                   aria-label="Back to listings"
                 >
@@ -668,7 +687,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
           </div>
 
           <a
-            href={safeHref(buildListingHref(listing.mode))}
+            href={safeHref(buildListingHref(listing))}
             className="hidden items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-brand-red md:inline-flex"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -866,6 +885,10 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
 
               <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h2 className="break-words text-3xl font-black leading-tight text-brand-dark md:text-4xl">Property Details</h2>
+                <div className="mt-4 rounded-[20px] border border-[#e6ddd6] bg-[#fffaf6] px-4 py-4 md:px-5">
+                  <h3 className="break-words text-lg font-black text-brand-dark">What's Special</h3>
+                  <p className="mt-2 break-words text-base leading-7 text-brand-gray">{listing.description}</p>
+                </div>
                 <div className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
                   <div className="flex min-w-0 items-center gap-4">
                     <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
@@ -909,7 +932,30 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
                     </p>
                   </div>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">View:</span> {viewLabel}
+                    </p>
+                  </div>
+                  {listing.mode === "rent" ? (
+                    <div className="flex min-w-0 items-start gap-4">
+                      <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Furnished:</span> {furnishingLabel}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
+                {showDownPaymentAndMortgage ? (
+                  <div className="mt-6 rounded-[20px] border border-[#e6ddd6] bg-[#fffaf6] px-4 py-4 md:px-5">
+                    <h3 className="break-words text-lg font-black text-brand-dark">Down Payment and Mortgage</h3>
+                    <p className="mt-2 break-words text-base leading-7 text-brand-gray">
+                      {listing.downPaymentAndMortgage ??
+                        "Backend-ready: Admin will set down payment and mortgage values from the property management system."}
+                    </p>
+                  </div>
+                ) : null}
 
                 <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:hidden">
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gray">BuyHomeForLess Agent</p>
@@ -957,23 +1003,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   ) : null}
                 </div>
 
-                <div className="mt-8 grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
-                  <div>
-                    <h3 className="break-words text-2xl font-black leading-tight text-brand-dark md:text-lg">What's Special</h3>
-                    <p className="mt-4 break-words text-base leading-7 text-brand-gray md:text-base">{listing.description}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {listing.nearby.map((item) => (
-                        <span
-                          key={`${listing.id}-nearby-${item}`}
-                          className="rounded-full border border-[#e4d8cf] bg-[#fffaf6] px-4 py-2 text-sm font-bold text-brand-dark"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
+                <div className="mt-8">
+                  <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {listing.nearby.map((item) => (
+                      <span
+                        key={`${listing.id}-nearby-${item}`}
+                        className="rounded-full border border-[#e4d8cf] bg-[#fffaf6] px-4 py-2 text-sm font-bold text-brand-dark"
+                      >
+                        {item}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>

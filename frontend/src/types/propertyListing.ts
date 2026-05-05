@@ -9,6 +9,15 @@ export type ListingHomeType =
   | "Semi Detached House";
 
 export type ListingMode = "sale" | "rent";
+export type ListingChannel = "standard" | "senior-home";
+export type PropertyFurnishing = "Furnished" | "Unfurnished";
+export type PropertyView =
+  | "Beach"
+  | "Rural"
+  | "Mountain"
+  | "Lake"
+  | "Waterfall"
+  | "Cities";
 
 export type ListingSpecialCategory =
   | "Distress Property"
@@ -46,12 +55,14 @@ export type PropertyAddress = {
 export type PropertyListing = {
   id: string;
   mode: ListingMode;
+  listingChannel?: ListingChannel;
   title: string;
   city: string;
   province: string;
   priceLabel: string;
   priceValue: number;
   depositAmount?: number;
+  depositMonths?: number;
   beds: number;
   baths: number;
   areaSqm: number;
@@ -71,4 +82,7 @@ export type PropertyListing = {
   features: string[];
   faqs?: PropertyFaq[];
   specialCategory?: ListingSpecialCategory;
+  furnishing?: PropertyFurnishing;
+  view?: PropertyView;
+  downPaymentAndMortgage?: string;
 };
