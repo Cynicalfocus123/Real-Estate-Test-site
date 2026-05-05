@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
 import { propertyListings } from "../data/propertyListings";
 import type {
-  ListingHomeType,
   ListingMode,
   ListingSpecialCategory,
   PropertyListing,
@@ -14,9 +13,11 @@ import { PropertyListingCard } from "./PropertyListingCard";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-type QuickFilter = "price" | "rooms" | "homeType" | "province";
+type QuickFilter = "price" | "rooms" | "propertyType" | "province";
 type PriceQuickView = "list-price" | "monthly-payment";
 type DownPaymentOption = "amount" | "percentage";
+type PropertyTypeOption = "Any" | "Villa" | "Condo" | "Apartment" | "Townhome" | "Commercial Building" | "Resort" | "Land";
+type ViewOption = "Beach" | "Mountain" | "Lake" | "Water Fall" | "Cities" | "Rural";
 type ThailandLocationSuggestion = {
   id: string;
   label: string;
@@ -46,7 +47,7 @@ const listingToolbarModeOptions = [
     pageVariant: "rent" as const,
   },
   {
-    label: "Sell",
+    label: "Senior Home",
     value: "sale" as ListingMode,
     href: `${import.meta.env.BASE_URL}sell-your-home`,
     pageVariant: "sale" as const,
@@ -54,17 +55,17 @@ const listingToolbarModeOptions = [
 ] as const;
 const bedroomOptions = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
 const bathroomOptions = ["Any", "1", "2", "3", "4", "5+"] as const;
-const homeTypeOptions: Array<"Any" | ListingHomeType> = [
+const propertyTypeOptions: PropertyTypeOption[] = [
   "Any",
-  "House",
+  "Villa",
   "Condo",
-  "Townhouse",
-  "Multi Family",
-  "Land",
   "Apartment",
-  "Single Detach House",
-  "Semi Detached House",
+  "Townhome",
+  "Commercial Building",
+  "Resort",
+  "Land",
 ];
+const viewOptions: ViewOption[] = ["Beach", "Mountain", "Lake", "Water Fall", "Cities", "Rural"];
 const sortOptions = [
   { label: "Recommended", value: "recommended" },
   { label: "Newest", value: "newest" },
@@ -126,6 +127,42 @@ function matchesBedroom(listing: PropertyListing, selected: string) {
 function matchesBathroom(listing: PropertyListing, selected: string) {
   if (!selected || selected === "Any") return true;
   return listing.baths >= getMinimumFilterValue(selected);
+}
+
+function matchesPropertyType(listing: PropertyListing, selected: PropertyTypeOption) {
+  if (selected === "Any") return true;
+  if (selected === "Condo") return listing.homeType === "Condo";
+  if (selected === "Apartment") return listing.homeType === "Apartment";
+  if (selected === "Townhome") return listing.homeType === "Townhouse";
+  if (selected === "Commercial Building") return listing.homeType === "Multi Family";
+  if (selected === "Land") return listing.homeType === "Land";
+  if (selected === "Villa") {
+    return (
+      listing.homeType === "House" ||
+      listing.homeType === "Single Detach House" ||
+      listing.homeType === "Semi Detached House"
+    );
+  }
+
+  const resortText =
+    `${listing.title} ${listing.description} ${listing.nearby.join(" ")} ${listing.amenities.join(" ")}`.toLowerCase();
+  return resortText.includes("resort");
+}
+
+function matchesView(listing: PropertyListing, selectedViews: ViewOption[]) {
+  if (selectedViews.length === 0) return true;
+
+  const searchable =
+    `${listing.title} ${listing.city} ${listing.province} ${listing.description} ${listing.statusLabel} ${listing.nearby.join(" ")} ${listing.amenities.join(" ")}`.toLowerCase();
+
+  return selectedViews.every((view) => {
+    if (view === "Beach") return /beach|sea|ocean|coast/.test(searchable);
+    if (view === "Mountain") return /mountain|hill/.test(searchable);
+    if (view === "Lake") return /lake/.test(searchable);
+    if (view === "Water Fall") return /water\s*fall|waterfall/.test(searchable);
+    if (view === "Cities") return /city|central|downtown|urban/.test(searchable);
+    return /rural|countryside|village|farm/.test(searchable);
+  });
 }
 
 function formatPriceValue(value: number, mode: ListingMode) {
@@ -227,8 +264,8 @@ export function PropertyListingsPage({
     : "";
   const validatedInitialQuery = cleanSearchText(initialQuery);
   const validatedInitialHomeType =
-    initialHomeType && homeTypeOptions.includes(initialHomeType as "Any" | ListingHomeType)
-      ? (initialHomeType as "Any" | ListingHomeType)
+    initialHomeType && propertyTypeOptions.includes(initialHomeType as PropertyTypeOption)
+      ? (initialHomeType as PropertyTypeOption)
       : "Any";
   const validatedInitialBedroom =
     initialBedroom && bedroomOptions.includes(initialBedroom as (typeof bedroomOptions)[number])
@@ -258,22 +295,32 @@ export function PropertyListingsPage({
   const [downPaymentOption, setDownPaymentOption] = useState<DownPaymentOption>("amount");
   const [selectedBedroom, setSelectedBedroom] = useState<string>(validatedInitialBedroom);
   const [selectedBathroom, setSelectedBathroom] = useState<string>(validatedInitialBathroom);
-  const [selectedHomeType, setSelectedHomeType] = useState<"Any" | ListingHomeType>(validatedInitialHomeType);
+  const [selectedHomeType, setSelectedHomeType] = useState<PropertyTypeOption>(validatedInitialHomeType);
   const [selectedProvince, setSelectedProvince] = useState("");
   const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>(validatedInitialBedroom);
   const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>(validatedInitialBathroom);
-  const [draftQuickHomeType, setDraftQuickHomeType] = useState<"Any" | ListingHomeType>(validatedInitialHomeType);
+  const [draftQuickHomeType, setDraftQuickHomeType] = useState<PropertyTypeOption>(validatedInitialHomeType);
   const [draftQuickProvince, setDraftQuickProvince] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
+  const [selectedViews, setSelectedViews] = useState<ViewOption[]>([]);
   const [minLandSize, setMinLandSize] = useState("");
   const [maxLandSize, setMaxLandSize] = useState("");
+  const [minRoomSize, setMinRoomSize] = useState("");
+  const [maxRoomSize, setMaxRoomSize] = useState("");
+  const [minBuildingSize, setMinBuildingSize] = useState("");
+  const [maxBuildingSize, setMaxBuildingSize] = useState("");
   const [draftMode, setDraftMode] = useState<ListingMode>(initialMode);
-  const [draftHomeType, setDraftHomeType] = useState<"Any" | ListingHomeType>("Any");
+  const [draftHomeType, setDraftHomeType] = useState<PropertyTypeOption>("Any");
   const [draftAmenities, setDraftAmenities] = useState<string[]>([]);
   const [draftCategories, setDraftCategories] = useState<ListingSpecialCategory[]>([]);
+  const [draftViews, setDraftViews] = useState<ViewOption[]>([]);
   const [draftMinLandSize, setDraftMinLandSize] = useState("");
   const [draftMaxLandSize, setDraftMaxLandSize] = useState("");
+  const [draftMinRoomSize, setDraftMinRoomSize] = useState("");
+  const [draftMaxRoomSize, setDraftMaxRoomSize] = useState("");
+  const [draftMinBuildingSize, setDraftMinBuildingSize] = useState("");
+  const [draftMaxBuildingSize, setDraftMaxBuildingSize] = useState("");
   const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recommended");
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -311,9 +358,14 @@ export function PropertyListingsPage({
     setDraftQuickProvince(validatedInitialProvince);
     setSelectedCategories([]);
     setSelectedAmenities([]);
+    setSelectedViews([]);
     setSelectedHomeType(validatedInitialHomeType);
     setMinLandSize("");
     setMaxLandSize("");
+    setMinRoomSize("");
+    setMaxRoomSize("");
+    setMinBuildingSize("");
+    setMaxBuildingSize("");
     setMinPrice(validatedInitialMinPrice);
     setMaxPrice(validatedInitialMaxPrice);
     setPriceQuickView("list-price");
@@ -357,8 +409,13 @@ export function PropertyListingsPage({
       setDraftHomeType(selectedHomeType);
       setDraftAmenities(selectedAmenities);
       setDraftCategories(selectedCategories);
+      setDraftViews(selectedViews);
       setDraftMinLandSize(minLandSize);
       setDraftMaxLandSize(maxLandSize);
+      setDraftMinRoomSize(minRoomSize);
+      setDraftMaxRoomSize(maxRoomSize);
+      setDraftMinBuildingSize(minBuildingSize);
+      setDraftMaxBuildingSize(maxBuildingSize);
       setFilterMounted(true);
       return;
     }
@@ -455,6 +512,10 @@ export function PropertyListingsPage({
   const maxValue = maxPrice < maxPriceLimit ? maxPrice : null;
   const minLandValue = minLandSize ? Number(minLandSize) : null;
   const maxLandValue = maxLandSize ? Number(maxLandSize) : null;
+  const minRoomValue = minRoomSize ? Number(minRoomSize) : null;
+  const maxRoomValue = maxRoomSize ? Number(maxRoomSize) : null;
+  const minBuildingValue = minBuildingSize ? Number(minBuildingSize) : null;
+  const maxBuildingValue = maxBuildingSize ? Number(maxBuildingSize) : null;
   const priceRange = maxPriceLimit - minPriceLimit || 1;
   const minThumbPosition = ((minPrice - minPriceLimit) / priceRange) * 100;
   const maxThumbPosition = ((maxPrice - minPriceLimit) / priceRange) * 100;
@@ -471,13 +532,19 @@ export function PropertyListingsPage({
       const matchesQuery = searchTokens.length === 0 || searchTokens.every((token) => searchableText.includes(token));
       const matchesMin = minValue === null || listing.priceValue >= minValue;
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
-      const matchesType = selectedHomeType === "Any" || listing.homeType === selectedHomeType;
+      const matchesType = matchesPropertyType(listing, selectedHomeType);
       const matchesProvince = !selectedProvince || listing.province === selectedProvince;
       const matchesMinLand = minLandValue === null || listing.areaSqm >= minLandValue;
       const matchesMaxLand = maxLandValue === null || listing.areaSqm <= maxLandValue;
+      const estimatedRoomSize = listing.beds > 0 ? listing.areaSqm / listing.beds : listing.areaSqm;
+      const matchesMinRoom = minRoomValue === null || estimatedRoomSize >= minRoomValue;
+      const matchesMaxRoom = maxRoomValue === null || estimatedRoomSize <= maxRoomValue;
+      const matchesMinBuilding = minBuildingValue === null || listing.areaSqm >= minBuildingValue;
+      const matchesMaxBuilding = maxBuildingValue === null || listing.areaSqm <= maxBuildingValue;
       const matchesAmenities =
         selectedAmenities.length === 0 ||
         selectedAmenities.every((amenity) => listing.amenities.includes(amenity));
+      const matchesSelectedViews = matchesView(listing, selectedViews);
       const matchesCategory =
         mode === "rent" ||
         selectedCategories.length === 0 ||
@@ -491,7 +558,12 @@ export function PropertyListingsPage({
         matchesProvince &&
         matchesMinLand &&
         matchesMaxLand &&
+        matchesMinRoom &&
+        matchesMaxRoom &&
+        matchesMinBuilding &&
+        matchesMaxBuilding &&
         matchesAmenities &&
+        matchesSelectedViews &&
         matchesCategory &&
         matchesBedroom(listing, selectedBedroom) &&
         matchesBathroom(listing, selectedBathroom)
@@ -531,8 +603,13 @@ export function PropertyListingsPage({
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
+    setSelectedViews([]);
     setMinLandSize("");
     setMaxLandSize("");
+    setMinRoomSize("");
+    setMaxRoomSize("");
+    setMinBuildingSize("");
+    setMaxBuildingSize("");
     setSortBy("recommended");
     setSortOpen(false);
     setFilterOpen(false);
@@ -547,8 +624,13 @@ export function PropertyListingsPage({
     setDraftHomeType("Any");
     setDraftAmenities([]);
     setDraftCategories([]);
+    setDraftViews([]);
     setDraftMinLandSize("");
     setDraftMaxLandSize("");
+    setDraftMinRoomSize("");
+    setDraftMaxRoomSize("");
+    setDraftMinBuildingSize("");
+    setDraftMaxBuildingSize("");
   }
 
   function handleModeChange(nextMode: ListingMode) {
@@ -559,6 +641,7 @@ export function PropertyListingsPage({
     setDownPaymentOption("amount");
     setSelectedCategories([]);
     setSelectedAmenities([]);
+    setSelectedViews([]);
     setSelectedProvince("");
     setDraftQuickProvince("");
     setSortOpen(false);
@@ -571,8 +654,13 @@ export function PropertyListingsPage({
     setDraftHomeType("Any");
     setDraftAmenities([]);
     setDraftCategories([]);
+    setDraftViews([]);
     setDraftMinLandSize("");
     setDraftMaxLandSize("");
+    setDraftMinRoomSize("");
+    setDraftMaxRoomSize("");
+    setDraftMinBuildingSize("");
+    setDraftMaxBuildingSize("");
   }
 
   function applyFilters() {
@@ -580,8 +668,13 @@ export function PropertyListingsPage({
     setSelectedHomeType(draftHomeType);
     setSelectedAmenities(draftAmenities);
     setSelectedCategories(draftMode === "sale" ? draftCategories : []);
+    setSelectedViews(draftViews);
     setMinLandSize(draftMinLandSize);
     setMaxLandSize(draftMaxLandSize);
+    setMinRoomSize(draftMinRoomSize);
+    setMaxRoomSize(draftMaxRoomSize);
+    setMinBuildingSize(draftMinBuildingSize);
+    setMaxBuildingSize(draftMaxBuildingSize);
     setFilterOpen(false);
     setActiveQuickFilter(null);
   }
@@ -603,7 +696,7 @@ export function PropertyListingsPage({
       setDraftQuickBedroom(selectedBedroom);
       setDraftQuickBathroom(selectedBathroom);
     }
-    if (filter === "homeType") {
+    if (filter === "propertyType") {
       setDraftQuickHomeType(selectedHomeType);
     }
     if (filter === "province") {
@@ -645,7 +738,7 @@ export function PropertyListingsPage({
   function resetHomeTypeQuickFilter() {
     setSelectedHomeType("Any");
     setDraftQuickHomeType("Any");
-    setActiveQuickFilter((current) => (current === "homeType" ? null : current));
+    setActiveQuickFilter((current) => (current === "propertyType" ? null : current));
   }
 
   function resetProvinceQuickFilter() {
@@ -797,6 +890,35 @@ export function PropertyListingsPage({
                   <div className="relative">
                     <button
                       type="button"
+                      onClick={() => toggleQuickFilter("propertyType")}
+                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        hasActiveHomeTypeFilter ? "pr-20" : ""
+                      } ${
+                        activeQuickFilter === "propertyType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                      }`}
+                      aria-expanded={activeQuickFilter === "propertyType"}
+                    >
+                      Property Type
+                      {activeQuickFilter === "propertyType" ? (
+                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      ) : (
+                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                      )}
+                    </button>
+                    {hasActiveHomeTypeFilter ? (
+                      <button
+                        type="button"
+                        onClick={resetHomeTypeQuickFilter}
+                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                        aria-label="Clear property type filter"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="relative">
+                    <button
+                      type="button"
                       onClick={() => toggleQuickFilter("province")}
                       className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveProvinceFilter ? "pr-20" : ""
@@ -881,35 +1003,6 @@ export function PropertyListingsPage({
                       </button>
                     ) : null}
                   </div>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => toggleQuickFilter("homeType")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
-                        hasActiveHomeTypeFilter ? "pr-20" : ""
-                      } ${
-                        activeQuickFilter === "homeType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
-                      aria-expanded={activeQuickFilter === "homeType"}
-                    >
-                      Home type
-                      {activeQuickFilter === "homeType" ? (
-                        <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
-                      ) : (
-                        <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
-                      )}
-                    </button>
-                    {hasActiveHomeTypeFilter ? (
-                      <button
-                        type="button"
-                        onClick={resetHomeTypeQuickFilter}
-                        className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
-                        aria-label="Clear home type filter"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    ) : null}
-                  </div>
                 </div>
 
                 {mountedQuickFilter ? (
@@ -924,8 +1017,8 @@ export function PropertyListingsPage({
                           ? "Price"
                           : mountedQuickFilter === "rooms"
                             ? "Room"
-                            : mountedQuickFilter === "homeType"
-                              ? "Home type"
+                          : mountedQuickFilter === "propertyType"
+                              ? "Property Type"
                               : "Province"}
                       </h2>
                     </div>
@@ -1132,10 +1225,10 @@ export function PropertyListingsPage({
                       </div>
                     ) : null}
 
-                    {mountedQuickFilter === "homeType" ? (
+                    {mountedQuickFilter === "propertyType" ? (
                       <div className="space-y-5">
                         <div className="max-h-[360px] overflow-y-auto pr-1">
-                          {homeTypeOptions.map((option) => (
+                          {propertyTypeOptions.map((option) => (
                             <button
                               key={option}
                               type="button"
@@ -1258,11 +1351,11 @@ export function PropertyListingsPage({
               <div className="flex-1 overflow-y-auto">
                       <section className="border-b border-[#eeeeee] px-5 py-5">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-base font-black text-brand-dark">Home Type</h3>
+                          <h3 className="text-base font-black text-brand-dark">Property Type</h3>
                           <ChevronUp className="h-5 w-5 text-brand-dark" />
                         </div>
                         <div className="mt-4 grid gap-1">
-                          {homeTypeOptions.map((option) => (
+                          {propertyTypeOptions.map((option) => (
                             <button
                               key={option}
                               type="button"
@@ -1284,12 +1377,41 @@ export function PropertyListingsPage({
 
                       <section className="border-b border-[#eeeeee] px-5 py-5">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-base font-black text-brand-dark">Land Size</h3>
+                          <h3 className="text-base font-black text-brand-dark">View</h3>
+                          <ChevronUp className="h-5 w-5 text-brand-dark" />
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          {viewOptions.map((view) => (
+                            <button
+                              key={view}
+                              type="button"
+                              onClick={() =>
+                                setDraftViews((current) =>
+                                  current.includes(view)
+                                    ? current.filter((item) => item !== view)
+                                    : [...current, view],
+                                )
+                              }
+                              className={`rounded-full px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+                                draftViews.includes(view)
+                                  ? "bg-brand-dark text-white shadow-[0_12px_24px_rgba(17,24,39,0.18)]"
+                                  : "border border-brand-line bg-white text-brand-dark hover:border-brand-red"
+                              }`}
+                            >
+                              {view}
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="border-b border-[#eeeeee] px-5 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-base font-black text-brand-dark">Space</h3>
                           <ChevronUp className="h-5 w-5 text-brand-dark" />
                         </div>
                         <div className="mt-4 grid gap-4 sm:grid-cols-2">
                           <label>
-                            <span className="text-sm font-semibold text-brand-dark">Minimum sqm</span>
+                            <span className="text-sm font-semibold text-brand-dark">Land Size Min</span>
                             <input
                               value={draftMinLandSize}
                               onChange={(event) => setDraftMinLandSize(cleanNumericText(event.target.value, 8))}
@@ -1300,10 +1422,54 @@ export function PropertyListingsPage({
                             />
                           </label>
                           <label>
-                            <span className="text-sm font-semibold text-brand-dark">Maximum sqm</span>
+                            <span className="text-sm font-semibold text-brand-dark">Land Size Max</span>
                             <input
                               value={draftMaxLandSize}
                               onChange={(event) => setDraftMaxLandSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Max"
+                            />
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Room Size Min</span>
+                            <input
+                              value={draftMinRoomSize}
+                              onChange={(event) => setDraftMinRoomSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Min"
+                            />
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Room Size Max</span>
+                            <input
+                              value={draftMaxRoomSize}
+                              onChange={(event) => setDraftMaxRoomSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Max"
+                            />
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Building Size Min</span>
+                            <input
+                              value={draftMinBuildingSize}
+                              onChange={(event) => setDraftMinBuildingSize(cleanNumericText(event.target.value, 8))}
+                              className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                              inputMode="numeric"
+                              maxLength={8}
+                              placeholder="Min"
+                            />
+                          </label>
+                          <label>
+                            <span className="text-sm font-semibold text-brand-dark">Building Size Max</span>
+                            <input
+                              value={draftMaxBuildingSize}
+                              onChange={(event) => setDraftMaxBuildingSize(cleanNumericText(event.target.value, 8))}
                               className="mt-2 w-full rounded-lg border border-[#d0d0d0] bg-white px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
                               inputMode="numeric"
                               maxLength={8}

@@ -478,3 +478,16 @@
 - User objective clarified: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking permission or wasting token/usage.
 - Checks run for this documentation update: active frontend `npm run build`, active frontend `npm audit --audit-level=moderate`.
 - Security pass note: focused frontend XSS scan for unsafe HTML/render/link patterns found no matches in `frontend/src`.
+
+## 2026-05-05 (Buy Listings Filter UI Update)
+- Updated buy/properties-for-sale listing toolbar on `frontend/src/components/PropertyListingsPage.tsx`: changed `Sell` button label to `Senior Home`.
+- Moved the quick `Property Type` filter button to sit directly after `Filters` under the search bar.
+- Renamed visible `Home Type` labels to `Property Type` in quick-filter UI and filter modal UI.
+- Replaced property type filter options with: `Villa`, `Condo`, `Apartment`, `Townhome`, `Commercial Building`, `Resort`, `Land` (plus existing `Any`), without duplicates.
+- Added new filter modal `View` section with selectable options: `Beach`, `Mountain`, `Lake`, `Water Fall`, `Cities`, `Rural`.
+- Added new filter modal `Space` section and moved land controls into it as `Land Size Min` and `Land Size Max`.
+- Added new `Space` controls: `Room Size Min`, `Room Size Max`, `Building Size Min`, `Building Size Max`.
+- Reused existing draft/apply/reset filter-state flow for all new sections and kept existing responsive styling pattern.
+- Filter logic update: property type now maps from UI categories to listing data (for example `Townhome` -> `Townhouse`, `Villa` -> house variants), view matching uses safe keyword checks against listing text, and new room/building size controls are numeric-sanitized.
+- Checks run: active frontend `npm run build`; active frontend `npm audit --audit-level=moderate`.
+- Security pass note: focused XSS/security scan for unsafe HTML/render/link/script patterns in `frontend/src` found no unsafe matches; new numeric inputs are sanitized through existing `cleanNumericText` helper.
