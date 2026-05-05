@@ -144,6 +144,9 @@ export function App() {
   const isAccountSettingsPage =
     currentPath.endsWith("/account-settings") ||
     currentHash === "#/account-settings";
+  const isDashboardPage =
+    currentPath.endsWith("/dashboard") ||
+    currentHash === "#/dashboard";
   const isFavoritesPage =
     currentPath.endsWith("/favorites") ||
     currentHash === "#/favorites";
@@ -345,7 +348,7 @@ export function App() {
     return <WhySeniorcarePage />;
   }
 
-  if (isAccountSettingsPage) {
+  if (isAccountSettingsPage || isDashboardPage) {
     return <AccountSettingsPage />;
   }
 

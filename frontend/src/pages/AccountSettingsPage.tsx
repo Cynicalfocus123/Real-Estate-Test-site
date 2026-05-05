@@ -12,7 +12,6 @@ import {
   sanitizeName,
   sanitizePhone,
   sanitizeSettingsEmail,
-  toSafeUserKey,
   updateProfileField,
 } from "../services/accountSettingsService";
 import { type AccountSettings, type EditableProfileField } from "../types/accountSettings";
@@ -78,7 +77,7 @@ export function AccountSettingsPage() {
       return;
     }
 
-    const userKey = toSafeUserKey(mockUser.email);
+    const userKey = mockUser.userKey;
     setActiveUserKey(userKey);
     setSettings(getAccountSettings(userKey, mockUser.email));
   }, [isSignedIn, mockUser]);

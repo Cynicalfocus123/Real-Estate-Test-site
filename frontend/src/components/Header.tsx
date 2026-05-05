@@ -6,9 +6,19 @@ import { getInitialLanguage, useSiteTranslation } from "../hooks/useSiteTranslat
 import {
   getDisplayNameFromIdentifier,
   isValidEmailOrPhone,
+  isValidPhoneNumber,
   sanitizeAuthIdentifier,
+  setMockUser,
   useMockAuth,
 } from "../hooks/useMockAuth";
+import {
+  DEV_ONLY_MOCK_PHONE_NUMBER,
+  DEV_ONLY_MOCK_OTP_CODE,
+  isValidOtpCode,
+  sanitizeOtpCode,
+  sendMockOtpCode,
+  verifyMockOtpCode,
+} from "../services/mockOtpService";
 import { type SiteLanguage } from "../services/translationService";
 import { type AuthModalMode, OPEN_AUTH_MODAL_EVENT } from "../utils/authModal";
 import { safeHref } from "../utils/security";
@@ -99,6 +109,8 @@ function isValidPassword(password: string) {
   return password.trim().length >= 8;
 }
 
+type SignupStep = "identifier" | "verifyPhone" | "profile";
+
 function ProfileMenu({
   onLogout,
   accountSettingsHref,
@@ -148,18 +160,28 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [language, setLanguage] = useState<SiteLanguage>(getInitialLanguage);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode | null>(null);
-  const [loginEmail, setLoginEmail] = useState("");
+  const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [loginOtpCode, setLoginOtpCode] = useState("");
+  const [loginPhoneChallengeId, setLoginPhoneChallengeId] = useState("");
+  const [loginInfo, setLoginInfo] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [signupStep, setSignupStep] = useState<1 | 2 | 3>(1);
-  const [signupEmail, setSignupEmail] = useState("");
+  const [signupStep, setSignupStep] = useState<SignupStep>("identifier");
+  const [signupIdentifier, setSignupIdentifier] = useState("");
+  const [signupProfileName, setSignupProfileName] = useState("");
+  const [signupOtpCode, setSignupOtpCode] = useState("");
+  const [signupPhoneChallengeId, setSignupPhoneChallengeId] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [signupInfo, setSignupInfo] = useState("");
+  const [signupBusy, setSignupBusy] = useState(false);
   const [signupError, setSignupError] = useState("");
   const [desktopProfileOpen, setDesktopProfileOpen] = useState(false);
   const profileRootRef = useRef<HTMLDivElement | null>(null);
   const homeUrl = import.meta.env.BASE_URL;
+  const dashboardUrl = `${import.meta.env.BASE_URL}dashboard`;
   const accountSettingsUrl = `${import.meta.env.BASE_URL}account-settings`;
   const favoritesUrl = `${import.meta.env.BASE_URL}favorites`;
   const currentPath = window.location.pathname;
@@ -190,12 +212,9 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
 
       setMenuOpen(false);
       if (mode === "login") {
-        setLoginError("");
+        resetLoginState();
       } else {
-        setSignupStep(1);
-        setSignupEmail("");
-        setSignupPassword("");
-        setSignupError("");
+        resetSignupState();
       }
       setAuthModalMode(mode);
     }
@@ -219,40 +238,119 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
     return currentPath === normalizedHref;
   }
 
+  function resetLoginState() {
+    setLoginIdentifier("");
+    setLoginPassword("");
+    setLoginOtpCode("");
+    setLoginPhoneChallengeId("");
+    setLoginInfo("");
+    setLoginError("");
+    setLoginBusy(false);
+    setShowLoginPassword(false);
+  }
+
+  function resetSignupState() {
+    setSignupStep("identifier");
+    setSignupIdentifier("");
+    setSignupProfileName("");
+    setSignupOtpCode("");
+    setSignupPhoneChallengeId("");
+    setSignupPassword("");
+    setSignupInfo("");
+    setSignupError("");
+    setSignupBusy(false);
+    setShowSignupPassword(false);
+  }
+
   function closeAuthModal() {
     setAuthModalMode(null);
-    setLoginPassword("");
-    setSignupPassword("");
-    setShowLoginPassword(false);
-    setShowSignupPassword(false);
-    setLoginError("");
-    setSignupError("");
+    resetLoginState();
+    resetSignupState();
   }
 
   function openLoginModal() {
     setMenuOpen(false);
+    resetLoginState();
     setAuthModalMode("login");
-    setLoginError("");
   }
 
   function openSignupModal() {
     setMenuOpen(false);
+    resetSignupState();
     setAuthModalMode("signup");
-    setSignupStep(1);
-    setSignupEmail("");
-    setSignupPassword("");
-    setSignupError("");
   }
 
-  function completeLogin() {
-    const identifier = sanitizeAuthIdentifier(loginEmail);
-    const password = loginPassword;
-    if (!isValidEmailOrPhone(identifier)) {
-      setLoginError("Please enter a valid email or phone number.");
+  function loginIdentifierType(value: string) {
+    const identifier = sanitizeAuthIdentifier(value);
+    if (!identifier) return "unknown" as const;
+    if (identifier.includes("@")) return "email" as const;
+    return isValidPhoneNumber(identifier) ? ("phone" as const) : ("unknown" as const);
+  }
+
+  function goToDashboard() {
+    window.location.assign(safeHref(dashboardUrl));
+  }
+
+  async function onSendLoginCode() {
+    const phoneNumber = sanitizeAuthIdentifier(loginIdentifier);
+    if (!isValidPhoneNumber(phoneNumber)) {
+      setLoginError("Please enter a valid phone number.");
       return;
     }
 
-    if (!isValidPassword(password)) {
+    setLoginBusy(true);
+    setLoginError("");
+    const response = await sendMockOtpCode(phoneNumber, "login");
+    setLoginBusy(false);
+    if (!response.ok) {
+      setLoginError(response.error);
+      return;
+    }
+
+    setLoginIdentifier(phoneNumber);
+    setLoginPhoneChallengeId(response.challengeId);
+    setLoginOtpCode("");
+    setLoginInfo(response.devMessage);
+  }
+
+  async function onVerifyLoginCode() {
+    const phoneNumber = sanitizeAuthIdentifier(loginIdentifier);
+    if (!isValidPhoneNumber(phoneNumber)) {
+      setLoginError("Please enter a valid phone number.");
+      return;
+    }
+    if (!isValidOtpCode(loginOtpCode)) {
+      setLoginError("Verification code must be 6 digits.");
+      return;
+    }
+
+    setLoginBusy(true);
+    setLoginError("");
+    const verifyResult = await verifyMockOtpCode(loginPhoneChallengeId, phoneNumber, loginOtpCode, "login");
+    setLoginBusy(false);
+    if (!verifyResult.ok) {
+      setLoginError(verifyResult.error);
+      return;
+    }
+
+    const result = loginWithIdentifier(phoneNumber);
+    if (!result.ok) {
+      setLoginError("Unable to sign in. Please try again.");
+      return;
+    }
+
+    setDesktopProfileOpen(false);
+    setMenuOpen(false);
+    goToDashboard();
+  }
+
+  function onCompleteEmailLogin() {
+    const identifier = sanitizeAuthIdentifier(loginIdentifier);
+    if (!isValidEmailOrPhone(identifier) || !identifier.includes("@")) {
+      setLoginError("Please enter a valid email address.");
+      return;
+    }
+    if (!isValidPassword(loginPassword)) {
       setLoginError("Password must be at least 8 characters.");
       return;
     }
@@ -263,48 +361,106 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
       return;
     }
 
-    setLoginPassword("");
-    setLoginError("");
     setDesktopProfileOpen(false);
     setMenuOpen(false);
-    setAuthModalMode(null);
+    goToDashboard();
   }
 
-  function completeSignupEmailStep() {
-    const identifier = sanitizeAuthIdentifier(signupEmail);
+  async function completeLogin() {
+    const type = loginIdentifierType(loginIdentifier);
+    if (type === "email") {
+      onCompleteEmailLogin();
+      return;
+    }
+    if (type === "phone") {
+      if (!loginPhoneChallengeId) {
+        await onSendLoginCode();
+        return;
+      }
+      await onVerifyLoginCode();
+      return;
+    }
+    setLoginError("Please enter a valid email or phone number.");
+  }
+
+  async function onContinueSignupIdentifier() {
+    const identifier = sanitizeAuthIdentifier(signupIdentifier);
     if (!isValidEmailOrPhone(identifier)) {
       setSignupError("Please enter a valid email or phone number.");
       return;
     }
 
-    setSignupEmail(identifier);
+    if (identifier.includes("@")) {
+      setSignupIdentifier(identifier);
+      setSignupStep("profile");
+      setSignupError("");
+      setSignupInfo("");
+      return;
+    }
+
+    setSignupBusy(true);
     setSignupError("");
-    setSignupStep(2);
+    const response = await sendMockOtpCode(identifier, "signup");
+    setSignupBusy(false);
+    if (!response.ok) {
+      setSignupError(response.error);
+      return;
+    }
+
+    setSignupIdentifier(identifier);
+    setSignupPhoneChallengeId(response.challengeId);
+    setSignupOtpCode("");
+    setSignupInfo(response.devMessage);
+    setSignupStep("verifyPhone");
   }
 
-  function completeSignupPasswordStep() {
-    const password = signupPassword;
+  async function onVerifySignupPhoneCode() {
+    const phoneNumber = sanitizeAuthIdentifier(signupIdentifier);
+    if (!isValidPhoneNumber(phoneNumber)) {
+      setSignupError("Please enter a valid phone number.");
+      return;
+    }
+    if (!isValidOtpCode(signupOtpCode)) {
+      setSignupError("Verification code must be 6 digits.");
+      return;
+    }
 
-    if (!isValidPassword(password)) {
+    setSignupBusy(true);
+    setSignupError("");
+    const verifyResult = await verifyMockOtpCode(signupPhoneChallengeId, phoneNumber, signupOtpCode, "signup");
+    setSignupBusy(false);
+    if (!verifyResult.ok) {
+      setSignupError(verifyResult.error);
+      return;
+    }
+
+    setSignupStep("profile");
+    setSignupInfo("Phone number verified.");
+    setSignupError("");
+  }
+
+  function onCompleteSignupProfile() {
+    const identifier = sanitizeAuthIdentifier(signupIdentifier);
+    if (!isValidEmailOrPhone(identifier)) {
+      setSignupError("Please enter a valid email or phone number.");
+      return;
+    }
+
+    if (!isValidPassword(signupPassword)) {
       setSignupError("Password must be at least 8 characters.");
       return;
     }
 
-    const result = loginWithIdentifier(signupEmail);
-    if (!result.ok) {
+    const cleanProfileName = signupProfileName.replace(/[<>`]/g, "").trim().slice(0, 24);
+    const user = setMockUser(identifier, { displayName: cleanProfileName });
+    if (!user) {
       setSignupError("Unable to complete sign up.");
       return;
     }
 
-    setSignupPassword("");
-    setSignupError("");
-    setSignupStep(3);
     setDesktopProfileOpen(false);
     setMenuOpen(false);
-  }
-
-  function onSignupContinue() {
-    closeAuthModal();
+    goToDashboard();
   }
 
   function onLogout() {
@@ -567,193 +723,310 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                   className="w-full max-w-md max-h-[calc(100dvh-5rem)] overflow-y-auto border border-brand-line bg-white p-6 shadow-[0_20px_55px_rgba(15,23,42,0.32)]"
                   onClick={(event) => event.stopPropagation()}
                 >
-                <div className="mb-4 flex items-start justify-between">
-                  <div>
-                    <h2 className="text-xl font-black text-brand-dark">
-                      {authModalMode === "login" ? "Login" : "Sign Up"}
-                    </h2>
-                    {authModalMode === "signup" ? (
-                      <p className="mt-1 text-sm text-brand-gray">
-                        {signupStep === 1 ? "Step 1 of 3: enter your email or phone number." : signupStep === 2 ? "Step 2 of 3: create your password." : "Step 3 of 3: account ready."}
+                  <div className="mb-4 flex items-start justify-between">
+                    <div>
+                      <h2 className="text-xl font-black text-brand-dark">
+                        {authModalMode === "login" ? "Login" : "Sign Up"}
+                      </h2>
+                      {authModalMode === "signup" ? (
+                        <p className="mt-1 text-sm text-brand-gray">
+                          {signupStep === "identifier"
+                            ? "Step 1 of 3: enter your email or phone number."
+                            : signupStep === "verifyPhone"
+                              ? "Step 2 of 3: verify your phone number."
+                              : "Step 3 of 3: create password and profile."}
+                        </p>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={closeAuthModal}
+                      className="inline-flex h-8 w-8 items-center justify-center border border-brand-line text-brand-dark hover:border-brand-red hover:text-brand-red"
+                      aria-label="Close"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {authModalMode === "login" ? (
+                    <div className="grid gap-3">
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Email or phone number
+                        <input
+                          name="loginIdentifier"
+                          type="text"
+                          value={loginIdentifier}
+                          onChange={(event) => {
+                            const next = sanitizeAuthIdentifier(event.target.value);
+                            setLoginIdentifier(next);
+                            setLoginError("");
+                            setLoginInfo("");
+                            if (next !== loginIdentifier) {
+                              setLoginPhoneChallengeId("");
+                              setLoginOtpCode("");
+                            }
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              void completeLogin();
+                            }
+                          }}
+                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                          placeholder="Email or phone number"
+                          autoComplete="username"
+                          required
+                        />
+                      </label>
+
+                      {loginIdentifierType(loginIdentifier) === "phone" ? (
+                        <>
+                          {loginPhoneChallengeId ? (
+                            <>
+                              <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                                Phone number
+                                <input
+                                  type="text"
+                                  value={loginIdentifier}
+                                  disabled
+                                  className="h-11 border border-brand-line bg-neutral-100 px-3 text-brand-gray"
+                                />
+                              </label>
+                              <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                                Verification code
+                                <input
+                                  name="loginOtpCode"
+                                  type="text"
+                                  value={loginOtpCode}
+                                  onChange={(event) => {
+                                    setLoginOtpCode(sanitizeOtpCode(event.target.value));
+                                    setLoginError("");
+                                  }}
+                                  onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                      event.preventDefault();
+                                      void onVerifyLoginCode();
+                                    }
+                                  }}
+                                  className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                                  placeholder="Verification code"
+                                  inputMode="numeric"
+                                  autoComplete="one-time-code"
+                                />
+                              </label>
+                            </>
+                          ) : null}
+                          <p className="text-xs font-semibold text-brand-gray">
+                            Dev-only mock: use phone number {DEV_ONLY_MOCK_PHONE_NUMBER} and code {DEV_ONLY_MOCK_OTP_CODE}.
+                          </p>
+                        </>
+                      ) : null}
+
+                      {loginIdentifierType(loginIdentifier) === "email" ? (
+                        <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                          Password
+                          <div className="relative">
+                            <input
+                              name="loginPassword"
+                              type={showLoginPassword ? "text" : "password"}
+                              value={loginPassword}
+                              onChange={(event) => {
+                                setLoginPassword(event.target.value);
+                                setLoginError("");
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                  event.preventDefault();
+                                  void onCompleteEmailLogin();
+                                }
+                              }}
+                              className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowLoginPassword((current) => !current)}
+                              className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
+                              aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                            >
+                              {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </label>
+                      ) : null}
+
+                      {loginInfo ? <p className="text-xs font-semibold text-[#166534]">{loginInfo}</p> : null}
+                      {loginError ? <p className="text-sm font-semibold text-brand-red">{loginError}</p> : null}
+
+                      <button
+                        type="button"
+                        onClick={() => void completeLogin()}
+                        disabled={loginBusy}
+                        className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {loginIdentifierType(loginIdentifier) === "phone"
+                          ? loginPhoneChallengeId
+                            ? "Verify code"
+                            : "Send code"
+                          : "Continue"}
+                      </button>
+                      <SocialAuthButtons />
+                    </div>
+                  ) : null}
+
+                  {authModalMode === "signup" && signupStep === "identifier" ? (
+                    <div className="grid gap-3">
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Email or phone number
+                        <input
+                          name="signupIdentifier"
+                          type="text"
+                          value={signupIdentifier}
+                          onChange={(event) => {
+                            setSignupIdentifier(sanitizeAuthIdentifier(event.target.value));
+                            setSignupError("");
+                            setSignupInfo("");
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              void onContinueSignupIdentifier();
+                            }
+                          }}
+                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                          placeholder="Email or phone number"
+                          autoComplete="username"
+                          required
+                        />
+                      </label>
+                      <p className="text-xs font-semibold text-brand-gray">
+                        Dev-only mock phone auth: {DEV_ONLY_MOCK_PHONE_NUMBER} / {DEV_ONLY_MOCK_OTP_CODE}
                       </p>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={closeAuthModal}
-                    className="inline-flex h-8 w-8 items-center justify-center border border-brand-line text-brand-dark hover:border-brand-red hover:text-brand-red"
-                    aria-label="Close"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                      {signupInfo ? <p className="text-xs font-semibold text-[#166534]">{signupInfo}</p> : null}
+                      {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
+                      <button
+                        type="button"
+                        onClick={() => void onContinueSignupIdentifier()}
+                        disabled={signupBusy}
+                        className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {isValidPhoneNumber(signupIdentifier) && !signupIdentifier.includes("@") ? "Send code" : "Continue"}
+                      </button>
+                      <SocialAuthButtons />
+                    </div>
+                  ) : null}
+
+                  {authModalMode === "signup" && signupStep === "verifyPhone" ? (
+                    <div className="grid gap-3">
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Phone number
+                        <input
+                          type="text"
+                          value={signupIdentifier}
+                          disabled
+                          className="h-11 border border-brand-line bg-neutral-100 px-3 text-brand-gray"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Verification code
+                        <input
+                          name="signupOtpCode"
+                          type="text"
+                          value={signupOtpCode}
+                          onChange={(event) => {
+                            setSignupOtpCode(sanitizeOtpCode(event.target.value));
+                            setSignupError("");
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              void onVerifySignupPhoneCode();
+                            }
+                          }}
+                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                          placeholder="Verification code"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                        />
+                      </label>
+                      {signupInfo ? <p className="text-xs font-semibold text-[#166534]">{signupInfo}</p> : null}
+                      {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
+                      <button
+                        type="button"
+                        onClick={() => void onVerifySignupPhoneCode()}
+                        disabled={signupBusy}
+                        className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        Verify code
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {authModalMode === "signup" && signupStep === "profile" ? (
+                    <div className="grid gap-3">
+                      <div className="inline-flex items-center gap-2 text-sm text-brand-gray">
+                        <User className="h-4 w-4" />
+                        <span>{signupIdentifier}</span>
+                      </div>
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Profile name
+                        <input
+                          name="signupProfileName"
+                          type="text"
+                          value={signupProfileName}
+                          onChange={(event) => {
+                            setSignupProfileName(event.target.value.replace(/[<>`]/g, "").slice(0, 24));
+                            setSignupError("");
+                          }}
+                          className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
+                          placeholder={getDisplayNameFromIdentifier(signupIdentifier)}
+                          autoComplete="name"
+                        />
+                      </label>
+                      <label className="grid gap-1 text-sm font-semibold text-brand-dark">
+                        Create password
+                        <div className="relative">
+                          <input
+                            name="signupPassword"
+                            type={showSignupPassword ? "text" : "password"}
+                            value={signupPassword}
+                            onChange={(event) => {
+                              setSignupPassword(event.target.value);
+                              setSignupError("");
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                onCompleteSignupProfile();
+                              }
+                            }}
+                            className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
+                            autoComplete="new-password"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSignupPassword((current) => !current)}
+                            className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
+                            aria-label={showSignupPassword ? "Hide password" : "Show password"}
+                          >
+                            {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </label>
+                      <p className="text-xs text-brand-gray">Use at least 8 characters.</p>
+                      {signupInfo ? <p className="text-xs font-semibold text-[#166534]">{signupInfo}</p> : null}
+                      {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
+                      <button
+                        type="button"
+                        onClick={onCompleteSignupProfile}
+                        className="mt-1 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
+                      >
+                        Create account
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
-
-                {authModalMode === "login" ? (
-                  <div className="grid gap-3">
-                <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Email or phone number
-                  <input
-                    name="loginEmail"
-                    type="text"
-                    value={loginEmail}
-                    onChange={(event) => {
-                      setLoginEmail(sanitizeAuthIdentifier(event.target.value));
-                      setLoginError("");
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        completeLogin();
-                      }
-                    }}
-                    className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                    placeholder="Email or phone number"
-                    autoComplete="username"
-                    required
-                  />
-                </label>
-                <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Password
-                  <div className="relative">
-                    <input
-                      name="loginPassword"
-                      type={showLoginPassword ? "text" : "password"}
-                      value={loginPassword}
-                      onChange={(event) => {
-                        setLoginPassword(event.target.value);
-                        setLoginError("");
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          completeLogin();
-                        }
-                      }}
-                      className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword((current) => !current)}
-                      className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
-                      aria-label={showLoginPassword ? "Hide password" : "Show password"}
-                    >
-                      {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </label>
-                {loginError ? <p className="text-sm font-semibold text-brand-red">{loginError}</p> : null}
-                <button
-                  type="button"
-                  onClick={completeLogin}
-                  className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
-                >
-                  Continue
-                </button>
-                    <SocialAuthButtons />
-                  </div>
-                ) : null}
-
-                {authModalMode === "signup" && signupStep === 1 ? (
-                  <div className="grid gap-3">
-                <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Email or phone number
-                  <input
-                    name="signupEmail"
-                    type="text"
-                    value={signupEmail}
-                    onChange={(event) => {
-                      setSignupEmail(sanitizeAuthIdentifier(event.target.value));
-                      setSignupError("");
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        completeSignupEmailStep();
-                      }
-                    }}
-                    className="h-11 border border-brand-line px-3 outline-none focus:border-brand-red"
-                    placeholder="Email or phone number"
-                    autoComplete="username"
-                    required
-                  />
-                </label>
-                {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
-                <button
-                  type="button"
-                  onClick={completeSignupEmailStep}
-                  className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
-                >
-                  Continue
-                </button>
-                    <SocialAuthButtons />
-                  </div>
-                ) : null}
-
-                {authModalMode === "signup" && signupStep === 2 ? (
-                  <div className="grid gap-3">
-                <div className="inline-flex items-center gap-2 text-sm text-brand-gray">
-                  <User className="h-4 w-4" />
-                  <span>{signupEmail}</span>
-                </div>
-                <label className="grid gap-1 text-sm font-semibold text-brand-dark">
-                  Create Password
-                  <div className="relative">
-                    <input
-                      name="signupPassword"
-                      type={showSignupPassword ? "text" : "password"}
-                      value={signupPassword}
-                      onChange={(event) => {
-                        setSignupPassword(event.target.value);
-                        setSignupError("");
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          completeSignupPasswordStep();
-                        }
-                      }}
-                      className="h-11 w-full border border-brand-line px-3 pr-11 outline-none focus:border-brand-red"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSignupPassword((current) => !current)}
-                      className="absolute right-0 top-0 inline-flex h-11 w-11 items-center justify-center text-brand-gray hover:text-brand-dark"
-                      aria-label={showSignupPassword ? "Hide password" : "Show password"}
-                    >
-                      {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </label>
-                <p className="text-xs text-brand-gray">Use at least 8 characters.</p>
-                {signupError ? <p className="text-sm font-semibold text-brand-red">{signupError}</p> : null}
-                <button
-                  type="button"
-                  onClick={completeSignupPasswordStep}
-                  className="mt-1 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
-                >
-                  Create Account
-                </button>
-                    <SocialAuthButtons />
-                  </div>
-                ) : null}
-
-                {authModalMode === "signup" && signupStep === 3 ? (
-                  <div className="grid gap-4">
-                <p className="text-sm font-semibold text-brand-dark">
-                  Sign up successful. You are now signed in as {displayName || getDisplayNameFromIdentifier(signupEmail)}.
-                </p>
-                <button
-                  type="button"
-                  onClick={onSignupContinue}
-                  className="inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
-                >
-                  Continue
-                </button>
-                  </div>
-                ) : null}
-              </div>
               </div>
             </div>,
             document.body,

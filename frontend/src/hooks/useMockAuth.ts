@@ -4,9 +4,11 @@ const MOCK_AUTH_SESSION_KEY = "bhfl-mock-auth-v1";
 const MOCK_AUTH_CHANGE_EVENT = "bhfl:mock-auth-changed";
 
 export type MockUser = {
+  userKey: string;
   identifier: string;
   authType: "email" | "phone";
   email: string;
+  phoneNumber: string;
   displayName: string;
   avatarInitial: string;
 };
@@ -15,7 +17,13 @@ type StoredMockUser = {
   identifier: string;
   authType: "email" | "phone";
   email: string;
+  phoneNumber?: string;
+  userKey?: string;
   displayName: string;
+};
+
+type SetMockUserOptions = {
+  displayName?: string;
 };
 
 export function sanitizeAuthIdentifier(value: string) {
@@ -24,6 +32,13 @@ export function sanitizeAuthIdentifier(value: string) {
     return cleaned.toLowerCase();
   }
   return cleaned.replace(/[^\d+]/g, "");
+}
+
+export function buildMockUserKey(identifierInput: string) {
+  const identifier = sanitizeAuthIdentifier(identifierInput).toLowerCase();
+  const safe = identifier.replace(/[^a-z0-9+@._-]/g, "");
+  if (!safe) return "";
+  return safe.slice(0, 96);
 }
 
 export function sanitizeEmail(value: string) {
@@ -69,26 +84,30 @@ function toMockUser(
     : getDisplayNameFromIdentifier(identifier);
 
   return {
+    userKey: buildMockUserKey(identifier),
     identifier,
     authType,
     email: authType === "email" ? identifier : "",
+    phoneNumber: authType === "phone" ? identifier : "",
     displayName,
     avatarInitial: getAvatarInitial(displayName),
   };
 }
 
-export function setMockUser(identifierInput: string) {
+export function setMockUser(identifierInput: string, options?: SetMockUserOptions) {
   const identifier = sanitizeAuthIdentifier(identifierInput);
   const authType = identifier.includes("@") ? "email" : "phone";
   if (!isValidEmailOrPhone(identifier)) {
     return null;
   }
 
-  const user = toMockUser(identifier, authType);
+  const user = toMockUser(identifier, authType, options?.displayName);
   const safeStored: StoredMockUser = {
     identifier: user.identifier,
     authType: user.authType,
     email: user.email,
+    phoneNumber: user.phoneNumber,
+    userKey: user.userKey,
     displayName: user.displayName,
   };
   window.sessionStorage.setItem(MOCK_AUTH_SESSION_KEY, JSON.stringify(safeStored));
@@ -101,7 +120,8 @@ export function getMockUser() {
     const raw = window.sessionStorage.getItem(MOCK_AUTH_SESSION_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredMockUser;
-    const identifier = sanitizeAuthIdentifier(parsed.identifier ?? parsed.email ?? "");
+    const fallbackIdentifier = parsed.authType === "phone" ? parsed.phoneNumber ?? "" : parsed.email ?? "";
+    const identifier = sanitizeAuthIdentifier(parsed.identifier ?? fallbackIdentifier);
     const authType = parsed.authType === "phone" ? "phone" : identifier.includes("@") ? "email" : "phone";
     if (!isValidEmailOrPhone(identifier)) {
       return null;

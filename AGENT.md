@@ -595,3 +595,37 @@
 - Reminder: this is a new prompt/planning item only unless user explicitly approves implementation in the active chat.
 - Added priority confirmation rule: user gives full confirmation for normal project work; future agents should continue without repeatedly asking for plan/edit/commit/push confirmation unless explicitly told to stop, only plan, or not push.
 - Added blocked-command workflow rule: project workflow should continue whether normal commands are blocked or unblocked by retrying through the required elevated/approved path when Windows, sandbox, network, or `.git/index.lock` restrictions block normal verification, commit, or push commands.
+
+## 2026-05-05 (Phone OTP Auth Flow + Dashboard Redirect)
+- Implemented backend-ready frontend phone OTP authentication flow while keeping email auth support and existing modal style:
+  - `frontend/src/components/Header.tsx`
+    - login and signup both support `Email or phone number`.
+    - login phone flow: enter phone -> `Send code` -> enter `Verification code` -> `Verify code` -> redirect to dashboard.
+    - signup phone flow: enter phone -> `Send code` -> `Verify code` -> `Create password` + profile name -> redirect to dashboard.
+    - signup email flow remains supported and now ends at dashboard as well.
+    - added clear dev-only mock message in auth UI: mock phone number + mock code.
+  - `frontend/src/services/mockOtpService.ts` (new):
+    - added dev-only mock OTP challenge/send/verify service for frontend testing.
+    - OTP challenges use session storage with expiry + attempt limits.
+    - OTP value is not persisted in plain text storage (hashed for verification).
+    - kept service backend-ready with clean send/verify boundaries for future API swap.
+  - `frontend/src/hooks/useMockAuth.ts`
+    - extended mock session user shape with `userKey` and `phoneNumber`.
+    - added stable user-key builder so phone/email sessions map reliably.
+    - `setMockUser` now supports optional display name for signup profile setup.
+  - `frontend/src/hooks/useFavorites.ts`
+    - switched favorites user scoping to `mockUser.userKey` so phone-auth users get stable saved-data identity.
+  - `frontend/src/pages/AccountSettingsPage.tsx`
+    - switched account settings user key source to `mockUser.userKey` (works for phone/email sessions).
+  - `frontend/src/App.tsx`
+    - added `/dashboard` route alias mapped to account settings page so post-auth dashboard navigation is explicit.
+
+- Checks run:
+  - frontend `npm run build` (pass).
+  - frontend `npm audit --audit-level=high` (pass; 0 vulnerabilities).
+  - local preview reachability check `http://localhost:5173/Real-Estate-Test-site/` (HTTP 200).
+
+- Focused security pass notes:
+  - scanned frontend source for unsafe patterns: `dangerouslySetInnerHTML`, direct `innerHTML` writes, `insertAdjacentHTML`, `eval`, `new Function`, and `javascript:` URLs (no matches found).
+  - verified no new `target="_blank"` links were introduced without rel protections.
+  - verified new auth flow does not store passwords or plain-text OTP values in browser storage.
