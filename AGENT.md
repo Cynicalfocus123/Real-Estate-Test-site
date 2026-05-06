@@ -831,3 +831,15 @@
   - Result: `Nearby Location` now appears across listing detail pages using shared detail layout (buy/rent/senior) while keeping optional field support for future backend.
 - Verification:
   - Active frontend build check: `npm run build` (pass).
+
+## 2026-05-06 (Mobile Detail Slider Contact Agent Removal)
+- Updated shared property detail page mobile slider controls in `frontend/src/components/PropertyDetailPage.tsx`.
+- Removed `Contact agent` button from the mobile control row directly under the image slider.
+- Kept only:
+  - `See all photos`
+  - `Photo X of Y`
+- Scope:
+  - mobile-only slider control row (`md:hidden` block).
+  - desktop layout remains unchanged.
+- Verification:
+  - Active frontend build check: `npm run build` (pass).

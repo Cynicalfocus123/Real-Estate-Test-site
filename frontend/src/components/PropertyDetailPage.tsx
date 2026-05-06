@@ -842,13 +842,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 >
                   See all photos
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setContactVisible((current) => !current)}
-                  className="shrink-0 rounded-full border border-[#232735] px-4 py-3 text-sm font-black text-brand-dark shadow-[inset_0_0_0_1px_rgba(17,24,39,0.2)]"
-                >
-                  Contact agent
-                </button>
                 <div className="shrink-0 rounded-full border border-[#d7dbe5] bg-[#f4f6fb] px-4 py-3 text-sm font-bold text-brand-gray">
                   Photo {activePreviewIndex + 1} of {previewImages.length}
                 </div>
