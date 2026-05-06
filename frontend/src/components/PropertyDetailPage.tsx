@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Phone,
   Ruler,
+  Scale,
   Search,
   Share2,
   Warehouse,
@@ -19,6 +20,7 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
+import { usePropertyCompare } from "../hooks/usePropertyCompare";
 import type { PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
@@ -26,6 +28,7 @@ import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref, safeMailtoHref, safeTelHref } from "../utils/security";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
+import { type PropertyCompareRow, PropertyCompareModal } from "./PropertyCompareModal";
 
 function buildListingHref(listing: PropertyListing) {
   if (listing.mode === "rent") {
@@ -49,6 +52,65 @@ function getRentDepositLabel(listing: PropertyListing) {
   if (!listing.depositMonths) return "Deposit months available on request";
   const unitLabel = listing.depositMonths === 1 ? "month" : "months";
   return `Deposit ${listing.depositMonths} ${unitLabel}`;
+}
+
+function getCompareDepositMonths(listing: PropertyListing) {
+  if (listing.mode !== "rent") return "Not applicable";
+  if (!listing.depositMonths) return "Not specified";
+  const unitLabel = listing.depositMonths === 1 ? "month" : "months";
+  return `${listing.depositMonths} ${unitLabel}`;
+}
+
+function getCompareFinanceLabel(listing: PropertyListing) {
+  const segments = [
+    listing.downPaymentAmount ? `Down Payment: ${listing.downPaymentAmount}` : "",
+    listing.mortgageTerm ? `Mortgage Term: ${listing.mortgageTerm}` : "",
+    listing.mortgageInterestRate ? `Interest Rate: ${listing.mortgageInterestRate}` : "",
+    listing.estimatedMonthlyMortgage ? `Estimated Monthly Mortgage: ${listing.estimatedMonthlyMortgage}` : "",
+  ].filter(Boolean);
+
+  return segments.length > 0 ? segments.join(" | ") : "Not applicable";
+}
+
+function formatAddressForCompare(listing: PropertyListing) {
+  const address = buildAddressQuery(listing);
+  return address || `${listing.city}, ${listing.province}, Thailand`;
+}
+
+function formatListField(items: string[]) {
+  return items.length > 0 ? items.join(", ") : "Not specified";
+}
+
+const COMPARE_FIELDS: Array<{ label: string; getValue: (listing: PropertyListing) => string }> = [
+  { label: "Price", getValue: (listing) => listing.priceLabel },
+  { label: "Listing type / status", getValue: (listing) => `For ${listing.mode} | ${listing.statusLabel}` },
+  { label: "Location", getValue: (listing) => `${listing.city}, ${listing.province}` },
+  { label: "Property type", getValue: (listing) => `${listing.propertyTypeLabel} (${listing.homeType})` },
+  { label: "Bedrooms", getValue: (listing) => getBedroomLabel(listing.beds) },
+  { label: "Bathrooms", getValue: (listing) => getBathroomLabel(listing.baths) },
+  { label: "Land size", getValue: (listing) => (listing.homeType === "Land" ? `${listing.areaSqm} sqm` : "N/A") },
+  { label: "Room size", getValue: (listing) => (listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`) },
+  { label: "Building size", getValue: (listing) => (listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`) },
+  { label: "View", getValue: (listing) => listing.view ?? "Not specified" },
+  { label: "Furnished / Unfurnished", getValue: (listing) => listing.furnishing ?? "Unfurnished" },
+  { label: "Rent deposit months", getValue: (listing) => getCompareDepositMonths(listing) },
+  { label: "Down Payment and Mortgage", getValue: (listing) => getCompareFinanceLabel(listing) },
+  { label: "Features", getValue: (listing) => formatListField(listing.features) },
+  { label: "Amenities", getValue: (listing) => formatListField(listing.amenities) },
+  { label: "What's Special", getValue: (listing) => listing.description || "Not specified" },
+  { label: "Built year", getValue: (listing) => `${listing.builtYear}` },
+  { label: "Floor count", getValue: (listing) => `${listing.floorCount || "N/A"}` },
+  { label: "Garage spaces", getValue: (listing) => `${listing.garageSpaces || "N/A"}` },
+  { label: "Nearby Highlights", getValue: (listing) => formatListField(listing.nearby) },
+  { label: "Address", getValue: (listing) => formatAddressForCompare(listing) },
+];
+
+function buildCompareRows(leftListing: PropertyListing, rightListing: PropertyListing): PropertyCompareRow[] {
+  return COMPARE_FIELDS.map((field) => ({
+    label: field.label,
+    leftValue: field.getValue(leftListing),
+    rightValue: field.getValue(rightListing),
+  }));
 }
 
 function getAgentInitials(name: string) {
@@ -299,7 +361,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const contactWechat = "+66-973924632";
   const contactEmail = "Info@buyhomeforless.com";
   const { isFavorite, toggleFavorite, notice } = useFavorites();
+  const {
+    compareIds,
+    compareCount,
+    isCompared,
+    toggleCompare,
+    removeCompare,
+    clearCompare,
+    notice: compareNotice,
+  } = usePropertyCompare();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [galleryFocusIndex, setGalleryFocusIndex] = useState<number | null>(null);
   const [contactVisible, setContactVisible] = useState(false);
   const [shareMessage, setShareMessage] = useState("Share");
@@ -331,6 +403,11 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [mapLoading, setMapLoading] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const saved = isFavorite(listing.id);
+  const compared = isCompared(listing.id);
+  const compareActionDisabled = !compared && compareCount >= 2;
+  const surfaceNotice = notice || compareNotice;
+  const compareProgressLabel = `${compareCount} of 2 selected`;
+  const compareButtonLabel = compared ? "Added to Compare" : "Compare";
   const metricSummary = `${getBedroomLabel(listing.beds)} • ${getBathroomLabel(listing.baths)} • ${listing.areaSqm} sqm`;
   const showDownPaymentAndMortgage = isHomeOrVilla(listing);
   const viewLabel = listing.view ?? "Not specified";
@@ -346,6 +423,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     const sourceImages = listing.galleryImages.length > 0 ? listing.galleryImages : [listing.image];
     return Array.from({ length: Math.min(5, Math.max(sourceImages.length, 5)) }, (_, index) => sourceImages[index % sourceImages.length]);
   }, [listing.galleryImages, listing.image]);
+  const comparedListings = useMemo(
+    () =>
+      compareIds
+        .map((id) => propertyListings.find((candidate) => candidate.id === id))
+        .filter((candidate): candidate is PropertyListing => Boolean(candidate)),
+    [compareIds],
+  );
+  const compareRows = useMemo(() => {
+    if (comparedListings.length !== 2) return [] as PropertyCompareRow[];
+    return buildCompareRows(comparedListings[0], comparedListings[1]);
+  }, [comparedListings]);
 
   useEffect(() => {
     setActivePreviewIndex(0);
@@ -460,6 +548,12 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     }
   }, [galleryOpen]);
 
+  useEffect(() => {
+    if (compareIds.length < 2) {
+      setCompareModalOpen(false);
+    }
+  }, [compareIds.length]);
+
   const similarProperties = useMemo(() => {
     const sameProvince = propertyListings.filter(
       (candidate) =>
@@ -512,6 +606,30 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       setShareMessage("Share unavailable");
       window.setTimeout(() => setShareMessage("Share"), 2200);
     }
+  }
+
+  function handleCompareToggle() {
+    const result = toggleCompare(listing.id);
+    if (result.selected && result.compareIds.length === 2) {
+      setCompareModalOpen(true);
+      return;
+    }
+
+    if (result.compareIds.length < 2) {
+      setCompareModalOpen(false);
+    }
+  }
+
+  function handleRemoveComparedProperty(propertyId: string) {
+    const nextIds = removeCompare(propertyId);
+    if (nextIds.length < 2) {
+      setCompareModalOpen(false);
+    }
+  }
+
+  function handleClearCompare() {
+    clearCompare();
+    setCompareModalOpen(false);
   }
 
   function scrollSimilar(direction: "left" | "right") {
@@ -571,10 +689,10 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5f2] text-brand-dark">
       <Header logoClassName="h-20 w-auto object-contain sm:h-24 md:h-20" />
       <main className="overflow-x-hidden pb-16 md:pb-20">
-        {notice ? (
+        {surfaceNotice ? (
           <div className="mx-auto mt-4 w-full max-w-7xl px-4 lg:px-8">
             <div className="rounded-xl border border-brand-red/30 bg-[#fff3f1] px-4 py-3 text-sm font-semibold text-brand-red">
-              {notice}
+              {surfaceNotice}
             </div>
           </div>
         ) : null}
@@ -614,6 +732,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     aria-label={`Share ${listing.title}`}
                   >
                     <Share2 className="h-6 w-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCompareToggle}
+                    disabled={compareActionDisabled}
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
+                      compared ? "bg-white text-brand-red" : "text-white"
+                    } ${compareActionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                    aria-label={`${compared ? "Remove from compare" : "Compare"} ${listing.title}`}
+                    aria-pressed={compared}
+                  >
+                    <Scale className="h-6 w-6" />
                   </button>
                   <button
                     type="button"
@@ -735,6 +865,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   {listing.mode === "rent" ? (
                     <p className="mt-1 text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel(listing)}</p>
                   ) : null}
+                  <p className="mt-3 text-sm font-semibold text-brand-gray">{compareProgressLabel}</p>
                 </div>
               </div>
 
@@ -863,6 +994,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 {listing.mode === "rent" ? (
                   <p className="mt-1 text-base font-bold text-brand-gray">{getRentDepositLabel(listing)}</p>
                 ) : null}
+                <p className="mt-3 text-sm font-semibold text-brand-gray">{compareProgressLabel}</p>
               </div>
 
               <div className="mt-5 hidden flex-wrap gap-3 md:flex">
@@ -886,6 +1018,20 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 >
                   <Share2 className="h-4 w-4" />
                   {shareMessage}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCompareToggle}
+                  disabled={compareActionDisabled}
+                  className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-black transition ${
+                    compared
+                      ? "border-brand-red bg-[#fff1f1] text-brand-red"
+                      : "border-[#dfd5ce] bg-white text-brand-dark hover:border-brand-red"
+                  } ${compareActionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                  aria-pressed={compared}
+                >
+                  <Scale className="h-4 w-4" />
+                  {compareButtonLabel}
                 </button>
               </div>
 
@@ -1228,6 +1374,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
         </section>
       </main>
       <Footer />
+
+      {compareModalOpen && comparedListings.length === 2 ? (
+        <PropertyCompareModal
+          open={compareModalOpen}
+          leftListing={comparedListings[0]}
+          rightListing={comparedListings[1]}
+          rows={compareRows}
+          onClose={() => setCompareModalOpen(false)}
+          onRemove={handleRemoveComparedProperty}
+          onClear={handleClearCompare}
+        />
+      ) : null}
 
       {galleryOpen ? (
         <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-[rgba(17,24,39,0.78)] px-4 py-8">

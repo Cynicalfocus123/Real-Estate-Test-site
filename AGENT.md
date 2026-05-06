@@ -712,3 +712,34 @@
 - Focused security/XSS pass:
   - scanned backend source for `dangerouslySetInnerHTML`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` URL patterns; no unsafe app code matches found.
   - reviewed new `innerHTML` admin demo usage: dynamic table values still route through `esc()`, preview text uses `textContent`, and social preview image `src` is only set after safe `/uploads/` or `http(s)` validation.
+
+## 2026-05-06 (Property Compare on Detail Pages)
+- Implemented a frontend property compare flow (max 2 properties) on product detail pages:
+  - Added compare localStorage service in `frontend/src/services/propertyCompareService.ts`.
+  - Added compare state hook with cross-tab/event sync and user notices in `frontend/src/hooks/usePropertyCompare.ts`.
+  - Added new large scrollable compare modal component in `frontend/src/components/PropertyCompareModal.tsx`:
+    - top header with back control, centered `2 of 2: Compare properties`, and close `X`.
+    - top two-property side-by-side cards with image, title, location, price, and remove action.
+    - full-width gray label bars with side-by-side values under each label.
+    - clear compare action and internal vertical scrolling for long data.
+  - Updated `frontend/src/components/PropertyDetailPage.tsx`:
+    - Compare action added next to Share controls (desktop action row and mobile action icon group).
+    - selected state now shows `Added to Compare`.
+    - live progress feedback shown as `X of 2 selected`.
+    - second property selection auto-opens compare modal.
+    - compare values use structured listing fields only (no scraping), including:
+      - price, listing type/status, location, property type, bedrooms, bathrooms,
+      - land/room/building size,
+      - view, furnishing, rent deposit months, down payment/mortgage data,
+      - features, amenities, what's special, built year, floor count, garage, nearby highlights, address.
+    - remove/clear actions supported; modal close keeps browsing flow.
+
+- Checks run:
+  - `frontend`: `npm run build` (pass).
+  - Focused frontend XSS/security scan in `src` for:
+    - `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, `javascript:` (no matches).
+    - `target="_blank"` usages (no matches).
+
+- Notes:
+  - Left unrelated pre-existing git change untouched:
+    - `Backend buyhomeforless/backend/src/routes/adminDemoRoutes.ts`
