@@ -19,6 +19,15 @@ export type PropertyView =
   | "Waterfall"
   | "Cities";
 
+export type NearbyLocationType =
+  | "Hospital"
+  | "School"
+  | "Airport"
+  | "Shopping Mall"
+  | "Beach"
+  | "Transportation"
+  | "Cities";
+
 export type ListingSpecialCategory =
   | "Distress Property"
   | "Foreclosure"
@@ -52,6 +61,13 @@ export type PropertyAddress = {
   longitude?: number;
 };
 
+export type NearbyLocation = {
+  type: NearbyLocationType;
+  name: string;
+  distance: string;
+  sortOrder?: number;
+};
+
 export type PropertyListing = {
   id: string;
   mode: ListingMode;
@@ -69,6 +85,7 @@ export type PropertyListing = {
   homeType: ListingHomeType;
   builtYear: number;
   nearby: string[];
+  nearbyLocations?: NearbyLocation[];
   amenities: string[];
   image: string;
   galleryImages: string[];

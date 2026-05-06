@@ -794,3 +794,21 @@
 - Checks run:
   - `frontend`: `npm run build` (pass).
   - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).
+
+## 2026-05-06 (Frontend Nearby Location Section Under Property Map)
+- Frontend-only update (no backend routes, no database.sql changes, no MySQL table changes, no API endpoint changes).
+- Added backend-ready optional listing field in `frontend/src/types/propertyListing.ts`:
+  - `nearbyLocations?: { type: "Hospital" | "School" | "Airport" | "Shopping Mall" | "Beach" | "Transportation" | "Cities"; name: string; distance: string; sortOrder?: number; }[]`
+- Updated shared property detail layout in `frontend/src/components/PropertyDetailPage.tsx`:
+  - Added new `Nearby Location` section directly under `Property Location` (map) section.
+  - Rendered text-only table layout with 3 columns: `TYPE | NAME | DISTANCE`.
+  - No icons used in this section.
+  - Section is hidden when `nearbyLocations` is missing or empty.
+  - Added stable frontend sorting support via optional `sortOrder`.
+  - Kept rendering as plain React text content (no `dangerouslySetInnerHTML`).
+- Added mock `nearbyLocations` data in `frontend/src/data/propertyListings.ts` for at least:
+  - one buy/sale listing (`sale-bkk-phrom-phong-01`)
+  - one rent listing (`rent-bkk-thonglor-01`)
+  - one senior home listing (`senior-hua-hin-care-villa-01`)
+- Verification:
+  - Active frontend build check: `npm run build` (pass).

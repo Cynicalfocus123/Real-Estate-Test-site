@@ -417,6 +417,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     { label: "Interest Rate", value: listing.mortgageInterestRate },
     { label: "Estimated Monthly Mortgage", value: listing.estimatedMonthlyMortgage },
   ];
+  const nearbyLocations = useMemo(() => {
+    if (!listing.nearbyLocations || listing.nearbyLocations.length === 0) return [];
+
+    return listing.nearbyLocations
+      .map((location, index) => ({ ...location, sourceIndex: index }))
+      .sort((left, right) => {
+        const leftOrder = left.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const rightOrder = right.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+        return left.sourceIndex - right.sourceIndex;
+      });
+  }, [listing.nearbyLocations]);
 
   const previewImages = useMemo(() => {
     const sourceImages = listing.galleryImages.length > 0 ? listing.galleryImages : [listing.image];
@@ -1296,6 +1308,38 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   Map data © OpenStreetMap contributors
                 </p>
               </section>
+
+              {nearbyLocations.length > 0 ? (
+                <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                  <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Nearby Location</h2>
+                  <div className="mt-5 overflow-hidden rounded-[20px] border border-[#e6ddd6] bg-white">
+                    <table className="w-full table-fixed border-collapse text-left">
+                      <thead>
+                        <tr className="border-b border-[#e6ddd6] bg-[#faf6f2]">
+                          <th className="w-[34%] px-3 py-3 text-xs font-black uppercase tracking-[0.12em] text-brand-gray sm:px-5 sm:text-sm">Type</th>
+                          <th className="w-[42%] px-3 py-3 text-xs font-black uppercase tracking-[0.12em] text-brand-gray sm:px-5 sm:text-sm">Name</th>
+                          <th className="w-[24%] px-3 py-3 text-xs font-black uppercase tracking-[0.12em] text-brand-gray sm:px-5 sm:text-sm">Distance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {nearbyLocations.map((location) => (
+                          <tr key={`${listing.id}-nearby-location-${location.type}-${location.name}-${location.distance}`} className="border-b border-[#f1e9e3] last:border-b-0">
+                            <td className="px-3 py-3 align-top text-sm font-bold text-brand-dark sm:px-5 sm:text-base">
+                              <span className="break-words">{location.type}</span>
+                            </td>
+                            <td className="px-3 py-3 align-top text-sm font-semibold text-brand-dark sm:px-5 sm:text-base">
+                              <span className="break-words">{location.name}</span>
+                            </td>
+                            <td className="px-3 py-3 align-top text-sm font-semibold text-brand-gray sm:px-5 sm:text-base">
+                              <span className="break-words">{location.distance}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              ) : null}
 
               <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

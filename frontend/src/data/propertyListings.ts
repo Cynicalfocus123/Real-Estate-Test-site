@@ -1,4 +1,5 @@
 import type {
+  NearbyLocation,
   PropertyAddress,
   PropertyAgent,
   PropertyFaq,
@@ -11,6 +12,16 @@ type PropertyListingSeed = Omit<
   PropertyListing,
   "agent" | "description" | "faqs" | "features" | "floorCount" | "galleryImages" | "garageSpaces" | "propertyTypeLabel"
 >;
+
+const defaultNearbyLocations: NearbyLocation[] = [
+  { type: "Hospital", name: "Bumrungrad", distance: "3 KM", sortOrder: 1 },
+  { type: "School", name: "CJ International School", distance: "2 KM", sortOrder: 2 },
+  { type: "Airport", name: "Suvarnabhumi", distance: "10 KM", sortOrder: 3 },
+  { type: "Shopping Mall", name: "Central", distance: "20 KM", sortOrder: 4 },
+  { type: "Beach", name: "Hua Hin", distance: "10 KM", sortOrder: 5 },
+  { type: "Transportation", name: "MRT", distance: "5 KM", sortOrder: 6 },
+  { type: "Cities", name: "Downtown", distance: "15 KM", sortOrder: 7 },
+];
 
 const basePropertyListings: PropertyListingSeed[] = [
   {
@@ -27,6 +38,7 @@ const basePropertyListings: PropertyListingSeed[] = [
     homeType: "Condo",
     builtYear: 2020,
     nearby: ["BTS Phrom Phong", "Emporium", "Benchasiri Park"],
+    nearbyLocations: defaultNearbyLocations,
     amenities: ["Pool", "Gym", "Parking", "Security"],
     image: "images/province-banners/bangkok.png",
     statusLabel: "Prime CBD",
@@ -266,6 +278,7 @@ const basePropertyListings: PropertyListingSeed[] = [
     homeType: "House",
     builtYear: 2023,
     nearby: ["Hua Hin Beach", "International Clinic", "Bluport"],
+    nearbyLocations: defaultNearbyLocations,
     amenities: ["Garden", "Wheelchair Access", "Security", "Parking"],
     image: "images/province-banners/hua-hin-prachuap-khiri-khan.png",
     statusLabel: "Senior Home",
@@ -320,6 +333,7 @@ const basePropertyListings: PropertyListingSeed[] = [
     homeType: "Condo",
     builtYear: 2021,
     nearby: ["BTS Thong Lo", "J Avenue", "Samitivej Sukhumvit"],
+    nearbyLocations: defaultNearbyLocations,
     amenities: ["Pool", "Gym", "Security", "Parking"],
     image: "images/province-banners/bangkok.png",
     statusLabel: "For Rent",
