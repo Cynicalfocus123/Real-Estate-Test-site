@@ -22,6 +22,15 @@
 - Blocked-command workflow rule: the workflow must work whether commands are blocked or unblocked. If normal commands fail because of Windows permissions, sandbox restrictions, network restrictions, `.git/index.lock` permission errors, or similar environment blocks, immediately retry with the required elevated/approved path and continue the verification, commit, and push flow whenever possible.
 - Always update this `AGENT.md` with the latest standing rules, completed changes, checks run, and relevant project notes without asking permission. Objective: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking or wasting token usage.
 - Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
+- Standing search-tool rule:
+  - The bundled Codex `rg` inside `WindowsApps` is blocked and must not be used.
+  - Do not use: `C:\Program Files\WindowsApps\OpenAI.Codex_*\app\resources\rg.exe`
+  - Always use full-path WinGet ripgrep: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`
+  - Repo-search example: `"C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe" -n "search text" .`
+  - If full-path `rg` fails, do not stop; fall back to:
+    - PowerShell `Get-ChildItem` + `Select-String`
+    - CMD `dir /s /b` + `findstr`
+  - Do not ask the user again about `rg` unless all search methods fail.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
