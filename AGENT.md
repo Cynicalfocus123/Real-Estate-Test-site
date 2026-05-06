@@ -821,3 +821,13 @@
   - one senior home listing (`senior-hua-hin-care-villa-01`)
 - Verification:
   - Active frontend build check: `npm run build` (pass).
+
+## 2026-05-06 (Nearby Location Visibility Across All Detail Pages)
+- Investigated report that `Nearby Location` was not visible on some property detail pages.
+- Root cause: the section correctly rendered only when `nearbyLocations` existed; initially only a subset of listings had that field.
+- Frontend-only fix in `frontend/src/data/propertyListings.ts`:
+  - Added `buildNearbyLocations()` fallback to auto-generate backend-ready `nearbyLocations` from existing `nearby` mock entries when missing.
+  - Added allowed-type fallback cycle (`Transportation`, `Shopping Mall`, `Hospital`, `School`, `Airport`, `Beach`, `Cities`) and deterministic `sortOrder` + mock `distance` values.
+  - Result: `Nearby Location` now appears across listing detail pages using shared detail layout (buy/rent/senior) while keeping optional field support for future backend.
+- Verification:
+  - Active frontend build check: `npm run build` (pass).

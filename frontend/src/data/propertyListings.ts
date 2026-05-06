@@ -1,5 +1,6 @@
 import type {
   NearbyLocation,
+  NearbyLocationType,
   PropertyAddress,
   PropertyAgent,
   PropertyFaq,
@@ -21,6 +22,16 @@ const defaultNearbyLocations: NearbyLocation[] = [
   { type: "Beach", name: "Hua Hin", distance: "10 KM", sortOrder: 5 },
   { type: "Transportation", name: "MRT", distance: "5 KM", sortOrder: 6 },
   { type: "Cities", name: "Downtown", distance: "15 KM", sortOrder: 7 },
+];
+
+const fallbackNearbyLocationTypes: NearbyLocationType[] = [
+  "Transportation",
+  "Shopping Mall",
+  "Hospital",
+  "School",
+  "Airport",
+  "Beach",
+  "Cities",
 ];
 
 const basePropertyListings: PropertyListingSeed[] = [
@@ -537,8 +548,26 @@ function buildPropertyFeatures(listing: PropertyListingSeed): string[] {
   ];
 }
 
+function buildNearbyLocations(listing: PropertyListingSeed): NearbyLocation[] | undefined {
+  if (listing.nearbyLocations && listing.nearbyLocations.length > 0) {
+    return listing.nearbyLocations;
+  }
+
+  if (!listing.nearby || listing.nearby.length === 0) {
+    return undefined;
+  }
+
+  return listing.nearby.map((name, index) => ({
+    type: fallbackNearbyLocationTypes[index % fallbackNearbyLocationTypes.length],
+    name,
+    distance: `${(index + 1) * 2} KM`,
+    sortOrder: index + 1,
+  }));
+}
+
 export const propertyListings: PropertyListing[] = basePropertyListings.map((listing, index) => ({
   ...listing,
+  nearbyLocations: buildNearbyLocations(listing),
   ...buildDownPaymentAndMortgageFields(listing),
   listingChannel: listing.id.startsWith("senior-") ? "senior-home" : "standard",
   depositAmount: listing.mode === "rent" ? listing.priceValue * 2 : undefined,
