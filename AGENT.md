@@ -763,3 +763,19 @@
 - Checks run:
   - `frontend`: `npm run build` (pass).
   - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).
+
+## 2026-05-06 (Compare Recovery + Manual Reset)
+- Fixed a compare-state lockout where the UI could show `2 of 2 selected` and make compare actions effectively untestable.
+- Updated `frontend/src/components/PropertyDetailPage.tsx`:
+  - removed hard disabled state from compare action when list is full.
+  - when compare is full and user clicks compare on another listing, modal now opens (if two valid compared listings exist) instead of dead-end behavior.
+  - added stale compare ID auto-recovery: if persisted compare IDs no longer map to valid listings, compare is cleared automatically.
+  - added visible `Reset compare` controls (mobile + desktop) so users can clear compare state instantly and start fresh tests.
+- Existing behavior preserved:
+  - auto-open modal on second selection.
+  - only `X` in modal clears all compare selections.
+  - back arrow / Escape close without reset.
+
+- Checks run:
+  - `frontend`: `npm run build` (pass).
+  - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).

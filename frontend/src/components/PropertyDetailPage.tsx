@@ -404,7 +404,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const [mapError, setMapError] = useState<string | null>(null);
   const saved = isFavorite(listing.id);
   const compared = isCompared(listing.id);
-  const compareActionDisabled = !compared && compareCount >= 2;
   const surfaceNotice = notice || compareNotice;
   const compareProgressLabel = `${compareCount} of 2 selected`;
   const compareButtonLabel = compared ? "Added to Compare" : "Compare";
@@ -554,6 +553,14 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     }
   }, [compareIds.length]);
 
+  useEffect(() => {
+    const hasStaleCompareIds = compareIds.length > 0 && comparedListings.length !== compareIds.length;
+    if (!hasStaleCompareIds) return;
+
+    clearCompare();
+    setCompareModalOpen(false);
+  }, [clearCompare, compareIds.length, comparedListings.length]);
+
   const similarProperties = useMemo(() => {
     const sameProvince = propertyListings.filter(
       (candidate) =>
@@ -612,6 +619,17 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     const result = toggleCompare(listing.id);
     if (result.selected && result.compareIds.length === 2) {
       setCompareModalOpen(true);
+      return;
+    }
+
+    if (result.limitReached) {
+      if (comparedListings.length === 2) {
+        setCompareModalOpen(true);
+        return;
+      }
+
+      clearCompare();
+      setCompareModalOpen(false);
       return;
     }
 
@@ -741,10 +759,9 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   <button
                     type="button"
                     onClick={handleCompareToggle}
-                    disabled={compareActionDisabled}
                     className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
                       compared ? "bg-white text-brand-red" : "text-white"
-                    } ${compareActionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                    }`}
                     aria-label={`${compared ? "Remove from compare" : "Compare"} ${listing.title}`}
                     aria-pressed={compared}
                   >
@@ -870,7 +887,18 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   {listing.mode === "rent" ? (
                     <p className="mt-1 text-sm font-bold text-brand-gray md:text-base">{getRentDepositLabel(listing)}</p>
                   ) : null}
-                  <p className="mt-3 text-sm font-semibold text-brand-gray">{compareProgressLabel}</p>
+                  <div className="mt-3 flex items-center gap-3">
+                    <p className="text-sm font-semibold text-brand-gray">{compareProgressLabel}</p>
+                    {compareCount > 0 ? (
+                      <button
+                        type="button"
+                        onClick={handleClearCompare}
+                        className="rounded-full border border-[#ddd4cc] px-3 py-1 text-xs font-black text-brand-dark transition hover:border-brand-red"
+                      >
+                        Reset compare
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -1027,17 +1055,25 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 <button
                   type="button"
                   onClick={handleCompareToggle}
-                  disabled={compareActionDisabled}
                   className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-black transition ${
                     compared
                       ? "border-brand-red bg-[#fff1f1] text-brand-red"
                       : "border-[#dfd5ce] bg-white text-brand-dark hover:border-brand-red"
-                  } ${compareActionDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                  }`}
                   aria-pressed={compared}
                 >
                   <Scale className="h-4 w-4" />
                   {compareButtonLabel}
                 </button>
+                {compareCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={handleClearCompare}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#dfd5ce] bg-white px-5 py-3 text-sm font-black text-brand-dark transition hover:border-brand-red"
+                  >
+                    Reset compare
+                  </button>
+                ) : null}
               </div>
 
               <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
