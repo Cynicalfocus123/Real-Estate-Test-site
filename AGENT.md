@@ -779,3 +779,18 @@
 - Checks run:
   - `frontend`: `npm run build` (pass).
   - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).
+
+## 2026-05-06 (Compare Popup Reset UX Simplification)
+- Updated compare popup behavior to use top-right `X` as the reset control:
+  - `frontend/src/components/PropertyCompareModal.tsx`:
+    - removed in-modal `Clear compare` button.
+    - kept `X` wired to clear both compared properties via `onCloseAndReset`.
+  - `frontend/src/components/PropertyDetailPage.tsx`:
+    - removed unused modal `onClear` prop wiring.
+- Result:
+  - compare popup now resets by clicking `X` on top.
+  - no separate clear button inside popup.
+
+- Checks run:
+  - `frontend`: `npm run build` (pass).
+  - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).

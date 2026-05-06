@@ -1425,7 +1425,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
           onClose={() => setCompareModalOpen(false)}
           onCloseAndReset={handleCloseCompareModalAndReset}
           onRemove={handleRemoveComparedProperty}
-          onClear={handleClearCompare}
         />
       ) : null}
 

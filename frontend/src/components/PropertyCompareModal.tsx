@@ -17,7 +17,6 @@ type PropertyCompareModalProps = {
   onClose: () => void;
   onCloseAndReset: () => void;
   onRemove: (listingId: string) => void;
-  onClear: () => void;
 };
 
 function getCompareImage(listing: PropertyListing) {
@@ -32,7 +31,6 @@ export function PropertyCompareModal({
   onClose,
   onCloseAndReset,
   onRemove,
-  onClear,
 }: PropertyCompareModalProps) {
   useEffect(() => {
     if (!open) return undefined;
@@ -108,16 +106,6 @@ export function PropertyCompareModal({
                 </button>
               </article>
             ))}
-          </div>
-
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={onClear}
-              className="inline-flex rounded-full border border-[#ddd4cc] px-4 py-2 text-xs font-black text-brand-dark transition hover:border-brand-red sm:text-sm"
-            >
-              Clear compare
-            </button>
           </div>
 
           <div className="mt-4 space-y-4">
