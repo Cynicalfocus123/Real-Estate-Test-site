@@ -632,6 +632,11 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
     setCompareModalOpen(false);
   }
 
+  function handleCloseCompareModalAndReset() {
+    clearCompare();
+    setCompareModalOpen(false);
+  }
+
   function scrollSimilar(direction: "left" | "right") {
     similarScrollRef.current?.scrollBy({
       left: direction === "left" ? -320 : 320,
@@ -1382,6 +1387,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
           rightListing={comparedListings[1]}
           rows={compareRows}
           onClose={() => setCompareModalOpen(false)}
+          onCloseAndReset={handleCloseCompareModalAndReset}
           onRemove={handleRemoveComparedProperty}
           onClear={handleClearCompare}
         />

@@ -15,6 +15,7 @@ type PropertyCompareModalProps = {
   rightListing: PropertyListing;
   rows: PropertyCompareRow[];
   onClose: () => void;
+  onCloseAndReset: () => void;
   onRemove: (listingId: string) => void;
   onClear: () => void;
 };
@@ -29,6 +30,7 @@ export function PropertyCompareModal({
   rightListing,
   rows,
   onClose,
+  onCloseAndReset,
   onRemove,
   onClear,
 }: PropertyCompareModalProps) {
@@ -69,7 +71,7 @@ export function PropertyCompareModal({
           </h2>
           <button
             type="button"
-            onClick={onClose}
+            onClick={onCloseAndReset}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#ddd4cc] text-brand-dark transition hover:border-brand-red"
             aria-label="Close compare modal"
           >

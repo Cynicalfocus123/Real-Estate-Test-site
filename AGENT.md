@@ -743,3 +743,23 @@
 - Notes:
   - Left unrelated pre-existing git change untouched:
     - `Backend buyhomeforless/backend/src/routes/adminDemoRoutes.ts`
+
+## 2026-05-06 (Compare Reset on Modal X Close)
+- Updated compare reset behavior so a full reset happens only when the comparison modal `X` button is clicked:
+  - `frontend/src/components/PropertyCompareModal.tsx`:
+    - added explicit `onCloseAndReset` prop.
+    - wired header `X` button to `onCloseAndReset`.
+    - kept back arrow and `Escape` behavior as close-only (no reset), so users can close and continue browsing without losing selected compare items unless they use `X`.
+  - `frontend/src/components/PropertyDetailPage.tsx`:
+    - added `handleCloseCompareModalAndReset()` to clear compare selections and close modal.
+    - passed reset handler to modal `onCloseAndReset`.
+
+- Resulting behavior:
+  - first and second compare selection flow unchanged; modal still auto-opens on second selection.
+  - compare state is preserved during page navigation before modal open.
+  - only clicking modal `X` resets all compare selections and compare count to empty.
+  - behavior is shared for buy, rent, and senior home listings.
+
+- Checks run:
+  - `frontend`: `npm run build` (pass).
+  - Focused frontend XSS/security scan in `src` for `dangerouslySetInnerHTML`, `innerHTML=`, `insertAdjacentHTML`, `document.write`, `eval(`, `new Function`, and `javascript:` (no matches).
