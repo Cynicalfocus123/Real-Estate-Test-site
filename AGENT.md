@@ -1076,3 +1076,13 @@
 - Verification:
   - Frontend build completed successfully in `frontend` via `npm run build`.
   - Focused XSS/security scan on touched frontend files found no unsafe rendering patterns.
+
+## 2026-05-08 (Footer Supplied Logo Visibility)
+- Footer update in `frontend/src/components/Footer.tsx`:
+  - Confirmed footer image source uses the deployed copy of the supplied logo: `assetPath("images/logo-white-text.png")`.
+  - Confirmed `frontend/public/images/logo-white-text.png` matches `frontend/site image/logo white text all.png`.
+  - Removed the footer logo height cap so the taller supplied logo displays at an appropriate size while preserving `h-auto`, `w-full`, max-width constraints, and `object-contain`.
+  - Footer layout, links, contact information, and dark contrast background remain unchanged.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - Focused XSS/security scan on touched frontend files found no unsafe rendering patterns.
