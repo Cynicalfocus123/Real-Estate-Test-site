@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AccountSettingsPage } from "./pages/AccountSettingsPage";
 import { FavoritesPage } from "./pages/FavoritesPage";
 import { AboutUsPage } from "./components/AboutUsPage";
+import { BecomeRealEstateAgentPage } from "./components/BecomeRealEstateAgentPage";
 import { ContactUsPage } from "./components/ContactUsPage";
 import { CostOfLivingThailandPage } from "./components/CostOfLivingThailandPage";
 import { CustomHomeNonThaiPage } from "./components/CustomHomeNonThaiPage";
@@ -69,6 +70,9 @@ export function App() {
     currentHash === "#/real-estate-laws-for-foreigner";
   const isAboutUsPage = currentPath.endsWith("/about-us") || currentHash === "#/about-us";
   const isContactUsPage = currentPath.endsWith("/contact-us") || currentHash === "#/contact-us";
+  const isBecomeRealEstateAgentPage =
+    currentPath.endsWith("/become-our-real-estate-agent") ||
+    currentHash === "#/become-our-real-estate-agent";
   const isFaqPage = currentPath.endsWith("/faq") || currentHash === "#/faq";
   const isForeignerOwnPropertyPage =
     currentPath.endsWith("/foreigner-own-property-thailand") ||
@@ -194,6 +198,10 @@ export function App() {
 
   if (isContactUsPage) {
     return <ContactUsPage />;
+  }
+
+  if (isBecomeRealEstateAgentPage) {
+    return <BecomeRealEstateAgentPage />;
   }
 
   if (isFaqPage) {

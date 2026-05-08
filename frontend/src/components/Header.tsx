@@ -136,6 +136,10 @@ function sanitizeLocalPhoneNumber(value: string) {
   return value.replace(/\D/g, "").slice(0, 15);
 }
 
+function sanitizeAuthTextInput(value: string) {
+  return value.replace(/[<>`]/g, "").slice(0, 120);
+}
+
 function composePhoneIdentifier(areaCode: string, localNumber: string) {
   return sanitizeAuthIdentifier(`${sanitizeAreaCode(areaCode)}${sanitizeLocalPhoneNumber(localNumber)}`);
 }
@@ -321,13 +325,6 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
     setAuthModalMode("signup");
   }
 
-  function loginIdentifierType(value: string) {
-    const identifier = sanitizeAuthIdentifier(value);
-    if (!identifier) return "unknown" as const;
-    if (identifier.includes("@")) return "email" as const;
-    return isValidPhoneNumber(identifier) ? ("phone" as const) : ("unknown" as const);
-  }
-
   function setLoginPhoneFromParts(nextAreaCode: string, nextLocalPhone: string) {
     const areaCode = sanitizeAreaCode(nextAreaCode);
     const localPhone = sanitizeLocalPhoneNumber(nextLocalPhone);
@@ -430,47 +427,48 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
   }
 
   async function completeLogin() {
-    const type = loginIdentifierType(loginIdentifier);
-    if (type === "email") {
+    if (loginIdentifierMode === "email") {
       onCompleteEmailLogin();
       return;
     }
-    if (type === "phone") {
-      if (!loginPhoneChallengeId) {
-        await onSendLoginCode();
-        return;
-      }
-      await onVerifyLoginCode();
+    if (!loginPhoneChallengeId) {
+      await onSendLoginCode();
       return;
     }
-    setLoginError("Please enter a valid email or phone number.");
+    await onVerifyLoginCode();
   }
 
   async function onContinueSignupIdentifier() {
-    const identifier = sanitizeAuthIdentifier(signupIdentifier);
-    if (!isValidEmailOrPhone(identifier)) {
-      setSignupError("Please enter a valid email or phone number.");
-      return;
-    }
+    if (signupIdentifierMode === "email") {
+      const emailIdentifier = sanitizeAuthIdentifier(signupIdentifier);
+      if (!isValidEmailOrPhone(emailIdentifier) || !emailIdentifier.includes("@")) {
+        setSignupError("Please enter a valid email address.");
+        return;
+      }
 
-    if (identifier.includes("@")) {
-      setSignupIdentifier(identifier);
+      setSignupIdentifier(emailIdentifier);
       setSignupStep("profile");
       setSignupError("");
       setSignupInfo("");
       return;
     }
 
+    const phoneIdentifier = sanitizeAuthIdentifier(signupIdentifier);
+    if (!isValidPhoneNumber(phoneIdentifier)) {
+      setSignupError("Please enter a valid phone number.");
+      return;
+    }
+
     setSignupBusy(true);
     setSignupError("");
-    const response = await sendMockOtpCode(identifier, "signup");
+    const response = await sendMockOtpCode(phoneIdentifier, "signup");
     setSignupBusy(false);
     if (!response.ok) {
       setSignupError(response.error);
       return;
     }
 
-    setSignupIdentifier(identifier);
+    setSignupIdentifier(phoneIdentifier);
     setSignupPhoneChallengeId(response.challengeId);
     setSignupOtpCode("");
     setSignupInfo(response.devMessage);
@@ -886,7 +884,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                               className="h-11 flex-1 border border-brand-line px-3 outline-none focus:border-brand-red"
                               placeholder="Enter phone number"
                               autoComplete="tel-national"
-                              inputMode="tel"
+                              inputMode="numeric"
                               required
                             />
                           </div>
@@ -899,7 +897,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                             type="email"
                             value={loginIdentifier}
                             onChange={(event) => {
-                              const next = sanitizeAuthIdentifier(event.target.value);
+                              const next = sanitizeAuthTextInput(event.target.value);
                               setLoginIdentifier(next);
                               setLoginError("");
                               setLoginInfo("");
@@ -918,7 +916,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                         </label>
                       )}
 
-                      {loginIdentifierType(loginIdentifier) === "phone" ? (
+                      {loginIdentifierMode === "phone" ? (
                         <>
                           {loginPhoneChallengeId ? (
                             <>
@@ -961,7 +959,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                         </>
                       ) : null}
 
-                      {loginIdentifierType(loginIdentifier) === "email" ? (
+                      {loginIdentifierMode === "email" ? (
                         <label className="grid gap-1 text-sm font-semibold text-brand-dark">
                           Password
                           <div className="relative">
@@ -1003,7 +1001,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                         disabled={loginBusy}
                         className="mt-2 inline-flex h-11 items-center justify-center border border-brand-dark bg-brand-dark px-4 text-sm font-bold uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red disabled:cursor-not-allowed disabled:opacity-70"
                       >
-                        {loginIdentifierType(loginIdentifier) === "phone"
+                        {loginIdentifierMode === "phone"
                           ? loginPhoneChallengeId
                             ? "Verify code"
                             : "Send code"
@@ -1086,7 +1084,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                               className="h-11 flex-1 border border-brand-line px-3 outline-none focus:border-brand-red"
                               placeholder="Enter phone number"
                               autoComplete="tel-national"
-                              inputMode="tel"
+                              inputMode="numeric"
                               required
                             />
                           </div>
@@ -1099,7 +1097,7 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
                             type="email"
                             value={signupIdentifier}
                             onChange={(event) => {
-                              setSignupIdentifier(sanitizeAuthIdentifier(event.target.value));
+                              setSignupIdentifier(sanitizeAuthTextInput(event.target.value));
                               setSignupError("");
                               setSignupInfo("");
                             }}

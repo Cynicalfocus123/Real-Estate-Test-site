@@ -27,7 +27,7 @@ export function Footer() {
             <li><a href={safeHref(`${baseUrl}faq`)}>FAQ</a></li>
             <li><a href={safeHref("#news")}>News</a></li>
             <li><a href={safeHref("#career")}>Career</a></li>
-            <li><a href={safeHref("#become-our-real-estate-agent")}>Become our Real Estate Agent</a></li>
+            <li><a href={safeHref(`${baseUrl}become-our-real-estate-agent`)}>Become our Real Estate Agent</a></li>
             <li><a href={safeHref(`${baseUrl}sell-your-home`)}>Sell Your Property</a></li>
           </ul>
         </div>

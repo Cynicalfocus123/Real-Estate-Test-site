@@ -888,3 +888,35 @@
 - Verification:
   - Frontend build executed in `frontend`: production build completed successfully.
   - Noted existing Vite chunk-size warning only (non-blocking).
+
+## 2026-05-08 (Footer Agent Page + Account Settings Save Flow + Auth Mode Validation)
+- Added new informational page: `Become a Real Estate Partner With Us`.
+  - New component: `frontend/src/components/BecomeRealEstateAgentPage.tsx`.
+  - Hero/banner image uses supplied file copied to public path:
+    - source: `frontend/site image/become real estate agent.png`
+    - web asset: `frontend/public/images/page-banners/become-real-estate-agent.png`
+  - Included section heading `Why Join Our Team` with 10 provided benefit points.
+  - Kept layout consistent with existing informational pages, mobile-safe image sizing, and plain React text rendering.
+- Footer update:
+  - `Become our Real Estate Agent` is now clickable and routes to `become-our-real-estate-agent`.
+  - Other footer items unchanged.
+  - File: `frontend/src/components/Footer.tsx`.
+- Routing update:
+  - Added route handling for `/become-our-real-estate-agent` in `frontend/src/App.tsx`.
+- Account Settings profile behavior update:
+  - All profile fields are now directly editable by default (no per-field add/edit button flow).
+  - Added one profile-level save action: `Save profile information`.
+  - Save persists through existing backend-ready account settings storage flow using sanitized values.
+  - File: `frontend/src/pages/AccountSettingsPage.tsx`.
+- Login/Signup validation behavior by selected mode:
+  - Email tab (login + signup): allows normal email text entry, with safe character stripping only for unsafe HTML chars.
+  - Mobile number tab (login + signup): keeps numbers-only behavior for local phone entry; non-digits removed.
+  - OTP and phone verification flow remains intact.
+  - File: `frontend/src/components/Header.tsx`.
+- Security / validation pass:
+  - No unsafe HTML injection introduced.
+  - User-entered values render as plain text in controlled inputs/components.
+  - Focused source scan for risky patterns (`dangerouslySetInnerHTML`, `innerHTML=`, `eval`, `new Function`, `javascript:`) found no unsafe additions in this change set.
+- Verification:
+  - Frontend build run in `frontend` completed successfully.
+  - Existing non-blocking Vite chunk size warning remains.

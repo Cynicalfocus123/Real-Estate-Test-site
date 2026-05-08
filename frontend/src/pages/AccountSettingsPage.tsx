@@ -8,13 +8,13 @@ import {
   mockResetPassword,
   mockUpdateNotificationPreferences,
   mockVerifyEmail,
+  saveAccountSettings,
   sanitizeAddress,
   sanitizeName,
   sanitizePhone,
   sanitizeShortAddress,
   sanitizeSettingsEmail,
   sanitizeZipCode,
-  updateProfileField,
 } from "../services/accountSettingsService";
 import { type AccountSettings, type EditableProfileField } from "../types/accountSettings";
 import { requestAuthModal } from "../utils/authModal";
@@ -43,17 +43,6 @@ const PROFILE_FIELD_LABELS: Record<Exclude<EditableProfileField, "email">, strin
   phone: "Phone Number",
 };
 
-const ADD_ACTION_TEXT: Record<Exclude<EditableProfileField, "email">, string> = {
-  name: "Add name",
-  lastName: "Add last name",
-  address: "Add address",
-  subdistrict: "Add subdistrict",
-  district: "Add district",
-  province: "Add province",
-  zipCode: "Add zip code",
-  phone: "Add phone number",
-};
-
 type EditableProfileOnlyField = Exclude<EditableProfileField, "email">;
 
 export function AccountSettingsPage() {
@@ -67,8 +56,6 @@ export function AccountSettingsPage() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [notificationMessage, setNotificationMessage] = useState("");
-  const [editingField, setEditingField] = useState<EditableProfileOnlyField | null>(null);
-  const [editingValue, setEditingValue] = useState("");
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [changeEmailDraft, setChangeEmailDraft] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -105,34 +92,37 @@ export function AccountSettingsPage() {
     return sanitizePhone(value);
   }
 
-  function onStartEditingField(field: EditableProfileOnlyField) {
-    if (!settings) return;
-    setEditingField(field);
-    setEditingValue(settings[field]);
+  function onProfileFieldChange(field: EditableProfileOnlyField, value: string) {
+    setSettings((current) =>
+      current
+        ? {
+            ...current,
+            [field]: cleanFieldValue(field, value),
+          }
+        : current,
+    );
     setProfileMessage("");
     setProfileError("");
   }
 
-  function onCancelEditingField() {
-    setEditingField(null);
-    setEditingValue("");
-    setProfileError("");
-  }
+  function onSaveProfileInformation() {
+    if (!settings || !activeUserKey) return;
 
-  function onSaveProfileField() {
-    if (!settings || !editingField || !activeUserKey) return;
-
-    const sanitizedValue = cleanFieldValue(editingField, editingValue);
-
-    if (editingField === "phone" && sanitizedValue && !isValidPhoneNumber(sanitizedValue)) {
+    const normalizedPhone = sanitizePhone(settings.phone);
+    if (normalizedPhone && !isValidPhoneNumber(normalizedPhone)) {
       setProfileError("Please enter a valid phone number.");
       return;
     }
 
-    const updated = updateProfileField(activeUserKey, editingField, sanitizedValue, settings.email);
+    const updated = saveAccountSettings(
+      activeUserKey,
+      {
+        ...settings,
+        phone: normalizedPhone,
+      },
+      settings.email,
+    );
     setSettings(updated);
-    setEditingField(null);
-    setEditingValue("");
     setProfileError("");
     setProfileMessage("Profile information saved.");
   }
@@ -304,8 +294,6 @@ export function AccountSettingsPage() {
           <div className="mt-6 grid gap-5 sm:grid-cols-2">
             {(Object.keys(PROFILE_FIELD_LABELS) as EditableProfileOnlyField[]).map((field) => {
               const value = settings[field];
-              const isEditing = editingField === field;
-              const addAction = ADD_ACTION_TEXT[field];
               const label = PROFILE_FIELD_LABELS[field];
               const maxLength =
                 field === "name" || field === "lastName"
@@ -321,63 +309,16 @@ export function AccountSettingsPage() {
 
               return (
                 <div key={field} className={`rounded-2xl border border-brand-line p-4 ${spanClass}`}>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-black uppercase tracking-wide text-brand-gray">{label}</p>
-                      {isEditing ? (
-                        <div className="mt-2 grid gap-2">
-                          <label className="sr-only" htmlFor={`account-${field}`}>
-                            {label}
-                          </label>
-                          <input
-                            id={`account-${field}`}
-                            value={editingValue}
-                            onChange={(event) => {
-                              setEditingValue(cleanFieldValue(field, event.target.value));
-                              setProfileError("");
-                            }}
-                            maxLength={maxLength}
-                            className="h-11 w-full rounded-xl border border-brand-line px-3 text-sm font-semibold outline-none focus:border-brand-red"
-                          />
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={onSaveProfileField}
-                              className="inline-flex h-10 items-center justify-center rounded-xl border border-brand-dark bg-brand-dark px-4 text-xs font-black uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              onClick={onCancelEditingField}
-                              className="inline-flex h-10 items-center justify-center rounded-xl border border-brand-line bg-white px-4 text-xs font-black uppercase tracking-wide text-brand-dark hover:border-brand-red hover:text-brand-red"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : value ? (
-                        <p className="mt-1 break-words text-sm font-semibold text-brand-dark">{value}</p>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => onStartEditingField(field)}
-                          className="mt-2 text-sm font-black text-brand-red hover:text-brand-dark"
-                        >
-                          {addAction}
-                        </button>
-                      )}
-                    </div>
-                    {!isEditing && value ? (
-                      <button
-                        type="button"
-                        onClick={() => onStartEditingField(field)}
-                        className="text-xs font-black uppercase tracking-wide text-brand-red hover:text-brand-dark"
-                      >
-                        Edit
-                      </button>
-                    ) : null}
-                  </div>
+                  <label className="grid gap-2" htmlFor={`account-${field}`}>
+                    <span className="text-xs font-black uppercase tracking-wide text-brand-gray">{label}</span>
+                    <input
+                      id={`account-${field}`}
+                      value={value}
+                      onChange={(event) => onProfileFieldChange(field, event.target.value)}
+                      maxLength={maxLength}
+                      className="h-11 w-full rounded-xl border border-brand-line px-3 text-sm font-semibold outline-none focus:border-brand-red"
+                    />
+                  </label>
                 </div>
               );
             })}
@@ -438,6 +379,16 @@ export function AccountSettingsPage() {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="sm:col-span-2">
+              <button
+                type="button"
+                onClick={onSaveProfileInformation}
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-brand-dark bg-brand-dark px-5 text-sm font-black uppercase tracking-wide text-white hover:border-brand-red hover:bg-brand-red"
+              >
+                Save profile information
+              </button>
             </div>
           </div>
 
