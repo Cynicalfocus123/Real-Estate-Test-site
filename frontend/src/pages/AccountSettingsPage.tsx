@@ -11,7 +11,9 @@ import {
   sanitizeAddress,
   sanitizeName,
   sanitizePhone,
+  sanitizeShortAddress,
   sanitizeSettingsEmail,
+  sanitizeZipCode,
   updateProfileField,
 } from "../services/accountSettingsService";
 import { type AccountSettings, type EditableProfileField } from "../types/accountSettings";
@@ -32,13 +34,23 @@ function isStrongPassword(password: string) {
 
 const PROFILE_FIELD_LABELS: Record<Exclude<EditableProfileField, "email">, string> = {
   name: "Name",
+  lastName: "Last Name",
   address: "Address",
+  subdistrict: "Subdistrict (Tumbon/Tambon)",
+  district: "District (Amphor/Khet)",
+  province: "Province",
+  zipCode: "Zip Code",
   phone: "Phone Number",
 };
 
 const ADD_ACTION_TEXT: Record<Exclude<EditableProfileField, "email">, string> = {
   name: "Add name",
+  lastName: "Add last name",
   address: "Add address",
+  subdistrict: "Add subdistrict",
+  district: "Add district",
+  province: "Add province",
+  zipCode: "Add zip code",
   phone: "Add phone number",
 };
 
@@ -84,7 +96,12 @@ export function AccountSettingsPage() {
 
   function cleanFieldValue(field: EditableProfileOnlyField, value: string) {
     if (field === "name") return sanitizeName(value);
+    if (field === "lastName") return sanitizeName(value);
     if (field === "address") return sanitizeAddress(value);
+    if (field === "subdistrict") return sanitizeShortAddress(value);
+    if (field === "district") return sanitizeShortAddress(value);
+    if (field === "province") return sanitizeShortAddress(value);
+    if (field === "zipCode") return sanitizeZipCode(value);
     return sanitizePhone(value);
   }
 
@@ -284,15 +301,26 @@ export function AccountSettingsPage() {
 
         <section className="mt-6 rounded-3xl border border-brand-line bg-white p-6 shadow-[0_16px_40px_rgba(15,23,42,0.08)] sm:p-8">
           <h2 className="text-2xl font-black text-brand-dark">Profile Information</h2>
-          <div className="mt-6 grid gap-5">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
             {(Object.keys(PROFILE_FIELD_LABELS) as EditableProfileOnlyField[]).map((field) => {
               const value = settings[field];
               const isEditing = editingField === field;
               const addAction = ADD_ACTION_TEXT[field];
               const label = PROFILE_FIELD_LABELS[field];
+              const maxLength =
+                field === "name" || field === "lastName"
+                  ? 80
+                  : field === "address"
+                    ? 200
+                    : field === "subdistrict" || field === "district" || field === "province"
+                      ? 120
+                      : field === "zipCode"
+                        ? 20
+                        : 30;
+              const spanClass = field === "address" ? "sm:col-span-2" : "";
 
               return (
-                <div key={field} className="rounded-2xl border border-brand-line p-4">
+                <div key={field} className={`rounded-2xl border border-brand-line p-4 ${spanClass}`}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs font-black uppercase tracking-wide text-brand-gray">{label}</p>
@@ -308,7 +336,7 @@ export function AccountSettingsPage() {
                               setEditingValue(cleanFieldValue(field, event.target.value));
                               setProfileError("");
                             }}
-                            maxLength={field === "name" ? 80 : field === "address" ? 200 : 30}
+                            maxLength={maxLength}
                             className="h-11 w-full rounded-xl border border-brand-line px-3 text-sm font-semibold outline-none focus:border-brand-red"
                           />
                           <div className="flex flex-wrap gap-2">
@@ -354,7 +382,7 @@ export function AccountSettingsPage() {
               );
             })}
 
-            <div className="rounded-2xl border border-brand-line p-4">
+            <div className="rounded-2xl border border-brand-line p-4 sm:col-span-2">
               <p className="text-xs font-black uppercase tracking-wide text-brand-gray">Email</p>
               {!isChangingEmail ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-3">

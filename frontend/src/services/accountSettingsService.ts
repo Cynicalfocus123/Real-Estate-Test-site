@@ -23,6 +23,14 @@ export function sanitizeAddress(value: string) {
   return sanitizePlainText(value, 200);
 }
 
+export function sanitizeShortAddress(value: string) {
+  return sanitizePlainText(value, 120);
+}
+
+export function sanitizeZipCode(value: string) {
+  return sanitizePlainText(value, 20);
+}
+
 export function sanitizePhone(value: string) {
   return sanitizePlainText(value, 30);
 }
@@ -55,7 +63,12 @@ function createDefaultSettings(email = ""): AccountSettings {
   const sanitizedEmail = sanitizeSettingsEmail(email);
   return {
     name: "",
+    lastName: "",
     address: "",
+    subdistrict: "",
+    district: "",
+    province: "",
+    zipCode: "",
     phone: "",
     email: isValidEmail(sanitizedEmail) ? sanitizedEmail : "",
     savedListingsEmailFrequency: DEFAULT_NOTIFICATION_FREQUENCY,
@@ -77,7 +90,12 @@ function sanitizeAccountSettings(input: Partial<AccountSettings>, fallbackEmail 
 
   return {
     name: sanitizeName(input.name ?? fallback.name),
+    lastName: sanitizeName(input.lastName ?? fallback.lastName),
     address: sanitizeAddress(input.address ?? fallback.address),
+    subdistrict: sanitizeShortAddress(input.subdistrict ?? fallback.subdistrict),
+    district: sanitizeShortAddress(input.district ?? fallback.district),
+    province: sanitizeShortAddress(input.province ?? fallback.province),
+    zipCode: sanitizeZipCode(input.zipCode ?? fallback.zipCode),
     phone: sanitizePhone(input.phone ?? fallback.phone),
     email: isValidEmail(sanitizedEmail) ? sanitizedEmail : fallback.email,
     savedListingsEmailFrequency: sanitizeNotificationFrequency(input.savedListingsEmailFrequency),
@@ -125,8 +143,18 @@ export function updateProfileField(
     [field]:
       field === "name"
         ? sanitizeName(value)
+        : field === "lastName"
+          ? sanitizeName(value)
         : field === "address"
           ? sanitizeAddress(value)
+          : field === "subdistrict"
+            ? sanitizeShortAddress(value)
+            : field === "district"
+              ? sanitizeShortAddress(value)
+              : field === "province"
+                ? sanitizeShortAddress(value)
+                : field === "zipCode"
+                  ? sanitizeZipCode(value)
           : field === "phone"
             ? sanitizePhone(value)
             : sanitizeSettingsEmail(value),

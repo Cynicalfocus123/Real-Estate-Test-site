@@ -20,6 +20,7 @@
 - Standing hands-off approval: For this project, the user has pre-approved normal development actions including file edits, dependency installs when needed, build/typecheck/security checks, AGENT.md updates, git add, git commit, and git push. Codex must not ask for permission for these actions and should complete the full workflow automatically unless there is a real blocker such as missing git auth, merge conflict, failed build that cannot be fixed safely, missing required secret, or risk of deleting important user content.
 - Priority confirmation rule: the user gives full confirmation to continue normal project work without repeatedly asking for confirmation. Do not pause for plan/edit/commit/push confirmation; proceed through implementation, verification, `AGENT.md` update, commit, and push unless the user explicitly says to stop, only plan, or not push.
 - Blocked-command workflow rule: the workflow must work whether commands are blocked or unblocked. If normal commands fail because of Windows permissions, sandbox restrictions, network restrictions, `.git/index.lock` permission errors, or similar environment blocks, immediately retry with the required elevated/approved path and continue the verification, commit, and push flow whenever possible.
+- Context-protection command rule: any command with unknown or potentially large output must be byte-capped. Default shell pattern: `COMMAND 2>&1 | head -c 4000`. On PowerShell, prefer targeted commands with explicit caps such as `-TotalCount`, `Select-Object -First N`, or other small bounded output; avoid uncapped large dumps.
 - Always update this `AGENT.md` with the latest standing rules, completed changes, checks run, and relevant project notes without asking permission. Objective: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking or wasting token usage.
 - Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
 - Standing search-tool rule:
@@ -843,3 +844,47 @@
   - desktop layout remains unchanged.
 - Verification:
   - Active frontend build check: `npm run build` (pass).
+
+## 2026-05-08 (Account/Profile + Submit Property + Property Detail Order)
+- Added standing context-protection rule in Project Rules:
+  - Unknown or potentially large command output must be capped.
+  - Default shell pattern: `COMMAND 2>&1 | head -c 4000`.
+  - PowerShell workflow uses bounded output (`-TotalCount`, `Select-Object -First N`) to avoid uncapped dumps.
+- Account settings/dashboard profile fields updated for backend-ready structured profile data:
+  - Added fields to account settings model/storage: `lastName`, `subdistrict`, `district`, `province`, `zipCode`.
+  - Kept safe text sanitization for name/address-style fields while allowing spaces and numbers.
+  - Added `Last Name` beside `Name` in profile grid.
+  - Added address-related fields: `Subdistrict (Tumbon/Tambon)`, `District (Amphor/Khet)`, `Province`, `Zip Code`.
+  - Changes in:
+    - `frontend/src/types/accountSettings.ts`
+    - `frontend/src/services/accountSettingsService.ts`
+    - `frontend/src/pages/AccountSettingsPage.tsx`
+- Submit Your Property form updated with backend-ready district field and spaced-text support:
+  - Added `district` to form state/payload shape.
+  - Added `District` input next to `Province` (`Amphor / Khet` context).
+  - Kept restricted validation where needed (`email`, numeric phone), while text fields still use safe plain-text cleaning.
+  - Changes in `frontend/src/components/SellYourHomePage.tsx`.
+- Property detail page updates:
+  - Added dynamic, backend-ready optional `propertyCondition` field (`frontend/src/types/propertyListing.ts`).
+  - Reordered `Property Details` display to:
+    1. Property Type
+    2. Property Condition (dynamic/future-safe, fallback when missing)
+    3. Bath
+    4. View
+    5. Bed
+    6. Built
+    7. Garage
+    8. Floor
+    9. Build sqm
+    10. Land area
+  - Moved `Features` section to appear under `Down Payment and Mortgage`.
+  - Moved `Nearby Highlights` section to appear under `Amenities`.
+  - Kept fallback rendering style for missing backend values.
+  - Changes in `frontend/src/components/PropertyDetailPage.tsx`.
+- Focused XSS/security pass:
+  - No unsafe HTML injection added.
+  - New inputs are rendered as plain text values in React controlled components.
+  - Existing strict validators for email/phone remain in place.
+- Verification:
+  - Frontend build executed in `frontend`: production build completed successfully.
+  - Noted existing Vite chunk-size warning only (non-blocking).

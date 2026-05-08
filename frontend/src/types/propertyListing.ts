@@ -94,6 +94,7 @@ export type PropertyListing = {
   floorCount: number;
   garageSpaces: number;
   propertyTypeLabel: string;
+  propertyCondition?: string;
   agent: PropertyAgent;
   address?: PropertyAddress;
   features: string[];

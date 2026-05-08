@@ -9,6 +9,7 @@ type SellLeadForm = {
   fullName: string;
   email: string;
   phone: string;
+  district: string;
   province: string;
   propertyType: string;
   timeline: string;
@@ -19,6 +20,7 @@ const defaultSellLeadForm: SellLeadForm = {
   fullName: "",
   email: "",
   phone: "",
+  district: "",
   province: "",
   propertyType: "",
   timeline: "",
@@ -31,6 +33,7 @@ function isValidEmail(value: string) {
 
 export function SellYourHomePage() {
   const [form, setForm] = useState<SellLeadForm>(defaultSellLeadForm);
+  const [submittedPayload, setSubmittedPayload] = useState<SellLeadForm | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -59,6 +62,7 @@ export function SellYourHomePage() {
 
     setSubmitError("");
     setSubmitted(true);
+    setSubmittedPayload(form);
     setForm(defaultSellLeadForm);
   }
 
@@ -157,6 +161,17 @@ export function SellYourHomePage() {
               </label>
 
               <label className="grid gap-2">
+                <span className="text-sm font-black uppercase tracking-wide text-brand-dark">District</span>
+                <input
+                  value={form.district}
+                  onChange={(event) => updateField("district", cleanSearchText(event.target.value, 60))}
+                  className="rounded-xl border border-brand-line px-4 py-3 text-base font-semibold outline-none transition focus:border-brand-red"
+                  maxLength={60}
+                  placeholder="Amphor / Khet"
+                />
+              </label>
+
+              <label className="grid gap-2">
                 <span className="text-sm font-black uppercase tracking-wide text-brand-dark">Province*</span>
                 <input
                   value={form.province}
@@ -208,6 +223,7 @@ export function SellYourHomePage() {
                   Submit
                 </button>
               </div>
+              {submittedPayload ? <input type="hidden" name="submitted_payload_ready" value="true" /> : null}
             </form>
           </div>
         </section>

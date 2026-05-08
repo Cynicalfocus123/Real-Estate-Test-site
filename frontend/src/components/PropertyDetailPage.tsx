@@ -411,6 +411,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const showDownPaymentAndMortgage = isHomeOrVilla(listing);
   const viewLabel = listing.view ?? "Not specified";
   const furnishingLabel = listing.furnishing ?? "Unfurnished";
+  const propertyConditionLabel = listing.propertyCondition?.trim() || "Admin will add from backend";
   const financeRows = [
     { label: "Down Payment", value: listing.downPaymentAmount },
     { label: "Mortgage Term", value: listing.mortgageTerm },
@@ -1088,10 +1089,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   <p className="mt-2 break-words text-base leading-7 text-brand-gray">{listing.description}</p>
                 </div>
                 <div className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="flex min-w-0 items-center gap-4">
-                    <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{getBedroomLabel(listing.beds)}</span>
+                      <span className="font-black">Property type:</span> {listing.propertyTypeLabel}
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 items-start gap-4">
+                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Property condition:</span> {propertyConditionLabel}
                     </p>
                   </div>
                   <div className="flex min-w-0 items-center gap-4">
@@ -1100,16 +1107,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <span className="font-black">{getBathroomLabel(listing.baths)}</span>
                     </p>
                   </div>
-                  <div className="flex min-w-0 items-center gap-4">
-                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
+                  <div className="flex min-w-0 items-start gap-4">
+                    <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{listing.areaSqm} sqm</span>
+                      <span className="font-black">View:</span> {viewLabel}
                     </p>
                   </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                  <div className="flex min-w-0 items-center gap-4">
+                    <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Property type:</span> {listing.propertyTypeLabel}
+                      <span className="font-black">{getBedroomLabel(listing.beds)}</span>
                     </p>
                   </div>
                   <div className="flex min-w-0 items-start gap-4">
@@ -1130,10 +1137,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
                     </p>
                   </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                  <div className="flex min-w-0 items-center gap-4">
+                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">View:</span> {viewLabel}
+                      <span className="font-black">Build sqm:</span> {listing.areaSqm} sqm
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 items-center gap-4">
+                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
+                    <p className="break-words text-lg text-brand-dark">
+                      <span className="font-black">Land area:</span> {listing.areaSqm} sqm
                     </p>
                   </div>
                   {listing.mode === "rent" ? (
@@ -1158,6 +1171,26 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                     </div>
                   </div>
                 ) : null}
+                <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                  <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Features</h2>
+                  <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {listing.features.length > 0 ? (
+                      listing.features.map((feature, index) => (
+                        <div
+                          key={`${listing.id}-feature-${index}`}
+                          className="flex min-w-0 items-center gap-4 text-lg text-brand-dark"
+                        >
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
+                          <span className="break-words">{feature}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
+                        Property features will appear here once backend feature text is provided.
+                      </div>
+                    )}
+                  </div>
+                </section>
 
                 <div className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:hidden">
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-gray">BuyHomeForLess Agent</p>
@@ -1205,19 +1238,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   ) : null}
                 </div>
 
-                <div className="mt-8">
-                  <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {listing.nearby.map((item) => (
-                      <span
-                        key={`${listing.id}-nearby-${item}`}
-                        className="rounded-full border border-[#e4d8cf] bg-[#fffaf6] px-4 py-2 text-sm font-bold text-brand-dark"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
@@ -1236,23 +1256,16 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               </section>
 
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
-                <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Features</h2>
-                <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {listing.features.length > 0 ? (
-                    listing.features.map((feature, index) => (
-                      <div
-                        key={`${listing.id}-feature-${index}`}
-                        className="flex min-w-0 items-center gap-4 text-lg text-brand-dark"
-                      >
-                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
-                        <span className="break-words">{feature}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
-                      Property features will appear here once backend feature text is provided.
-                    </div>
-                  )}
+                <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {listing.nearby.map((item) => (
+                    <span
+                      key={`${listing.id}-nearby-${item}`}
+                      className="rounded-full border border-[#e4d8cf] bg-[#fffaf6] px-4 py-2 text-sm font-bold text-brand-dark"
+                    >
+                      {item}
+                    </span>
+                  ))}
                 </div>
               </section>
 
