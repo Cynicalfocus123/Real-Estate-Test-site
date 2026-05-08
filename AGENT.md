@@ -920,3 +920,17 @@
 - Verification:
   - Frontend build run in `frontend` completed successfully.
   - Existing non-blocking Vite chunk size warning remains.
+
+## 2026-05-08 (Rental Detail Section Order Only)
+- Scope-limited update in `frontend/src/components/PropertyDetailPage.tsx` for rental listing detail pages only (`listing.mode === "rent"`):
+  - Moved `Features` section to render above rental `Deposit` section.
+  - Added dedicated rental `Deposit` section using existing `getRentDepositLabel(listing)` text.
+  - Kept `Amenities` section below `Features` for rental detail pages.
+- Buy and Senior Home detail page section order left unchanged:
+  - Non-rental listings continue using existing section ordering.
+- Fallback behavior preserved:
+  - `Features` fallback message remains unchanged when no features exist.
+  - `Amenities` keeps existing behavior (plain list rendering from current data).
+- Security:
+  - All values render as plain React text.
+  - No unsafe HTML injection or unsafe link/image helper bypasses added.
