@@ -578,6 +578,11 @@ export function PropertyListingsPage({
   const hasActiveHomeTypeFilter = selectedHomeType !== "Any";
   const hasActiveProvinceFilter = Boolean(selectedProvince);
   const hasActiveDistrictFilter = Boolean(selectedDistrict);
+  const filterButtonsContainerClass = isSeniorVariant
+    ? "grid grid-cols-2 gap-2 pb-1 sm:grid-cols-3 lg:grid-cols-6"
+    : "flex flex-wrap justify-center gap-2 pb-1";
+  const filterButtonSizeClass = isSeniorVariant ? "w-full min-h-[48px] justify-center" : "shrink-0";
+  const filterWrapperClass = isSeniorVariant ? "relative w-full" : "relative";
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -957,25 +962,25 @@ export function PropertyListingsPage({
               </div>
 
               <div ref={quickFilterRef} className="relative mt-4">
-                <div className="flex flex-wrap justify-center gap-2 pb-1">
+                <div className={filterButtonsContainerClass}>
                   <button
                     type="button"
                     onClick={openFilter}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)]"
+                    className={`inline-flex items-center gap-2 rounded-xl border border-[#d2d2d2] bg-white px-4 py-3 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${filterButtonSizeClass}`}
                     aria-expanded={filterOpen}
                   >
                     <SlidersHorizontal className="h-4 w-4" />
                     Filters
                   </button>
-                  <div className="relative">
+                  <div className={filterWrapperClass}>
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("propertyType")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveHomeTypeFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "propertyType" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
+                      } ${filterButtonSizeClass}`}
                       aria-expanded={activeQuickFilter === "propertyType"}
                     >
                       Property Type
@@ -996,15 +1001,15 @@ export function PropertyListingsPage({
                       </button>
                     ) : null}
                   </div>
-                  <div className="relative">
+                  <div className={filterWrapperClass}>
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("province")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveProvinceFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "province" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
+                      } ${filterButtonSizeClass}`}
                       aria-expanded={activeQuickFilter === "province"}
                     >
                       <span className="max-w-[110px] truncate">{getSingleFilterLabel("Province", selectedProvince)}</span>
@@ -1026,15 +1031,15 @@ export function PropertyListingsPage({
                     ) : null}
                   </div>
                   {isSeniorVariant ? (
-                    <div className="relative">
+                    <div className={filterWrapperClass}>
                       <button
                         type="button"
                         onClick={() => toggleQuickFilter("district")}
-                        className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                        className={`relative inline-flex items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                           hasActiveDistrictFilter ? "pr-20" : ""
                         } ${
                           activeQuickFilter === "district" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                        }`}
+                        } ${filterButtonSizeClass}`}
                         aria-expanded={activeQuickFilter === "district"}
                       >
                         <span className="max-w-[110px] truncate">{getSingleFilterLabel("District", selectedDistrict)}</span>
@@ -1056,15 +1061,15 @@ export function PropertyListingsPage({
                       ) : null}
                     </div>
                   ) : null}
-                  <div className="relative">
+                  <div className={filterWrapperClass}>
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("price")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActivePriceFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "price" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
+                      } ${filterButtonSizeClass}`}
                       aria-expanded={activeQuickFilter === "price"}
                     >
                       Price
@@ -1085,15 +1090,15 @@ export function PropertyListingsPage({
                       </button>
                     ) : null}
                   </div>
-                  <div className="relative">
+                  <div className={filterWrapperClass}>
                     <button
                       type="button"
                       onClick={() => toggleQuickFilter("rooms")}
-                      className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                      className={`relative inline-flex items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
                         hasActiveRoomFilter ? "pr-20" : ""
                       } ${
                         activeQuickFilter === "rooms" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
-                      }`}
+                      } ${filterButtonSizeClass}`}
                       aria-expanded={activeQuickFilter === "rooms"}
                     >
                       {getRoomFilterLabel(selectedBedroom, selectedBathroom)}

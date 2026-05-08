@@ -483,6 +483,21 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const serviceIncludedItems = listing.servicesIncluded ?? [];
   const propertyFeatureItems = listing.propertyFeatureItems ?? [];
   const communityAmenityItems = listing.communityAmenityItems ?? [];
+  const seniorDetailRows = [
+    { label: "Property Type", value: listing.propertyTypeLabel },
+    { label: "Property Condition", value: propertyConditionLabel },
+    { label: "Condition", value: conditionLabel },
+    { label: "Bathrooms", value: getBathroomLabel(listing.baths) },
+    { label: "View", value: viewLabel },
+    { label: "Bedrooms", value: getBedroomLabel(listing.beds) },
+    { label: "Built", value: String(listing.builtYear) },
+    { label: "Garage", value: `${listing.garageSpaces || "N/A"} spaces` },
+    { label: "Floor", value: String(listing.floorCount || "N/A") },
+    { label: "Room Size", value: roomSizeLabel },
+    { label: "Building Size", value: buildingSizeLabel },
+    { label: "Caregiver Included", value: caregiverIncludedLabel },
+    { label: "Senior Care Service", value: seniorCareServiceLabel },
+  ];
   const nearbyLocations = useMemo(() => {
     if (!listing.nearbyLocations || listing.nearbyLocations.length === 0) return [];
 
@@ -1153,102 +1168,90 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   <h3 className="break-words text-lg font-black text-brand-dark">What's Special</h3>
                   <p className="mt-2 break-words text-base leading-7 text-brand-gray">{listing.description}</p>
                 </div>
-                <div className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Property type:</span> {listing.propertyTypeLabel}
-                    </p>
+                {isSeniorListing ? (
+                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {seniorDetailRows.map((row) => (
+                      <div
+                        key={`${listing.id}-senior-detail-${row.label}`}
+                        className="flex min-h-[104px] flex-col rounded-2xl border border-[#e6ddd6] bg-white px-4 py-4"
+                      >
+                        <p className="break-words text-xs font-black uppercase tracking-[0.12em] text-brand-gray">{row.label}</p>
+                        <p className="mt-2 break-words text-sm font-semibold leading-6 text-brand-dark sm:text-base">{row.value}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Property condition:</span> {propertyConditionLabel}
-                    </p>
-                  </div>
-                  {isSeniorListing ? (
+                ) : (
+                  <div className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 xl:grid-cols-3">
                     <div className="flex min-w-0 items-start gap-4">
                       <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                       <p className="break-words text-lg text-brand-dark">
-                        <span className="font-black">Condition:</span> {conditionLabel}
+                        <span className="font-black">Property type:</span> {listing.propertyTypeLabel}
                       </p>
                     </div>
-                  ) : null}
-                  <div className="flex min-w-0 items-center gap-4">
-                    <Bath className="h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{getBathroomLabel(listing.baths)}</span>
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">View:</span> {viewLabel}
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-center gap-4">
-                    <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{getBedroomLabel(listing.beds)}</span>
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Built:</span> {listing.builtYear}
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Warehouse className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Garage:</span> {listing.garageSpaces || "N/A"} spaces
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-start gap-4">
-                    <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
-                    </p>
-                  </div>
-                  {isSeniorListing ? (
                     <div className="flex min-w-0 items-start gap-4">
                       <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                       <p className="break-words text-lg text-brand-dark">
-                        <span className="font-black">Caregiver Included:</span> {caregiverIncludedLabel}
+                        <span className="font-black">Property condition:</span> {propertyConditionLabel}
                       </p>
                     </div>
-                  ) : null}
-                  {isSeniorListing ? (
+                    <div className="flex min-w-0 items-center gap-4">
+                      <Bath className="h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">{getBathroomLabel(listing.baths)}</span>
+                      </p>
+                    </div>
+                    <div className="flex min-w-0 items-start gap-4">
+                      <MapPin className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">View:</span> {viewLabel}
+                      </p>
+                    </div>
+                    <div className="flex min-w-0 items-center gap-4">
+                      <BedDouble className="h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">{getBedroomLabel(listing.beds)}</span>
+                      </p>
+                    </div>
                     <div className="flex min-w-0 items-start gap-4">
                       <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                       <p className="break-words text-lg text-brand-dark">
-                        <span className="font-black">Senior Care Service:</span> {seniorCareServiceLabel}
+                        <span className="font-black">Built:</span> {listing.builtYear}
                       </p>
                     </div>
-                  ) : null}
-                  <div className="flex min-w-0 items-center gap-4">
-                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{isSeniorListing ? "Room Size" : "Build sqm"}:</span>{" "}
-                      {roomSizeLabel}
-                    </p>
-                  </div>
-                  <div className="flex min-w-0 items-center gap-4">
-                    <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
-                    <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">{isSeniorListing ? "Building Size" : "Land area"}:</span>{" "}
-                      {buildingSizeLabel}
-                    </p>
-                  </div>
-                  {listing.mode === "rent" ? (
+                    <div className="flex min-w-0 items-start gap-4">
+                      <Warehouse className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Garage:</span> {listing.garageSpaces || "N/A"} spaces
+                      </p>
+                    </div>
                     <div className="flex min-w-0 items-start gap-4">
                       <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
                       <p className="break-words text-lg text-brand-dark">
-                        <span className="font-black">Furnished:</span> {furnishingLabel}
+                        <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
                       </p>
                     </div>
-                  ) : null}
-                </div>
+                    <div className="flex min-w-0 items-center gap-4">
+                      <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Build sqm:</span> {roomSizeLabel}
+                      </p>
+                    </div>
+                    <div className="flex min-w-0 items-center gap-4">
+                      <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Land area:</span> {buildingSizeLabel}
+                      </p>
+                    </div>
+                    {listing.mode === "rent" ? (
+                      <div className="flex min-w-0 items-start gap-4">
+                        <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                        <p className="break-words text-lg text-brand-dark">
+                          <span className="font-black">Furnished:</span> {furnishingLabel}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
                 {showDownPaymentAndMortgage ? (
                   <div className="mt-8 pt-1">
                     <h3 className="break-words text-lg font-black text-brand-dark">{financeSectionTitle}</h3>
@@ -1261,28 +1264,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       ))}
                     </div>
                   </div>
-                ) : null}
-                {isSeniorListing ? (
-                  <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
-                    <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Service Included</h2>
-                    <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2">
-                      {serviceIncludedItems.length > 0 ? (
-                        serviceIncludedItems.map((item, index) => (
-                          <div
-                            key={`${listing.id}-service-included-${index}`}
-                            className="flex min-w-0 items-start gap-4 text-lg text-brand-dark"
-                          >
-                            <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
-                            <span className="break-words">{item}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
-                          Service text will appear here once backend service details are provided.
-                        </div>
-                      )}
-                    </div>
-                  </section>
                 ) : null}
                 {!isRentalListing ? (
                   <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">

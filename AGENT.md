@@ -996,3 +996,23 @@
   - Frontend build completed successfully in `frontend` via `npm run build`.
   - `git diff --check` passed for the touched frontend files.
   - Existing Vite chunk-size warning remains non-blocking.
+
+## 2026-05-08 (Senior Home Detail Layout Cleanup + Senior Filter Button Alignment)
+- Scope limited to Senior Home listing/detail pages only.
+- Senior Home detail page (`frontend/src/components/PropertyDetailPage.tsx`):
+  - Reworked senior-only `Property Details` into a consistent responsive card grid for even placement and cleaner scanning.
+  - Card layout now uses uniform spacing and minimum height to avoid uneven rows and awkward visual gaps.
+  - Mobile optimization applied: compact value text sizing and predictable card stacking (`1` column mobile, `2` tablet, `3` desktop).
+  - Confirmed removal of the separate `Service Included` section above `Features` remains in place.
+  - Existing `Features` behavior unchanged.
+- Senior Home listing page filters (`frontend/src/components/PropertyListingsPage.tsx`):
+  - Fixed senior-only filter button alignment under the search bar by switching the senior filter row to a responsive grid layout.
+  - `Room` button now aligns evenly with all other senior filter buttons.
+  - Added consistent sizing classes for senior filter buttons and wrappers to keep alignment stable on desktop and mobile.
+  - Buy/Rent filter layout behavior remains unchanged.
+- Focused XSS/security pass:
+  - No `dangerouslySetInnerHTML`, `innerHTML=`, `eval(`, `new Function(`, or `javascript:` usage added in touched files.
+  - All new/updated text rendering stays plain React text.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - Existing Vite chunk-size warning remains non-blocking.
