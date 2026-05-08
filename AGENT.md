@@ -1016,3 +1016,29 @@
 - Verification:
   - Frontend build completed successfully in `frontend` via `npm run build`.
   - Existing Vite chunk-size warning remains non-blocking.
+
+## 2026-05-08 (Footer White Logo Swap + Senior Detail Plain Text Fields)
+- Scope limited to requested frontend areas:
+  - footer logo/contrast update
+  - senior-home-only detail field presentation under `Property Details`
+- Footer updates in `frontend/src/components/Footer.tsx`:
+  - Replaced footer logo asset with supplied white-text logo using existing safe asset helper:
+    - `assetPath("images/logo-white-text.png")`
+  - Updated footer base background tone slightly lighter for better logo contrast while preserving existing footer structure and content.
+  - Kept footer layout, links, contact info, and responsive behavior unchanged.
+  - Kept logo responsive with `object-contain`, fixed width scaling, and no stretching.
+- Asset update:
+  - Added logo file:
+    - source: `frontend/site image/Logo white text.png`
+    - deployed asset: `frontend/public/images/logo-white-text.png`
+- Senior Home detail page updates in `frontend/src/components/PropertyDetailPage.tsx`:
+  - Senior-only `Property Details` field items now render as plain text rows in a clean responsive grid.
+  - Removed per-field cards/boxes/background panels for senior detail items.
+  - Preserved clean alignment and mobile readability with controlled spacing and wrapping.
+  - Buy/Rent detail layout behavior unchanged.
+- Focused XSS/security pass:
+  - No `dangerouslySetInnerHTML`, `innerHTML=`, `eval(`, `new Function(`, or `javascript:` usage added in touched files.
+  - All text continues to render as plain React text.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - Existing Vite chunk-size warning remains non-blocking.

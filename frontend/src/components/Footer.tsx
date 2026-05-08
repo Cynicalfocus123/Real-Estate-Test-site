@@ -6,13 +6,13 @@ export function Footer() {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
-    <footer className="bg-brand-dark text-white">
+    <footer className="bg-[#262c34] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.95fr_1fr] lg:px-8">
         <div>
           <img
-            src={assetPath("images/buy-home-for-less-footer-logo.png")}
+            src={assetPath("images/logo-white-text.png")}
             alt="Buy Home For Less"
-            className="h-24 w-auto object-contain"
+            className="h-auto w-[180px] max-w-full object-contain sm:w-[220px]"
           />
           <p className="mt-5 max-w-sm text-sm leading-6 text-neutral-300">
             Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury

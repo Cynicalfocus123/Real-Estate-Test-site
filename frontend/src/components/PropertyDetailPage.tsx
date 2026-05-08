@@ -1169,14 +1169,14 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   <p className="mt-2 break-words text-base leading-7 text-brand-gray">{listing.description}</p>
                 </div>
                 {isSeniorListing ? (
-                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
                     {seniorDetailRows.map((row) => (
                       <div
                         key={`${listing.id}-senior-detail-${row.label}`}
-                        className="flex min-h-[104px] flex-col rounded-2xl border border-[#e6ddd6] bg-white px-4 py-4"
+                        className="min-w-0"
                       >
-                        <p className="break-words text-xs font-black uppercase tracking-[0.12em] text-brand-gray">{row.label}</p>
-                        <p className="mt-2 break-words text-sm font-semibold leading-6 text-brand-dark sm:text-base">{row.value}</p>
+                        <p className="break-words text-xs font-black uppercase tracking-[0.1em] text-brand-gray">{row.label}</p>
+                        <p className="mt-1 break-words text-sm font-semibold leading-6 text-brand-dark sm:text-base">{row.value}</p>
                       </div>
                     ))}
                   </div>
