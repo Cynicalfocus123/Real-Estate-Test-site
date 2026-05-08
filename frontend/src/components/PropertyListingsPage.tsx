@@ -13,7 +13,7 @@ import { PropertyListingCard } from "./PropertyListingCard";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-type QuickFilter = "price" | "rooms" | "propertyType" | "province";
+type QuickFilter = "price" | "rooms" | "propertyType" | "province" | "district";
 type PriceQuickView = "list-price" | "monthly-payment";
 type DownPaymentOption = "amount" | "percentage";
 type PropertyTypeOption = "Any" | "Villa" | "Condo" | "Apartment" | "Townhome" | "Commercial Building" | "Resort" | "Land";
@@ -21,6 +21,10 @@ type ViewOption = "Beach" | "Mountain" | "Lake" | "Water Fall" | "Cities" | "Rur
 type ThailandLocationSuggestion = {
   id: string;
   label: string;
+};
+type DistrictOption = {
+  name: string;
+  count: number;
 };
 type PhotonFeatureProperties = {
   country?: string;
@@ -185,6 +189,26 @@ function getSingleFilterLabel(defaultLabel: string, selectedValue: string) {
   return selectedValue || defaultLabel;
 }
 
+function getListingDistrict(listing: PropertyListing) {
+  return listing.address?.amphoe?.trim() || listing.address?.district?.trim() || "";
+}
+
+function buildDistrictOptions(listings: PropertyListing[], province = ""): DistrictOption[] {
+  const counts = new Map<string, number>();
+
+  listings.forEach((listing) => {
+    if (province && listing.province !== province) return;
+
+    const district = getListingDistrict(listing);
+    if (!district) return;
+    counts.set(district, (counts.get(district) ?? 0) + 1);
+  });
+
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
 function normalizeSearchValue(value: string) {
   return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 }
@@ -241,6 +265,7 @@ export function PropertyListingsPage({
   initialMode = "sale",
   pageVariant = "sale",
   initialProvince,
+  initialDistrict,
   initialQuery = "",
   initialHomeType,
   initialBedroom,
@@ -251,6 +276,7 @@ export function PropertyListingsPage({
   initialMode?: ListingMode;
   pageVariant?: "buy" | "sale" | "rent" | "senior";
   initialProvince?: string;
+  initialDistrict?: string;
   initialQuery?: string;
   initialHomeType?: string;
   initialBedroom?: string;
@@ -259,9 +285,22 @@ export function PropertyListingsPage({
   initialMaxPrice?: string;
 }) {
   const { isFavorite, toggleFavorite, notice } = useFavorites();
+  const isSeniorVariant = pageVariant === "senior";
   const validatedInitialProvince = initialProvince && thaiProvinces.some((province) => province.name === initialProvince)
     ? initialProvince
     : "";
+  const validatedInitialDistrict = (() => {
+    if (!isSeniorVariant) return "";
+
+    const district = cleanSearchText(initialDistrict ?? "");
+    if (!district) return "";
+
+    const seniorDistrictOptions = buildDistrictOptions(
+      propertyListings.filter((listing) => listing.mode === initialMode && listing.listingChannel === "senior-home"),
+    );
+
+    return seniorDistrictOptions.some((option) => option.name === district) ? district : "";
+  })();
   const validatedInitialQuery = cleanSearchText(initialQuery);
   const validatedInitialHomeType =
     initialHomeType && propertyTypeOptions.includes(initialHomeType as PropertyTypeOption)
@@ -297,10 +336,12 @@ export function PropertyListingsPage({
   const [selectedBathroom, setSelectedBathroom] = useState<string>(validatedInitialBathroom);
   const [selectedHomeType, setSelectedHomeType] = useState<PropertyTypeOption>(validatedInitialHomeType);
   const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState(validatedInitialDistrict);
   const [draftQuickBedroom, setDraftQuickBedroom] = useState<string>(validatedInitialBedroom);
   const [draftQuickBathroom, setDraftQuickBathroom] = useState<string>(validatedInitialBathroom);
   const [draftQuickHomeType, setDraftQuickHomeType] = useState<PropertyTypeOption>(validatedInitialHomeType);
   const [draftQuickProvince, setDraftQuickProvince] = useState("");
+  const [draftQuickDistrict, setDraftQuickDistrict] = useState(validatedInitialDistrict);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<ListingSpecialCategory[]>([]);
   const [selectedViews, setSelectedViews] = useState<ViewOption[]>([]);
@@ -337,7 +378,6 @@ export function PropertyListingsPage({
     () => normalizeSearchValue(sanitizedQuery).split(" ").filter(Boolean),
     [sanitizedQuery],
   );
-  const isSeniorVariant = pageVariant === "senior";
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -353,10 +393,12 @@ export function PropertyListingsPage({
     setSelectedBedroom(validatedInitialBedroom);
     setSelectedBathroom(validatedInitialBathroom);
     setSelectedProvince(validatedInitialProvince);
+    setSelectedDistrict(validatedInitialDistrict);
     setDraftQuickBedroom(validatedInitialBedroom);
     setDraftQuickBathroom(validatedInitialBathroom);
     setDraftQuickHomeType(validatedInitialHomeType);
     setDraftQuickProvince(validatedInitialProvince);
+    setDraftQuickDistrict(validatedInitialDistrict);
     setSelectedCategories([]);
     setSelectedAmenities([]);
     setSelectedViews([]);
@@ -380,6 +422,7 @@ export function PropertyListingsPage({
     initialMode,
     validatedInitialBathroom,
     validatedInitialBedroom,
+    validatedInitialDistrict,
     validatedInitialHomeType,
     validatedInitialMaxPrice,
     validatedInitialMinPrice,
@@ -507,6 +550,10 @@ export function PropertyListingsPage({
     () => Array.from(new Set(modeListings.flatMap((listing) => listing.amenities))).sort(),
     [modeListings],
   );
+  const districtOptions = useMemo(
+    () => (isSeniorVariant ? buildDistrictOptions(modeListings, selectedProvince) : []),
+    [isSeniorVariant, modeListings, selectedProvince],
+  );
   const draftAmenityOptions = useMemo(
     () => Array.from(new Set(draftModeListings.flatMap((listing) => listing.amenities))).sort(),
     [draftModeListings],
@@ -530,6 +577,7 @@ export function PropertyListingsPage({
   const hasActiveRoomFilter = selectedBedroom !== "Any" || selectedBathroom !== "Any";
   const hasActiveHomeTypeFilter = selectedHomeType !== "Any";
   const hasActiveProvinceFilter = Boolean(selectedProvince);
+  const hasActiveDistrictFilter = Boolean(selectedDistrict);
 
   const filteredListings = modeListings
     .filter((listing) => {
@@ -541,6 +589,7 @@ export function PropertyListingsPage({
       const matchesMax = maxValue === null || listing.priceValue <= maxValue;
       const matchesType = matchesPropertyType(listing, selectedHomeType);
       const matchesProvince = !selectedProvince || listing.province === selectedProvince;
+      const matchesDistrict = !selectedDistrict || getListingDistrict(listing) === selectedDistrict;
       const matchesMinLand = minLandValue === null || listing.areaSqm >= minLandValue;
       const matchesMaxLand = maxLandValue === null || listing.areaSqm <= maxLandValue;
       const estimatedRoomSize = listing.beds > 0 ? listing.areaSqm / listing.beds : listing.areaSqm;
@@ -563,6 +612,7 @@ export function PropertyListingsPage({
         matchesMax &&
         matchesType &&
         matchesProvince &&
+        matchesDistrict &&
         matchesMinLand &&
         matchesMaxLand &&
         matchesMinRoom &&
@@ -603,10 +653,12 @@ export function PropertyListingsPage({
     setSelectedBedroom("Any");
     setSelectedBathroom("Any");
     setSelectedProvince("");
+    setSelectedDistrict("");
     setDraftQuickBedroom("Any");
     setDraftQuickBathroom("Any");
     setDraftQuickHomeType("Any");
     setDraftQuickProvince("");
+    setDraftQuickDistrict("");
     setSelectedHomeType("Any");
     setSelectedAmenities([]);
     setSelectedCategories([]);
@@ -650,7 +702,9 @@ export function PropertyListingsPage({
     setSelectedAmenities([]);
     setSelectedViews([]);
     setSelectedProvince("");
+    setSelectedDistrict("");
     setDraftQuickProvince("");
+    setDraftQuickDistrict("");
     setSortOpen(false);
     setActiveQuickFilter(null);
     setLocationSuggestionsOpen(false);
@@ -709,6 +763,9 @@ export function PropertyListingsPage({
     if (filter === "province") {
       setDraftQuickProvince(selectedProvince);
     }
+    if (filter === "district") {
+      setDraftQuickDistrict(selectedDistrict);
+    }
     setActiveQuickFilter((current) => (current === filter ? null : filter));
   }
 
@@ -725,6 +782,16 @@ export function PropertyListingsPage({
 
   function applyProvinceQuickFilter() {
     setSelectedProvince(draftQuickProvince);
+    const nextDistrictOptions = buildDistrictOptions(modeListings, draftQuickProvince);
+    if (selectedDistrict && !nextDistrictOptions.some((option) => option.name === selectedDistrict)) {
+      setSelectedDistrict("");
+      setDraftQuickDistrict("");
+    }
+    setActiveQuickFilter(null);
+  }
+
+  function applyDistrictQuickFilter() {
+    setSelectedDistrict(draftQuickDistrict);
     setActiveQuickFilter(null);
   }
 
@@ -752,6 +819,12 @@ export function PropertyListingsPage({
     setSelectedProvince("");
     setDraftQuickProvince("");
     setActiveQuickFilter((current) => (current === "province" ? null : current));
+  }
+
+  function resetDistrictQuickFilter() {
+    setSelectedDistrict("");
+    setDraftQuickDistrict("");
+    setActiveQuickFilter((current) => (current === "district" ? null : current));
   }
 
   function handleQueryChange(value: string) {
@@ -952,6 +1025,37 @@ export function PropertyListingsPage({
                       </button>
                     ) : null}
                   </div>
+                  {isSeniorVariant ? (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => toggleQuickFilter("district")}
+                        className={`relative inline-flex shrink-0 items-center rounded-xl border bg-white px-4 py-3 pr-12 text-sm font-black text-brand-dark transition-all duration-300 hover:border-brand-dark hover:shadow-[0_10px_22px_rgba(15,23,42,0.08)] ${
+                          hasActiveDistrictFilter ? "pr-20" : ""
+                        } ${
+                          activeQuickFilter === "district" ? "border-brand-dark shadow-[0_10px_22px_rgba(15,23,42,0.1)]" : "border-[#d2d2d2]"
+                        }`}
+                        aria-expanded={activeQuickFilter === "district"}
+                      >
+                        <span className="max-w-[110px] truncate">{getSingleFilterLabel("District", selectedDistrict)}</span>
+                        {activeQuickFilter === "district" ? (
+                          <ChevronUp className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                        ) : (
+                          <ChevronDown className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2" />
+                        )}
+                      </button>
+                      {hasActiveDistrictFilter ? (
+                        <button
+                          type="button"
+                          onClick={resetDistrictQuickFilter}
+                          className="absolute right-10 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3efeb] text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                          aria-label="Clear district filter"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <div className="relative">
                     <button
                       type="button"
@@ -1024,9 +1128,11 @@ export function PropertyListingsPage({
                           ? "Price"
                           : mountedQuickFilter === "rooms"
                             ? "Room"
-                          : mountedQuickFilter === "propertyType"
-                              ? "Property Type"
-                              : "Province"}
+                            : mountedQuickFilter === "propertyType"
+                               ? "Property Type"
+                              : mountedQuickFilter === "district"
+                                ? "District"
+                                : "Province"}
                       </h2>
                     </div>
 
@@ -1293,6 +1399,50 @@ export function PropertyListingsPage({
                           <button
                             type="button"
                             onClick={applyProvinceQuickFilter}
+                            className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {mountedQuickFilter === "district" ? (
+                      <div className="space-y-5">
+                        <div className="max-h-[360px] overflow-y-auto pr-1">
+                          {districtOptions.length > 0 ? (
+                            districtOptions.map((district) => (
+                              <button
+                                key={district.name}
+                                type="button"
+                                onClick={() => setDraftQuickDistrict(district.name)}
+                                className="flex w-full items-center justify-between gap-3 border-b border-[#eee8e3] px-1 py-3 text-left text-sm font-semibold text-brand-dark transition-colors duration-300 last:border-b-0 hover:text-brand-red"
+                              >
+                                <span className="inline-flex items-center gap-3">
+                                  <span
+                                    className={`h-5 w-5 rounded-full border transition-all duration-300 ${
+                                      draftQuickDistrict === district.name
+                                        ? "border-brand-dark bg-brand-dark shadow-[inset_0_0_0_4px_white]"
+                                        : "border-brand-muted bg-white"
+                                    }`}
+                                  />
+                                  {district.name}
+                                </span>
+                                <span className="text-xs font-black text-brand-red">{district.count}</span>
+                              </button>
+                            ))
+                          ) : (
+                            <div className="rounded-[20px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-4 py-5 text-sm leading-7 text-brand-gray">
+                              {selectedProvince
+                                ? "No districts are available for this province yet. Backend district data will appear here when added."
+                                : "District options will appear here once senior home listing districts are available from the backend."}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={applyDistrictQuickFilter}
                             className="rounded-full border border-brand-dark px-5 py-2 text-sm font-black text-brand-dark transition hover:bg-brand-dark hover:text-white"
                           >
                             Done

@@ -40,6 +40,8 @@ export type PropertyFaq = {
   answer: string;
 };
 
+export type BackendReadyValue = string | number | boolean;
+
 export type PropertyAgent = {
   name: string;
   phone: string;
@@ -106,4 +108,15 @@ export type PropertyListing = {
   mortgageTerm?: string;
   mortgageInterestRate?: string;
   estimatedMonthlyMortgage?: string;
+  roomSize?: BackendReadyValue;
+  buildingSize?: BackendReadyValue;
+  caregiverIncluded?: BackendReadyValue;
+  condition?: string;
+  seniorCareService?: BackendReadyValue;
+  serviceDuration?: BackendReadyValue;
+  serviceDeposit?: BackendReadyValue;
+  monthlyServiceFee?: BackendReadyValue;
+  servicesIncluded?: string[];
+  propertyFeatureItems?: string[];
+  communityAmenityItems?: string[];
 };

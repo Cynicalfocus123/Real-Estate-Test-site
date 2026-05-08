@@ -21,7 +21,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
 import { usePropertyCompare } from "../hooks/usePropertyCompare";
-import type { PropertyListing } from "../types/propertyListing";
+import type { BackendReadyValue, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
@@ -61,7 +61,34 @@ function getCompareDepositMonths(listing: PropertyListing) {
   return `${listing.depositMonths} ${unitLabel}`;
 }
 
+function isSeniorHomeListing(listing: PropertyListing) {
+  return listing.listingChannel === "senior-home";
+}
+
+function formatBackendReadyValue(value: BackendReadyValue | undefined, fallback = "Admin will add from backend") {
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (typeof value === "number") {
+    return value.toLocaleString();
+  }
+
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : fallback;
+}
+
 function getCompareFinanceLabel(listing: PropertyListing) {
+  if (isSeniorHomeListing(listing)) {
+    const segments = [
+      listing.serviceDuration ? `Duration of Service: ${formatBackendReadyValue(listing.serviceDuration, "")}` : "",
+      listing.serviceDeposit ? `Deposit: ${formatBackendReadyValue(listing.serviceDeposit, "")}` : "",
+      listing.monthlyServiceFee ? `Monthly Service Fee: ${formatBackendReadyValue(listing.monthlyServiceFee, "")}` : "",
+    ].filter(Boolean);
+
+    return segments.length > 0 ? segments.join(" | ") : "Not specified";
+  }
+
   const segments = [
     listing.downPaymentAmount ? `Down Payment: ${listing.downPaymentAmount}` : "",
     listing.mortgageTerm ? `Mortgage Term: ${listing.mortgageTerm}` : "",
@@ -81,7 +108,23 @@ function formatListField(items: string[]) {
   return items.length > 0 ? items.join(", ") : "Not specified";
 }
 
-const COMPARE_FIELDS: Array<{ label: string; getValue: (listing: PropertyListing) => string }> = [
+function getCompareRoomSize(listing: PropertyListing) {
+  if (isSeniorHomeListing(listing)) {
+    return formatBackendReadyValue(listing.roomSize, "Not specified");
+  }
+
+  return listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`;
+}
+
+function getCompareBuildingSize(listing: PropertyListing) {
+  if (isSeniorHomeListing(listing)) {
+    return formatBackendReadyValue(listing.buildingSize, "Not specified");
+  }
+
+  return listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`;
+}
+
+const COMPARE_FIELDS: Array<{ key?: string; label: string; getValue: (listing: PropertyListing) => string }> = [
   { label: "Price", getValue: (listing) => listing.priceLabel },
   { label: "Listing type / status", getValue: (listing) => `For ${listing.mode} | ${listing.statusLabel}` },
   { label: "Location", getValue: (listing) => `${listing.city}, ${listing.province}` },
@@ -89,12 +132,12 @@ const COMPARE_FIELDS: Array<{ label: string; getValue: (listing: PropertyListing
   { label: "Bedrooms", getValue: (listing) => getBedroomLabel(listing.beds) },
   { label: "Bathrooms", getValue: (listing) => getBathroomLabel(listing.baths) },
   { label: "Land size", getValue: (listing) => (listing.homeType === "Land" ? `${listing.areaSqm} sqm` : "N/A") },
-  { label: "Room size", getValue: (listing) => (listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`) },
-  { label: "Building size", getValue: (listing) => (listing.homeType === "Land" ? "N/A" : `${listing.areaSqm} sqm`) },
+  { key: "room-size", label: "Room size", getValue: (listing) => getCompareRoomSize(listing) },
+  { key: "building-size", label: "Building size", getValue: (listing) => getCompareBuildingSize(listing) },
   { label: "View", getValue: (listing) => listing.view ?? "Not specified" },
   { label: "Furnished / Unfurnished", getValue: (listing) => listing.furnishing ?? "Unfurnished" },
   { label: "Rent deposit months", getValue: (listing) => getCompareDepositMonths(listing) },
-  { label: "Down Payment and Mortgage", getValue: (listing) => getCompareFinanceLabel(listing) },
+  { key: "finance", label: "Down Payment and Mortgage", getValue: (listing) => getCompareFinanceLabel(listing) },
   { label: "Features", getValue: (listing) => formatListField(listing.features) },
   { label: "Amenities", getValue: (listing) => formatListField(listing.amenities) },
   { label: "What's Special", getValue: (listing) => listing.description || "Not specified" },
@@ -106,8 +149,13 @@ const COMPARE_FIELDS: Array<{ label: string; getValue: (listing: PropertyListing
 ];
 
 function buildCompareRows(leftListing: PropertyListing, rightListing: PropertyListing): PropertyCompareRow[] {
+  const financeLabel =
+    isSeniorHomeListing(leftListing) || isSeniorHomeListing(rightListing)
+      ? "Service Terms"
+      : "Down Payment and Mortgage";
+
   return COMPARE_FIELDS.map((field) => ({
-    label: field.label,
+    label: field.key === "finance" ? financeLabel : field.label,
     leftValue: field.getValue(leftListing),
     rightValue: field.getValue(rightListing),
   }));
@@ -408,17 +456,33 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const compareProgressLabel = `${compareCount} of 2 selected`;
   const compareButtonLabel = compared ? "Added to Compare" : "Compare";
   const metricSummary = `${getBedroomLabel(listing.beds)} • ${getBathroomLabel(listing.baths)} • ${listing.areaSqm} sqm`;
-  const showDownPaymentAndMortgage = isHomeOrVilla(listing);
+  const isSeniorListing = isSeniorHomeListing(listing);
+  const showDownPaymentAndMortgage = isSeniorListing || isHomeOrVilla(listing);
   const viewLabel = listing.view ?? "Not specified";
   const furnishingLabel = listing.furnishing ?? "Unfurnished";
   const propertyConditionLabel = listing.propertyCondition?.trim() || "Admin will add from backend";
+  const conditionLabel = listing.condition?.trim() || "Admin will add from backend";
+  const roomSizeLabel = isSeniorListing ? formatBackendReadyValue(listing.roomSize) : `${listing.areaSqm} sqm`;
+  const buildingSizeLabel = isSeniorListing ? formatBackendReadyValue(listing.buildingSize) : `${listing.areaSqm} sqm`;
+  const caregiverIncludedLabel = formatBackendReadyValue(listing.caregiverIncluded);
+  const seniorCareServiceLabel = formatBackendReadyValue(listing.seniorCareService);
   const isRentalListing = listing.mode === "rent";
-  const financeRows = [
-    { label: "Down Payment", value: listing.downPaymentAmount },
-    { label: "Mortgage Term", value: listing.mortgageTerm },
-    { label: "Interest Rate", value: listing.mortgageInterestRate },
-    { label: "Estimated Monthly Mortgage", value: listing.estimatedMonthlyMortgage },
-  ];
+  const financeSectionTitle = isSeniorListing ? "Service Terms" : "Down Payment and Mortgage";
+  const financeRows = isSeniorListing
+    ? [
+        { label: "Duration of Service", value: listing.serviceDuration },
+        { label: "Deposit", value: listing.serviceDeposit },
+        { label: "Monthly Service Fee", value: listing.monthlyServiceFee },
+      ]
+    : [
+        { label: "Down Payment", value: listing.downPaymentAmount },
+        { label: "Mortgage Term", value: listing.mortgageTerm },
+        { label: "Interest Rate", value: listing.mortgageInterestRate },
+        { label: "Estimated Monthly Mortgage", value: listing.estimatedMonthlyMortgage },
+      ];
+  const serviceIncludedItems = listing.servicesIncluded ?? [];
+  const propertyFeatureItems = listing.propertyFeatureItems ?? [];
+  const communityAmenityItems = listing.communityAmenityItems ?? [];
   const nearbyLocations = useMemo(() => {
     if (!listing.nearbyLocations || listing.nearbyLocations.length === 0) return [];
 
@@ -1102,6 +1166,14 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <span className="font-black">Property condition:</span> {propertyConditionLabel}
                     </p>
                   </div>
+                  {isSeniorListing ? (
+                    <div className="flex min-w-0 items-start gap-4">
+                      <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Condition:</span> {conditionLabel}
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="flex min-w-0 items-center gap-4">
                     <Bath className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
@@ -1138,16 +1210,34 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       <span className="font-black">Floor:</span> {listing.floorCount || "N/A"}
                     </p>
                   </div>
+                  {isSeniorListing ? (
+                    <div className="flex min-w-0 items-start gap-4">
+                      <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Caregiver Included:</span> {caregiverIncludedLabel}
+                      </p>
+                    </div>
+                  ) : null}
+                  {isSeniorListing ? (
+                    <div className="flex min-w-0 items-start gap-4">
+                      <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-brand-dark" />
+                      <p className="break-words text-lg text-brand-dark">
+                        <span className="font-black">Senior Care Service:</span> {seniorCareServiceLabel}
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="flex min-w-0 items-center gap-4">
                     <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Build sqm:</span> {listing.areaSqm} sqm
+                      <span className="font-black">{isSeniorListing ? "Room Size" : "Build sqm"}:</span>{" "}
+                      {roomSizeLabel}
                     </p>
                   </div>
                   <div className="flex min-w-0 items-center gap-4">
                     <Ruler className="h-6 w-6 shrink-0 text-brand-dark" />
                     <p className="break-words text-lg text-brand-dark">
-                      <span className="font-black">Land area:</span> {listing.areaSqm} sqm
+                      <span className="font-black">{isSeniorListing ? "Building Size" : "Land area"}:</span>{" "}
+                      {buildingSizeLabel}
                     </p>
                   </div>
                   {listing.mode === "rent" ? (
@@ -1161,16 +1251,38 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                 </div>
                 {showDownPaymentAndMortgage ? (
                   <div className="mt-8 pt-1">
-                    <h3 className="break-words text-lg font-black text-brand-dark">Down Payment and Mortgage</h3>
+                    <h3 className="break-words text-lg font-black text-brand-dark">{financeSectionTitle}</h3>
                     <div className="mt-3 space-y-2">
                       {financeRows.map((row) => (
                         <p key={`${listing.id}-${row.label}`} className="break-words text-base leading-7 text-brand-gray">
                           <span className="font-black text-brand-dark">{row.label}:</span>{" "}
-                          {row.value?.trim() ? row.value : "Admin will add from backend"}
+                          {formatBackendReadyValue(row.value)}
                         </p>
                       ))}
                     </div>
                   </div>
+                ) : null}
+                {isSeniorListing ? (
+                  <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                    <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Service Included</h2>
+                    <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                      {serviceIncludedItems.length > 0 ? (
+                        serviceIncludedItems.map((item, index) => (
+                          <div
+                            key={`${listing.id}-service-included-${index}`}
+                            className="flex min-w-0 items-start gap-4 text-lg text-brand-dark"
+                          >
+                            <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-dark" />
+                            <span className="break-words">{item}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
+                          Service text will appear here once backend service details are provided.
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 ) : null}
                 {!isRentalListing ? (
                   <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
@@ -1385,42 +1497,100 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
               ) : null}
 
               <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <h2 className="break-words text-2xl font-black text-brand-dark">FAQ</h2>
-                    <p className="mt-2 break-words text-sm leading-6 text-brand-gray">
-                      This section already reads from structured property FAQ data so backend-written answers can plug in per listing later.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-6 space-y-3">
-                  {listing.faqs && listing.faqs.length > 0 ? (
-                    listing.faqs.map((faq, index) => {
-                      const open = openFaqIndex === index;
-                      return (
-                        <div key={`${listing.id}-faq-${index}`} className="overflow-hidden rounded-[24px] border border-[#eee4dd]">
-                          <button
-                            type="button"
-                            onClick={() => setOpenFaqIndex(open ? -1 : index)}
-                            className="flex w-full min-w-0 items-start justify-between gap-3 bg-white px-4 py-4 text-left md:px-5"
-                          >
-                            <span className="min-w-0 break-words text-sm font-black leading-6 text-brand-dark md:text-base">{faq.question}</span>
-                            <ChevronRight className={`h-5 w-5 shrink-0 text-brand-red transition ${open ? "rotate-90" : ""}`} />
-                          </button>
-                          {open ? (
-                            <div className="break-words border-t border-[#eee4dd] bg-[#fffaf6] px-4 py-4 text-sm leading-7 text-brand-gray md:px-5">
-                              {faq.answer}
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
-                      Property-specific FAQs will appear here once the backend sends them for this listing.
+                {isSeniorListing ? (
+                  <>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h2 className="break-words text-2xl font-black text-brand-dark">Senior Home Details</h2>
+                        <p className="mt-2 break-words text-sm leading-6 text-brand-gray">
+                          These sections already read from structured listing arrays so backend-written senior home details can replace the placeholder items later.
+                        </p>
+                      </div>
                     </div>
-                  )}
-                </div>
+                    <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                      {[
+                        {
+                          title: "Services Included",
+                          items: serviceIncludedItems,
+                          emptyMessage: "Service items will appear here once backend service details are provided.",
+                        },
+                        {
+                          title: "Property Features",
+                          items: propertyFeatureItems,
+                          emptyMessage: "Property feature items will appear here once backend feature details are provided.",
+                        },
+                        {
+                          title: "Community Amenities",
+                          items: communityAmenityItems,
+                          emptyMessage: "Community amenity items will appear here once backend amenity details are provided.",
+                        },
+                      ].map((group) => (
+                        <div
+                          key={`${listing.id}-${group.title}`}
+                          className="rounded-[24px] border border-[#eee4dd] bg-[#fffaf6] p-5"
+                        >
+                          <h3 className="break-words text-lg font-black text-brand-dark">{group.title}</h3>
+                          {group.items.length > 0 ? (
+                            <div className="mt-4 space-y-3">
+                              {group.items.map((item, index) => (
+                                <div
+                                  key={`${listing.id}-${group.title}-${index}`}
+                                  className="flex min-w-0 items-start gap-3 text-sm leading-7 text-brand-gray"
+                                >
+                                  <span className="mt-3 h-2 w-2 shrink-0 rounded-full bg-brand-dark" />
+                                  <span className="break-words">{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="mt-4 rounded-[20px] border border-dashed border-[#d8ccc4] bg-white px-4 py-5 text-sm leading-7 text-brand-gray">
+                              {group.emptyMessage}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <h2 className="break-words text-2xl font-black text-brand-dark">FAQ</h2>
+                        <p className="mt-2 break-words text-sm leading-6 text-brand-gray">
+                          This section already reads from structured property FAQ data so backend-written answers can plug in per listing later.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-6 space-y-3">
+                      {listing.faqs && listing.faqs.length > 0 ? (
+                        listing.faqs.map((faq, index) => {
+                          const open = openFaqIndex === index;
+                          return (
+                            <div key={`${listing.id}-faq-${index}`} className="overflow-hidden rounded-[24px] border border-[#eee4dd]">
+                              <button
+                                type="button"
+                                onClick={() => setOpenFaqIndex(open ? -1 : index)}
+                                className="flex w-full min-w-0 items-start justify-between gap-3 bg-white px-4 py-4 text-left md:px-5"
+                              >
+                                <span className="min-w-0 break-words text-sm font-black leading-6 text-brand-dark md:text-base">{faq.question}</span>
+                                <ChevronRight className={`h-5 w-5 shrink-0 text-brand-red transition ${open ? "rotate-90" : ""}`} />
+                              </button>
+                              {open ? (
+                                <div className="break-words border-t border-[#eee4dd] bg-[#fffaf6] px-4 py-4 text-sm leading-7 text-brand-gray md:px-5">
+                                  {faq.answer}
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="rounded-[24px] border border-dashed border-[#d8ccc4] bg-[#fffaf6] px-5 py-6 text-sm leading-7 text-brand-gray">
+                          Property-specific FAQs will appear here once the backend sends them for this listing.
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </section>
 
               <section className="mt-6 w-full max-w-full overflow-hidden rounded-[24px] border border-[#e8ded7] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] sm:p-8 md:mt-8 md:rounded-[32px]">

@@ -59,6 +59,7 @@ export function App() {
     ? propertyListings.find((listing) => listing.id === selectedPropertyId)
     : undefined;
   const listingProvince = listingSearchParams.get("province") ?? undefined;
+  const listingDistrict = listingSearchParams.get("district") ?? undefined;
   const listingQuery = listingSearchParams.get("q") ?? undefined;
   const listingHomeType = listingSearchParams.get("homeType") ?? undefined;
   const listingBedroom = listingSearchParams.get("bedroom") ?? undefined;
@@ -250,6 +251,7 @@ export function App() {
         initialMode="sale"
         pageVariant={isPropertyListingsBuyPage ? "buy" : "sale"}
         initialProvince={listingProvince}
+        initialDistrict={listingDistrict}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}
         initialBedroom={listingBedroom}
@@ -266,6 +268,7 @@ export function App() {
         initialMode="rent"
         pageVariant="rent"
         initialProvince={listingProvince}
+        initialDistrict={listingDistrict}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}
         initialBedroom={listingBedroom}
@@ -282,6 +285,7 @@ export function App() {
         initialMode="sale"
         pageVariant="senior"
         initialProvince={listingProvince}
+        initialDistrict={listingDistrict}
         initialQuery={listingQuery}
         initialHomeType={listingHomeType}
         initialBedroom={listingBedroom}

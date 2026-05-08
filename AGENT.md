@@ -944,3 +944,55 @@
   3. `Down Payment`
 - Kept Buy and Senior Home detail ordering unchanged.
 - Kept plain React text rendering and existing styling/spacing/responsive behavior.
+
+## 2026-05-08 (Senior Home Listing District Filter + Detail Service Terms)
+- Scope limited to senior home listing/detail flows only. Buy and Rent listing/detail behavior remains unchanged unless touched through safe shared optional-field plumbing.
+- Senior Home listing page updates:
+  - Added a senior-only `District` quick filter button beside `Province` in `frontend/src/components/PropertyListingsPage.tsx`.
+  - `District` reads Amphoe/Khet-style values from structured listing address data (`address.amphoe` with `address.district` fallback).
+  - District filtering is backend-ready:
+    - new optional URL param plumbing for `district` in `frontend/src/App.tsx`
+    - senior listing page accepts `initialDistrict`
+    - district options are generated from structured listing data and remain hidden on Buy/Rent pages
+  - Senior seed listings now include address district/amphoe values in `frontend/src/data/propertyListings.ts`.
+- Senior Home detail page updates in `frontend/src/components/PropertyDetailPage.tsx`:
+  - Under `Property Details`, senior-home-only rows now support:
+    - `Property Condition`
+    - `Condition`
+    - `Room Size`
+    - `Building Size`
+    - `Caregiver Included`
+    - `Senior Care Service`
+  - Added backend-ready optional fields in `frontend/src/types/propertyListing.ts` for senior-home-specific text/number/boolean values:
+    - `roomSize`
+    - `buildingSize`
+    - `caregiverIncluded`
+    - `condition`
+    - `seniorCareService`
+    - `serviceDuration`
+    - `serviceDeposit`
+    - `monthlyServiceFee`
+    - `servicesIncluded`
+    - `propertyFeatureItems`
+    - `communityAmenityItems`
+  - Senior pricing/service terms now branch away from mortgage wording:
+    - `Down Payment` renamed to `Duration of Service`
+    - added `Deposit`
+    - added `Monthly Service Fee`
+    - all render from backend-ready optional fields with plain-text fallback when missing
+  - Added a new senior-only `Service Included` section above the existing `Features` section.
+  - Replaced the senior-home FAQ accordion area with 3 small backend-ready sections:
+    - `Services Included`
+    - `Property Features`
+    - `Community Amenities`
+- Senior home sample data updates in `frontend/src/data/propertyListings.ts`:
+  - Added placeholder service/property/community item arrays for the 3 seeded senior-home listings.
+  - Added seeded values for service duration, deposit, monthly fee, room/building size, caregiver, and care-service content.
+- Focused XSS/security pass:
+  - No `dangerouslySetInnerHTML`, `innerHTML=`, `eval(`, `new Function(`, or `javascript:` usage was added in the touched frontend files.
+  - All new content is rendered as plain React text.
+  - No unsafe HTML injection paths were introduced by the senior-home additions.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - `git diff --check` passed for the touched frontend files.
+  - Existing Vite chunk-size warning remains non-blocking.

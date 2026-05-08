@@ -34,6 +34,40 @@ const fallbackNearbyLocationTypes: NearbyLocationType[] = [
   "Cities",
 ];
 
+const defaultSeniorServicesIncluded = [
+  "Professional caregiver assistance available on duty",
+  "Three nutritious meals provided daily",
+  "Physical therapy and rehabilitation support",
+  "Fitness and exercise programs tailored to residents",
+  "Recreational games and social activities",
+  "Daily medical monitoring and routine health checkups",
+  "Laundry and housekeeping services",
+  "Medication preparation and management assistance",
+  "Transportation services for hospital visits and shopping trips",
+  "Personal hygiene assistance, including bathing and incontinence care",
+];
+
+const defaultSeniorPropertyFeatures = [
+  "Fully furnished or unfurnished options available",
+  "Air conditioning throughout the residence",
+  "Spacious living room areas",
+  "Private and guest parking facilities",
+  "Fully equipped kitchen",
+  "CCTV security and telecommunication systems",
+  "Handicap-accessible installations and facilities",
+  "Professional cleaning and maid services",
+];
+
+const defaultSeniorCommunityAmenities = [
+  "Community and activity hall",
+  "Landscaped gardens and outdoor relaxation areas",
+  "Swimming pool",
+  "Guest parking facilities",
+  "Beauty salon and grooming services",
+  "On-site medical clinic",
+  "Massage and wellness services",
+];
+
 const basePropertyListings: PropertyListingSeed[] = [
   {
     id: "sale-bkk-phrom-phong-01",
@@ -424,6 +458,36 @@ const addressSeedByListingId: Record<string, PropertyAddress> = {
     latitude: 13.7306,
     longitude: 100.5694,
   },
+  "senior-hua-hin-care-villa-01": {
+    street: "Soi Hua Hin 88",
+    tambon: "Hua Hin",
+    amphoe: "Hua Hin",
+    district: "Hua Hin",
+    city: "Hua Hin",
+    province: "Prachuap Khiri Khan",
+    postalCode: "77110",
+    country: "Thailand",
+  },
+  "senior-chiang-mai-wellness-villa-02": {
+    street: "Nam Phrae Wellness Road",
+    tambon: "Nam Phrae",
+    amphoe: "Hang Dong",
+    district: "Hang Dong",
+    city: "Hang Dong",
+    province: "Chiang Mai",
+    postalCode: "50230",
+    country: "Thailand",
+  },
+  "senior-phuket-lake-condo-03": {
+    street: "Laguna Lake Drive",
+    tambon: "Choeng Thale",
+    amphoe: "Thalang",
+    district: "Thalang",
+    city: "Choeng Thale",
+    province: "Phuket",
+    postalCode: "83110",
+    country: "Thailand",
+  },
 };
 
 const galleryPool = Array.from(new Set(basePropertyListings.map((listing) => listing.image)));
@@ -513,6 +577,61 @@ function buildDownPaymentAndMortgageFields(listing: PropertyListingSeed) {
   };
 }
 
+function buildSeniorHomeFields(listing: PropertyListingSeed) {
+  if (listing.id === "senior-hua-hin-care-villa-01") {
+    return {
+      propertyCondition: "New",
+      condition: "Move-in ready",
+      roomSize: "42 sqm",
+      buildingSize: "168 sqm",
+      caregiverIncluded: true,
+      seniorCareService: "24/7 caregiver and wellness support",
+      serviceDuration: "12 months",
+      serviceDeposit: "THB 200,000",
+      monthlyServiceFee: "THB 65,000 / month",
+      servicesIncluded: defaultSeniorServicesIncluded,
+      propertyFeatureItems: defaultSeniorPropertyFeatures,
+      communityAmenityItems: defaultSeniorCommunityAmenities,
+    };
+  }
+
+  if (listing.id === "senior-chiang-mai-wellness-villa-02") {
+    return {
+      propertyCondition: "Service Facility",
+      condition: "Well-maintained",
+      roomSize: "52 sqm",
+      buildingSize: "210 sqm",
+      caregiverIncluded: "Available on request",
+      seniorCareService: "Rehabilitation and wellness support",
+      serviceDuration: "Flexible long-stay plan",
+      serviceDeposit: "THB 250,000",
+      monthlyServiceFee: "THB 72,000 / month",
+      servicesIncluded: defaultSeniorServicesIncluded,
+      propertyFeatureItems: defaultSeniorPropertyFeatures,
+      communityAmenityItems: defaultSeniorCommunityAmenities,
+    };
+  }
+
+  if (listing.id === "senior-phuket-lake-condo-03") {
+    return {
+      propertyCondition: "New",
+      condition: "Turnkey residence",
+      roomSize: "62 sqm",
+      buildingSize: "62 sqm",
+      caregiverIncluded: "Shared caregiver team available",
+      seniorCareService: true,
+      serviceDuration: "6 to 12 months",
+      serviceDeposit: "THB 150,000",
+      monthlyServiceFee: "THB 58,000 / month",
+      servicesIncluded: defaultSeniorServicesIncluded,
+      propertyFeatureItems: defaultSeniorPropertyFeatures,
+      communityAmenityItems: defaultSeniorCommunityAmenities,
+    };
+  }
+
+  return {};
+}
+
 function buildPropertyAddress(listing: PropertyListingSeed): PropertyAddress {
   const seededAddress = addressSeedByListingId[listing.id] ?? {};
 
@@ -569,6 +688,7 @@ export const propertyListings: PropertyListing[] = basePropertyListings.map((lis
   ...listing,
   nearbyLocations: buildNearbyLocations(listing),
   ...buildDownPaymentAndMortgageFields(listing),
+  ...buildSeniorHomeFields(listing),
   listingChannel: listing.id.startsWith("senior-") ? "senior-home" : "standard",
   depositAmount: listing.mode === "rent" ? listing.priceValue * 2 : undefined,
   depositMonths: listing.mode === "rent" ? 2 : undefined,
