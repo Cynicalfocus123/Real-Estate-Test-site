@@ -12,7 +12,7 @@ export function Footer() {
           <img
             src={assetPath("images/logo-white-text.png")}
             alt="Buy Home For Less"
-            className="h-auto w-[180px] max-w-full object-contain sm:w-[220px]"
+            className="h-auto max-h-24 w-auto max-w-[180px] object-contain sm:max-w-[220px]"
           />
           <p className="mt-5 max-w-sm text-sm leading-6 text-neutral-300">
             Your trusted real estate partner for buying, renting, and leasing. Specializing in luxury

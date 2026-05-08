@@ -24,9 +24,10 @@
 - Always update this `AGENT.md` with the latest standing rules, completed changes, checks run, and relevant project notes without asking permission. Objective: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking or wasting token usage.
 - Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
 - Standing search-tool rule:
-  - The bundled Codex `rg` inside `WindowsApps` is blocked and must not be used.
-  - Do not use: `C:\Program Files\WindowsApps\OpenAI.Codex_*\app\resources\rg.exe`
-  - Always use full-path WinGet ripgrep: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`
+  - Stop using the wrong/bundled Codex `rg`; it is blocked and wastes time.
+  - The bundled Codex `rg` inside `WindowsApps` is blocked and must never be used.
+  - Never use: `C:\Program Files\WindowsApps\OpenAI.Codex_*\app\resources\rg.exe`
+  - Always use the right full-path WinGet ripgrep first: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`
   - Repo-search example: `"C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe" -n "search text" .`
   - If full-path `rg` fails, do not stop; fall back to:
     - PowerShell `Get-ChildItem` + `Select-String`
@@ -1042,3 +1043,30 @@
 - Verification:
   - Frontend build completed successfully in `frontend` via `npm run build`.
   - Existing Vite chunk-size warning remains non-blocking.
+
+## 2026-05-08 (Footer Supplied Logo + Senior Detail 2-Row Text Scale)
+- Scope limited to requested frontend areas:
+  - footer logo asset/display
+  - senior-home-only `Property Details` presentation
+- Footer updates in `frontend/src/components/Footer.tsx`:
+  - Replaced the deployed white-text footer logo asset with the supplied file:
+    - source: `frontend/site image/logo white text all.png`
+    - deployed asset: `frontend/public/images/logo-white-text.png`
+  - Kept the existing safe asset path pattern: `assetPath("images/logo-white-text.png")`.
+  - Kept footer layout, links, contact info, and responsive behavior unchanged.
+  - Adjusted logo sizing to use max width/height with `object-contain` so the new logo stays visible on the existing dark footer and is not stretched.
+- Senior Home detail page updates in `frontend/src/components/PropertyDetailPage.tsx`:
+  - Senior-only `Property Details` field items now use the same large text scale as Buy/Rent property detail items.
+  - Senior detail items render as text only with inline bold labels; no icons, box rows, cards, or background panels were added behind the items.
+  - Senior detail text is arranged into a 2-row grid with responsive horizontal overflow to preserve alignment and prevent cramped wrapping on smaller widths.
+  - Buy/Rent detail layout behavior remains unchanged.
+- Focused XSS/security pass:
+  - No `dangerouslySetInnerHTML`, `innerHTML=`, `eval(`, `new Function(`, or `javascript:` usage added in touched frontend files.
+  - New/updated detail values continue to render as plain React text.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - Existing Vite chunk-size warning remains non-blocking.
+
+## 2026-05-08 (Search Tool Rule Reinforcement)
+- Reinforced standing search-tool rule: stop using the wrong/bundled Codex `rg` path. Always use the working WinGet ripgrep path first: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`.
+- If that full-path `rg` fails, continue with PowerShell `Select-String` or CMD `findstr` fallbacks instead of asking the user.
