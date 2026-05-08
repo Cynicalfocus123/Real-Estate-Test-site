@@ -1265,13 +1265,6 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                       )}
                     </div>
                   </section>
-
-                  <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
-                    <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Deposit</h2>
-                    <p className="mt-4 break-words text-base leading-7 text-brand-gray">
-                      {getRentDepositLabel(listing)}
-                    </p>
-                  </section>
                 </>
               ) : null}
 
@@ -1289,6 +1282,15 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
                   ))}
                 </div>
               </section>
+
+              {isRentalListing ? (
+                <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
+                  <h2 className="break-words text-3xl font-black text-brand-dark md:text-4xl">Down Payment</h2>
+                  <p className="mt-4 break-words text-base leading-7 text-brand-gray">
+                    {getRentDepositLabel(listing)}
+                  </p>
+                </section>
+              ) : null}
 
               <section className="mt-7 w-full max-w-full overflow-hidden border-t border-[#ded6d0] pt-7 md:mt-8 md:pt-8">
                 <h3 className="text-xl font-black text-brand-dark md:text-lg">Nearby Highlights</h3>

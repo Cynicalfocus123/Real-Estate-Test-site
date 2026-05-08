@@ -934,3 +934,13 @@
 - Security:
   - All values render as plain React text.
   - No unsafe HTML injection or unsafe link/image helper bypasses added.
+
+## 2026-05-08 (Rental Down Payment Wording + Order Correction)
+- Corrected rental-only detail section wording/order regression in `frontend/src/components/PropertyDetailPage.tsx`.
+- Restored wording from `Deposit` to `Down Payment` (exact heading label).
+- Updated rental-only section order to:
+  1. `Features`
+  2. `Amenities`
+  3. `Down Payment`
+- Kept Buy and Senior Home detail ordering unchanged.
+- Kept plain React text rendering and existing styling/spacing/responsive behavior.
