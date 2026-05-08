@@ -22,17 +22,12 @@
 - Blocked-command workflow rule: the workflow must work whether commands are blocked or unblocked. If normal commands fail because of Windows permissions, sandbox restrictions, network restrictions, `.git/index.lock` permission errors, or similar environment blocks, immediately retry with the required elevated/approved path and continue the verification, commit, and push flow whenever possible.
 - Context-protection command rule: any command with unknown or potentially large output must be byte-capped. Default shell pattern: `COMMAND 2>&1 | head -c 4000`. On PowerShell, prefer targeted commands with explicit caps such as `-TotalCount`, `Select-Object -First N`, or other small bounded output; avoid uncapped large dumps.
 - Always update this `AGENT.md` with the latest standing rules, completed changes, checks run, and relevant project notes without asking permission. Objective: work efficiently, verify, update `AGENT.md`, commit, and push without repeatedly asking or wasting token usage.
-- Do not use the bundled Codex ripgrep binary at `C:\Program Files\WindowsApps\OpenAI.Codex_26.429.3425.0_x64__2p2nqsd0c76g0\app\resources\rg.exe`; it is blocked by Windows with `Access is denied`. Use the working system ripgrep by full path: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`. Example: `& 'C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe' -n 'admin-demo' .`. If that fails, keep working with `findstr /s /i /n /c:"admin-demo" *.*` or PowerShell `Select-String`; do not ask the user about ripgrep again unless all search methods fail.
 - Standing search-tool rule:
-  - Stop using the wrong/bundled Codex `rg`; it is blocked and wastes time.
-  - The bundled Codex `rg` inside `WindowsApps` is blocked and must never be used.
-  - Never use: `C:\Program Files\WindowsApps\OpenAI.Codex_*\app\resources\rg.exe`
-  - Always use the right full-path WinGet ripgrep first: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`
-  - Repo-search example: `"C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe" -n "search text" .`
-  - If full-path `rg` fails, do not stop; fall back to:
-    - PowerShell `Get-ChildItem` + `Select-String`
-    - CMD `dir /s /b` + `findstr`
-  - Do not ask the user again about `rg` unless all search methods fail.
+  - Use whichever `rg` works reliably in the current environment.
+  - Prefer the working WinGet ripgrep path when available: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`.
+  - If that path fails, immediately try another available `rg` on PATH.
+  - If no `rg` works, continue with PowerShell `Get-ChildItem` + `Select-String` or CMD `dir /s /b` + `findstr`.
+  - Do not ask the user about search tooling unless all search methods fail.
 - Update this file whenever corrections or fixes are applied.
 
 ## 2026-04-28
@@ -1068,5 +1063,16 @@
   - Existing Vite chunk-size warning remains non-blocking.
 
 ## 2026-05-08 (Search Tool Rule Reinforcement)
-- Reinforced standing search-tool rule: stop using the wrong/bundled Codex `rg` path. Always use the working WinGet ripgrep path first: `C:\Users\Joe\AppData\Local\Microsoft\WinGet\Links\rg.exe`.
-- If that full-path `rg` fails, continue with PowerShell `Select-String` or CMD `findstr` fallbacks instead of asking the user.
+- Simplified standing search-tool rule to avoid confusion: use whichever `rg` works reliably, prefer the WinGet ripgrep path when available, try another PATH `rg` if needed, then fall back to PowerShell `Select-String` or CMD `findstr`.
+- Removed blocked-path examples from the priority rules so agents do not keep trying the wrong `rg` binary.
+- Verification before push: active frontend `npm run build` passed, active frontend `npm audit --audit-level=moderate` found 0 vulnerabilities, and focused frontend XSS/security scan found no unsafe matches.
+
+## 2026-05-08 (Senior Detail Downward Text Flow Correction)
+- Corrected Senior Home `Property Details` in `frontend/src/components/PropertyDetailPage.tsx` after review feedback:
+  - Removed sideways horizontal scrolling and fixed-width two-row flow.
+  - Senior detail items now flow downward in the same normal responsive grid pattern as Buy/Rent detail text.
+  - Kept senior detail items as text only with inline bold labels and `text-lg` sizing to match Buy/Rent detail scale.
+  - No box rows, cards, or background panels were added behind the senior detail items.
+- Verification:
+  - Frontend build completed successfully in `frontend` via `npm run build`.
+  - Focused XSS/security scan on touched frontend files found no unsafe rendering patterns.
