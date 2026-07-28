@@ -16,6 +16,17 @@ Preserve existing public property, search, account, favorites, comparison, visa,
 
 All changes require a focused security pass appropriate to the edited area. At minimum check for unsafe HTML injection, `javascript:` URLs, unsafe `href`/`src`/image URLs, unsanitized input or URL parameters, missing `rel="noopener noreferrer"` on external new-tab links, validation gaps, exposed secrets, insecure headers, and vulnerable dependencies. Render untrusted content as text, validate API and asset URLs, and keep third-party embeds tightly controlled. Never expose API URLs, tokens, credentials, database details, raw responses, stack traces, server paths, or technical diagnostics in the public or admin interface.
 
+## Hostinger live-environment gate
+
+Hostinger is the production target. Before starting any feature that connects the frontend, backend, uploads, redirects, or database, confirm the actual hPanel application root, public domain, Node.js version, build/start commands, and environment-variable values. The canonical public origin is `https://buyhomeforless.com`. Use the same live origin for the API unless the user explicitly approves a different production hostname; do not invent or depend on `api.buyhomeforless.com`.
+
+- Production client requests must use the configured full HTTPS live base such as `https://buyhomeforless.com/api/v1`, never `localhost`, `127.0.0.1`, a development port, an unresolved placeholder, or a raw root-relative API value such as `/api`.
+- Set live origins through Hostinger environment variables, including the frontend public origin, API base URL, allowed frontend origin, and public upload base URL. Do not commit secrets or private filesystem paths. Vite-exposed variables are public configuration and must never contain credentials.
+- Do not hardcode `/`, `/Real-Estate-Test-site/`, `public_html`, a Windows path, or another assumed deployment location in application links. Configure Vite `base` from the verified Hostinger public base path and construct internal application/asset URLs from `import.meta.env.BASE_URL`. A root deployment may resolve to `/`, but source code must not assume it.
+- Server filesystem paths and public URLs are different contracts. Resolve private runtime/upload directories from the deployed application root; generate browser-visible upload URLs only from the configured live HTTPS origin.
+- Hostinger must serve SPA deep links through the frontend entry point while forwarding the chosen live API path to the Node application. A release is not valid until direct navigation and refresh work on representative nested routes and API/upload paths.
+- Production builds must fail validation if generated frontend files contain `localhost`, `127.0.0.1`, `/Real-Estate-Test-site/`, source-machine paths, or an unapproved API hostname. Do not begin the frontend/backend cutover until this live URL and path gate passes.
+
 ## Required matched release workflow
 
 Every completed source, configuration, content, documentation, security, frontend, or backend change must leave one matched source, mirror, Git, and ZIP state:
@@ -24,7 +35,7 @@ Every completed source, configuration, content, documentation, security, fronten
 2. Run the relevant checks. Frontend changes require `npm run build` in `frontend/`; backend changes require `npm run typecheck` and `npm run build` in `backend/`. Run the focused security pass and relevant dependency audit before release.
 3. Rebuild `frontend/dist/`, then replace (never merge) `frontend-live/` with its exact contents. Verify path, size, and SHA-256 parity; exclude source maps unless deliberately required.
 4. Rebuild `backend/dist/`, then replace (never merge) `backend-live/` from the active `backend/` deployment input. Include the production package metadata and built runtime; exclude `.env`, `node_modules`, logs, runtime uploads, local caches, test-only files, and secrets. Generate and verify `backend-live/SHA256SUMS`.
-5. Commit the authoritative source, both mirrors, the manifest, and documentation, then push. Confirm local `HEAD` equals the tracked remote branch before archiving.
+5. Verify the Hostinger production configuration contract and scan the generated output for forbidden development URLs and paths. Commit the authoritative source, both mirrors, the manifest, and documentation, then push. Confirm local `HEAD` equals the tracked remote branch before archiving.
 6. Regenerate both Live ZIPs together from the verified mirrors. ZIP entries must use portable `/` paths and place the deployable files at archive root, never inside an extra project folder. Verify archive listings and CRCs, reject duplicate/unsafe/backslash paths and forbidden content, and extract with both Windows and PHP tooling to prove full SHA-256 parity. Remove stale ZIPs and temporary release/extraction folders so only the two canonical archives remain.
 
 The mirrors and ZIPs are manual deployment artifacts only. Never claim that hosting, DNS, database migrations, environment changes, cache clearing, or production smoke tests occurred without direct evidence. A manual upload must preserve the live backend `.env`, installed dependencies, database, uploads/media, writable directories, logs, and runtime configuration.
