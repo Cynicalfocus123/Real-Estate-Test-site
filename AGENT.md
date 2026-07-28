@@ -18,7 +18,7 @@ All changes require a focused security pass appropriate to the edited area. At m
 
 ## Hostinger live-environment gate
 
-Hostinger is the production target. Before starting any feature that connects the frontend, backend, uploads, redirects, or database, confirm the actual hPanel application root, public domain, Node.js version, build/start commands, and environment-variable values. The canonical public origin is `https://buyhomeforless.com`. Use the same live origin for the API unless the user explicitly approves a different production hostname; do not invent or depend on `api.buyhomeforless.com`.
+Hostinger is the production target. Before starting any feature that connects the frontend, backend, uploads, redirects, or database, confirm the actual hPanel application root, public domain, Node.js version, build/start commands, and environment-variable values. The canonical and only permitted public origin is `https://buyhomeforless.com`. The frontend, API, and public media must remain on this same origin. A separate API hostname or API subdomain is forbidden.
 
 - Production client requests must use the configured full HTTPS live base such as `https://buyhomeforless.com/api/v1`, never `localhost`, `127.0.0.1`, a development port, an unresolved placeholder, or a raw root-relative API value such as `/api`.
 - Set live origins through Hostinger environment variables, including the frontend public origin, API base URL, allowed frontend origin, and public upload base URL. Do not commit secrets or private filesystem paths. Vite-exposed variables are public configuration and must never contain credentials.
