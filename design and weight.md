@@ -1,0 +1,31 @@
+# Buy Home For Less Design and Weight Guide
+
+Last reviewed: 2026-07-27. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
+
+## Product and frontend design
+
+Preserve the established Buy Home For Less identity: the supplied logo in both header and footer, a polished Thailand property-search experience, clear sale/rent/senior-home information, and responsive layouts with no page-level horizontal overflow. Keep the existing header navigation, property cards, search/filter behavior, location browsing, property details, FAQs, visa and senior-living pages, account settings, favorites, and comparison workflows unless a request changes them.
+
+The public site must work across desktop, tablet, iOS Safari, and Android Chrome. Use stable image frames, responsive type and spacing, touch-safe controls, visible keyboard focus, sensible loading behavior, and clear loading, empty, unavailable, and error states. Do not substitute mock data for an unavailable authoritative response without clearly scoped existing demo behavior. Preserve EN, RU, ZH, TH, AR, and FA language choices. Keep map work ready for Leaflet/OpenStreetMap or the existing approved map integration.
+
+Property and user-facing copy must be readable, direct, and safe. Do not reveal technical implementation, infrastructure, endpoint, database, provider, token, or raw-error information. External links and embeds use validated URLs; user/API text renders as text, never as injected HTML. New images need meaningful alt text and must use the existing safe asset-path patterns.
+
+## Backend and administration design
+
+The Express/MySQL backend remains the authority for authentication, staff roles, listings, listing FAQs and images, seller applications, users, and dashboard data. Maintain the existing role model (`HEAD_ADMIN`, `ADMIN`, and `EMPLOYEE`), validation, authentication, rate limiting, security headers, error normalization, and safe upload handling. Do not add a competing API, database schema, auth system, or media pipeline where an established path exists.
+
+Administration should remain task-focused and responsive: searchable/paginated list workspaces, explicit create/edit flows, clear confirmation/error feedback, and no raw server data or diagnostics in the UI. Listing inputs must preserve the established pricing, property details, location, media, SEO, section/category/status, and FAQ contracts. Validate all request data server-side, normalize safe plain text, restrict uploads by type and size, and return short safe errors.
+
+## Production weight rules
+
+- Build only from current authoritative source; never package old ZIPs, extracted folders, stale `dist/`, or stale deployment mirrors.
+- `frontend-live/` must be byte-for-byte equivalent to the current `frontend/dist/` after each release.
+- `backend-live/` must be rebuilt from the active `backend/` and include a complete verified `SHA256SUMS` manifest. The inactive duplicate backend is never a release input.
+- Keep the frontend archive free of backend source, environment files, source maps unless explicitly needed, duplicate raster assets, unused videos, local logs, and development dependencies.
+- Keep the backend archive free of `.env`, `node_modules`, local databases, runtime uploads, caches, logs, test artifacts, and secrets; install runtime dependencies in the private host application root.
+- The release directory contains only `BuyHomeForLess_Frontend_Live.zip` and `BuyHomeForLess_Backend_Live.zip`. Rebuild and verify the pair together for every completed change.
+- Use standard Deflate ZIP32 archives with root-level deployment entries and portable `/` paths. Verify listings, CRC, Windows extraction parity, PHP extraction parity, SHA-256 parity, no duplicate/unsafe paths, and no forbidden files before handoff.
+
+## Verification record
+
+Exact counts, sizes, timestamps, and SHA-256 hashes are release-specific. Record them only after a successful matched build, mirror, Git, and paired-ZIP verification; do not treat old archive names or timestamps as proof of current code. No external hosting upload, migration, cache rebuild, or live smoke test is asserted unless directly verified.
