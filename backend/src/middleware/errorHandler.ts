@@ -6,7 +6,7 @@ export function notFoundHandler(_request: Request, response: Response) {
   response.status(404).json({ error: "Route not found" });
 }
 
-export function errorHandler(error: unknown, _request: Request, response: Response, _next: NextFunction) {
+export function errorHandler(error: unknown, request: Request, response: Response, _next: NextFunction) {
   if (isApiError(error)) {
     response.status(error.statusCode).json({
       error: error.message,
@@ -26,7 +26,7 @@ export function errorHandler(error: unknown, _request: Request, response: Respon
     return;
   }
 
-  // Keep internal details out of API responses.
-  console.error(error);
+  // Keep internal details out of API responses and logs.
+  console.error(JSON.stringify({ event: "request_error", requestId: response.getHeader("x-request-id"), method: request.method, path: request.path, errorType: error instanceof Error ? error.name : "unknown" }));
   response.status(500).json({ error: "Internal server error" });
 }

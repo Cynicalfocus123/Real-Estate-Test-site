@@ -1,7 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-import { safeGraphqlEndpoint } from "../utils/security";
+import { apiBaseUrl } from "../config/runtime";
 
-export const GRAPHQL_ENDPOINT = safeGraphqlEndpoint(import.meta.env.VITE_GRAPHQL_ENDPOINT);
+export const GRAPHQL_ENDPOINT = `${apiBaseUrl}/graphql`;
 
 export const apolloClient = new ApolloClient({
   link: new HttpLink({

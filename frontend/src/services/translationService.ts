@@ -1,6 +1,8 @@
 export type SiteLanguage = "EN" | "RU" | "ZH" | "TH" | "AR" | "FA";
 
-const TRANSLATION_PROXY_PATH = "/api/deepl-translate";
+import { apiBaseUrl } from "../config/runtime";
+
+const TRANSLATION_PROXY_PATH = `${apiBaseUrl}/deepl-translate`;
 const TRANSLATION_TIMEOUT_MS = 15000;
 
 type DeepLApiResponse = {
@@ -123,4 +125,3 @@ export async function translateBatch(
 
   return translationMap;
 }
-

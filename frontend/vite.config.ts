@@ -104,7 +104,12 @@ function createDeepLProxyPlugin(mode: string): Plugin {
 }
 
 export default defineConfig(({ mode }) => ({
-  base: "/Real-Estate-Test-site/",
+  base: (() => {
+    const configured = loadEnv(mode, process.cwd(), "").VITE_PUBLIC_BASE_URL;
+    if (mode === "production" && configured !== "https://buyhomeforless.com/") {
+      throw new Error("VITE_PUBLIC_BASE_URL must be https://buyhomeforless.com/ for production builds");
+    }
+    return configured ? new URL(configured).pathname : "/";
+  })(),
   plugins: [react(), createDeepLProxyPlugin(mode)],
 }));
-

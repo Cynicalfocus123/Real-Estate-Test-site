@@ -1,6 +1,6 @@
 const SAFE_ASSET_PATH = /^[a-zA-Z0-9/_.,@-]+$/;
 const SAFE_HASH_PATH = /^#[a-zA-Z0-9_-]+$/;
-const LOCALHOST_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+import { applicationBaseUrl } from "../config/runtime";
 
 export function safeAssetPath(path: string) {
   const normalized = path.replace(/^\/+/, "");
@@ -18,11 +18,11 @@ export function safeAssetPath(path: string) {
 }
 
 export function safeHref(href: string) {
-  if (href.startsWith(import.meta.env.BASE_URL) || SAFE_HASH_PATH.test(href)) {
+  if (href.startsWith(applicationBaseUrl) || SAFE_HASH_PATH.test(href)) {
     return href;
   }
 
-  return import.meta.env.BASE_URL;
+  return applicationBaseUrl;
 }
 
 export function safeTelHref(phone: string) {
@@ -53,18 +53,14 @@ export function safeMailtoHref(email: string) {
 }
 
 export function safeGraphqlEndpoint(endpoint: string | undefined) {
-  const fallback = "http://localhost:5000/graphql";
-
-  if (!endpoint) return fallback;
+  if (!endpoint) throw new Error("GraphQL endpoint is not configured");
 
   try {
     const url = new URL(endpoint);
-    const isLocalHttp = url.protocol === "http:" && LOCALHOST_HOSTS.has(url.hostname);
-    const isHttps = url.protocol === "https:";
-
-    return isLocalHttp || isHttps ? url.toString() : fallback;
+    if (url.protocol !== "https:" || url.origin !== "https://buyhomeforless.com") throw new Error("GraphQL endpoint must use the approved HTTPS origin");
+    return url.toString();
   } catch {
-    return fallback;
+    throw new Error("Invalid GraphQL endpoint");
   }
 }
 

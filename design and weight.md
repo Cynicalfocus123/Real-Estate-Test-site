@@ -1,6 +1,10 @@
 # Buy Home For Less Design and Weight Guide
 
-Last reviewed: 2026-07-27. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
+Last reviewed: 2026-07-27. Caveman mode: FULL. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
+
+## Step 1 release contract
+
+Use only the canonical production URLs (`https://buyhomeforless.com`, `/api/v1`, `/uploads`) in production output. Missing, placeholder, non-HTTPS, development, API-subdomain, and private-machine URLs must fail validation. The Express app is importable without listening; startup performs dependency checks and never changes schemas. Health and readiness responses are safe, migrations are explicit and repeatable, and no production migration is run by Codex. Verification uses in-process tests, typechecks, builds, audits, mirror parity, and paired root-level Deflate ZIP extraction; no local server or browser is launched.
 
 ## Product and frontend design
 

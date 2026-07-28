@@ -1,6 +1,16 @@
 # Buy Home For Less Agent Guide
 
-Last reviewed: 2026-07-27. This is the concise repository, security, Git, and delivery guide. Frontend and backend design plus production-weight rules live together in `design and weight.md`.
+Last reviewed: 2026-07-27. Caveman mode: FULL. This is the concise repository, security, Git, and delivery guide. Frontend and backend design plus production-weight rules live together in `design and weight.md`.
+
+## Step 1 operating rules
+
+- Inspect before editing, reuse existing systems, make safe assumptions, verify, and report blockers honestly.
+- Keep output targeted and bounded; use `rg` and explicit reads. Context7 is only for a genuinely required current library question.
+- Do not start local servers, Vite dev/preview, browser automation, or production smoke tests during verification.
+- Hostinger is not connected. Workspace mirrors and ZIPs are Hostinger-ready artifacts only; never claim an upload or live deployment.
+- The sole approved public origin is `https://buyhomeforless.com`; API is `https://buyhomeforless.com/api/v1`; media is `https://buyhomeforless.com/uploads`. API hosts/subdomains and GitHub Pages paths are forbidden.
+- `Foodonline desktop version` is read-only and must never enter this repository, mirrors, ZIPs, or commits.
+- Keep source (`frontend/`, `backend/`), mirrors (`frontend-live/`, `backend-live/`), canonical ZIPs, Git, and manifests synchronized.
 
 ## Canonical repository state
 
