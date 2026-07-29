@@ -16,3 +16,22 @@ test("admin entry uses the configured API and has no mock fallback", () => {
   assert.doesNotMatch(api, /\/api\/admin|localhost|mock/i);
   assert.doesNotMatch(app, /mock data|demo records/i);
 });
+
+test("public property consumers use the REST service and not the hard-coded catalogue", () => {
+  const files = ["App.tsx", "components/PropertyListingsPage.tsx", "components/PropertyDetailPage.tsx", "pages/FavoritesPage.tsx"];
+  for (const file of files) {
+    const source = fs.readFileSync(new URL(`../src/${file}`, import.meta.url), "utf8");
+    assert.doesNotMatch(source, /from\s+["'][^"']*data\/propertyListings["']/);
+  }
+  const service = fs.readFileSync(new URL("../src/services/publicPropertyService.ts", import.meta.url), "utf8");
+  assert.match(service, /apiBaseUrl/);
+  assert.match(service, /AbortSignal/);
+});
+
+test("public property UI does not call third-party browser geocoders", () => {
+  const source = ["SearchPanel.tsx", "PropertyListingsPage.tsx", "PropertyDetailPage.tsx"]
+    .map((file) => fs.readFileSync(new URL(`../src/components/${file}`, import.meta.url), "utf8"))
+    .join("\n");
+  assert.doesNotMatch(source, /photon\.komoot|nominatim\.openstreetmap/i);
+  assert.match(source, /apiBaseUrl/);
+});

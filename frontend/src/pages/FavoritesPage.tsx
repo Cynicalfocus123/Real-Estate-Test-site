@@ -1,6 +1,5 @@
 import { Heart } from "lucide-react";
 import { useMemo, useState } from "react";
-import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
 import { requestAuthModal } from "../utils/authModal";
 import { safeHref } from "../utils/security";
@@ -8,10 +7,10 @@ import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { PropertyListingCard } from "../components/PropertyListingCard";
 
-export function FavoritesPage() {
+export function FavoritesPage({ listings }: { listings: import("../types/propertyListing").PropertyListing[] }) {
   const { favoriteIds, isFavorite, toggleFavorite, isSignedIn, notice } = useFavorites();
   const [activeTab, setActiveTab] = useState<"buy" | "rent">("buy");
-  const favorites = propertyListings.filter((listing) => favoriteIds.includes(listing.id));
+  const favorites = listings.filter((listing) => favoriteIds.includes(listing.id));
   const buyFavorites = useMemo(
     () => favorites.filter((listing) => listing.mode === "sale"),
     [favorites],

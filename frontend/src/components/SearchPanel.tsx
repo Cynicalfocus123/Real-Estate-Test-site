@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp, MapPin, Search, SlidersHorizontal, X } from "lu
 import type { FormEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
+import { apiBaseUrl } from "../config/runtime";
 import type { ListingHomeType, ListingMode } from "../types/propertyListing";
 import { cleanNumericText, cleanSearchText, safeHref } from "../utils/security";
 
@@ -49,7 +50,7 @@ const homeTypeOptions: Array<"Any" | ListingHomeType> = [
   "Single Detach House",
   "Semi Detached House",
 ];
-const PHOTON_THAILAND_API_URL = "https://photon.komoot.io/api/";
+const PHOTON_THAILAND_API_URL = `${apiBaseUrl}/map/geocode`;
 const SALE_MAX_PRICE_LIMIT = 500000000;
 const RENT_MAX_PRICE_LIMIT = 100000;
 const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
@@ -193,7 +194,7 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
 
       try {
         const response = await fetch(
-          `${PHOTON_THAILAND_API_URL}?q=${encodeURIComponent(`${trimmedQuery} Thailand`)}&limit=6&lang=en`,
+          `${PHOTON_THAILAND_API_URL}?query=${encodeURIComponent(`${trimmedQuery} Thailand`)}`,
           { signal: controller.signal },
         );
 
@@ -201,9 +202,9 @@ export function SearchPanel({ variant = "default" }: { variant?: SearchPanelVari
           throw new Error("Thailand location search failed");
         }
 
-        const payload = (await response.json()) as PhotonResponse;
-        const nextSuggestions = (payload.features ?? [])
-          .map((feature, index) => buildThailandLocationSuggestion(feature.properties ?? {}, index))
+        const payload = (await response.json()) as { items?: Array<{ label?: string; city?: string | null; province?: string | null }> };
+        const nextSuggestions = (payload.items ?? [])
+          .map((item, index) => item.label ? { id: `${item.label}-${index}`, label: item.label } : null)
           .filter((suggestion): suggestion is ThailandLocationSuggestion => Boolean(suggestion))
           .filter(
             (suggestion, index, collection) =>

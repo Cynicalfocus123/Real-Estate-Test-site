@@ -41,23 +41,23 @@ import { UrgentSalePage } from "./components/UrgentSalePage";
 import { WhyChooseUs } from "./components/WhyChooseUs";
 import { WhyRetireInThailandPage } from "./components/WhyRetireInThailandPage";
 import { WhySeniorcarePage } from "./components/WhySeniorcarePage";
-import { propertyListings } from "./data/propertyListings";
+import type { PropertyListing } from "./types/propertyListing";
+import { publicPropertyService } from "./services/publicPropertyService";
 import { safeHref } from "./utils/security";
 import { useFavorites } from "./hooks/useFavorites";
-
-const featuredListings = propertyListings.filter((listing) => listing.mode === "sale").slice(0, 6);
 
 export function App() {
   const { isFavorite, toggleFavorite } = useFavorites();
   const [currentHash, setCurrentHash] = useState(window.location.hash);
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [catalogue, setCatalogue] = useState<PropertyListing[]>([]);
+  const [featuredListings, setFeaturedListings] = useState<PropertyListing[]>([]);
+  const [selectedProperty, setSelectedProperty] = useState<PropertyListing | null>(null);
+  const [catalogueError, setCatalogueError] = useState(false);
   const listingSearchParams = new URLSearchParams(window.location.search);
   const propertyDetailMatch =
     currentPath.match(/\/property\/([^/]+)$/) ?? currentHash.match(/^#\/property\/([^/]+)$/);
-  const selectedPropertyId = propertyDetailMatch ? decodeURIComponent(propertyDetailMatch[1]) : null;
-  const selectedProperty = selectedPropertyId
-    ? propertyListings.find((listing) => listing.id === selectedPropertyId)
-    : undefined;
+  const selectedPropertySlug = propertyDetailMatch ? decodeURIComponent(propertyDetailMatch[1]) : null;
   const listingProvince = listingSearchParams.get("province") ?? undefined;
   const listingDistrict = listingSearchParams.get("district") ?? undefined;
   const listingQuery = listingSearchParams.get("q") ?? undefined;
@@ -189,6 +189,20 @@ export function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    void publicPropertyService.listProperties({ pageSize: 48 }, controller.signal).then((result) => { setCatalogue(result.items); setCatalogueError(false); }).catch(() => { if (!controller.signal.aborted) setCatalogueError(true); });
+    void publicPropertyService.getFeaturedProperties(controller.signal).then((result) => setFeaturedListings(result.items)).catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedPropertySlug) { setSelectedProperty(null); return; }
+    const controller = new AbortController();
+    void publicPropertyService.getPropertyBySlug(selectedPropertySlug, controller.signal).then(setSelectedProperty).catch(() => setSelectedProperty(null));
+    return () => controller.abort();
+  }, [selectedPropertySlug]);
+
   if (isRealEstateLawsPage) {
     return <RealEstateLawsPage />;
   }
@@ -241,13 +255,14 @@ export function App() {
     return <CostOfLivingThailandPage />;
   }
 
-  if (selectedProperty) {
-    return <PropertyDetailPage listing={selectedProperty} />;
+  if (selectedPropertySlug) {
+    return selectedProperty ? <PropertyDetailPage listing={selectedProperty} availableListings={catalogue} /> : <main className="mx-auto max-w-4xl p-12 text-center text-brand-gray">This property is unavailable.</main>;
   }
 
   if (isPropertyListingsSalePage || isPropertyListingsBuyPage) {
     return (
       <PropertyListingsPage
+        listings={catalogue}
         initialMode="sale"
         pageVariant={isPropertyListingsBuyPage ? "buy" : "sale"}
         initialProvince={listingProvince}
@@ -265,6 +280,7 @@ export function App() {
   if (isPropertyListingsRentPage) {
     return (
       <PropertyListingsPage
+        listings={catalogue}
         initialMode="rent"
         pageVariant="rent"
         initialProvince={listingProvince}
@@ -282,6 +298,7 @@ export function App() {
   if (isPropertyListingsSeniorPage) {
     return (
       <PropertyListingsPage
+        listings={catalogue}
         initialMode="sale"
         pageVariant="senior"
         initialProvince={listingProvince}
@@ -365,7 +382,7 @@ export function App() {
   }
 
   if (isFavoritesPage) {
-    return <FavoritesPage />;
+    return <FavoritesPage listings={catalogue} />;
   }
 
   return (
@@ -421,7 +438,7 @@ export function App() {
               <ArrowRight className="h-5 w-5" />
             </a>
           </div>
-          <div className="mx-auto grid max-w-6xl gap-8">
+          {catalogueError ? <p className="rounded-xl border border-brand-line bg-white p-5 text-center text-brand-gray">Properties are temporarily unavailable. Please try again shortly.</p> : featuredListings.length === 0 ? <p className="rounded-xl border border-brand-line bg-white p-5 text-center text-brand-gray">No published properties are available yet.</p> : <div className="mx-auto grid max-w-6xl gap-8">
             {featuredListings.map((listing) => (
               <PropertyListingCard
                 key={listing.id}
@@ -431,7 +448,7 @@ export function App() {
                 onToggleSave={toggleFavorite}
               />
             ))}
-          </div>
+          </div>}
         </section>
 
         <TopLocations />

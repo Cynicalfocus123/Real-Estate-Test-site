@@ -17,7 +17,7 @@ const adminPropertyRoutes_1 = require("./routes/adminPropertyRoutes");
 const adminDashboardRoutes_1 = require("./routes/adminDashboardRoutes");
 const adminUserRoutes_1 = require("./routes/adminUserRoutes");
 const authRoutes_1 = require("./routes/authRoutes");
-const listingRoutes_1 = require("./routes/listingRoutes");
+const publicPropertyRoutes_1 = require("./routes/publicPropertyRoutes");
 const mapRoutes_1 = require("./routes/mapRoutes");
 const sellerApplicationRoutes_1 = require("./routes/sellerApplicationRoutes");
 function createApp(dependencies = {}) {
@@ -49,7 +49,7 @@ function createApp(dependencies = {}) {
     app.use("/api/v1/auth", authRoutes_1.authRoutes);
     app.use("/api/v1/map", mapRoutes_1.mapRoutes);
     app.use("/api/v1/seller-applications", sellerApplicationRoutes_1.sellerApplicationPublicRoutes);
-    app.use("/api/v1/listings", listingRoutes_1.listingRoutes);
+    app.use("/api/v1", publicPropertyRoutes_1.publicPropertyRoutes);
     app.use("/api/v1/admin", adminPropertyRoutes_1.adminPropertyRoutes);
     app.use("/api/v1/admin", adminDashboardRoutes_1.adminDashboardRoutes);
     app.use("/api/v1/admin", sellerApplicationRoutes_1.sellerApplicationAdminRoutes);

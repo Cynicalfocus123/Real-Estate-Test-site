@@ -24,6 +24,8 @@ The property editor is one continuous workflow. Images and cover selection are o
 
 ## Production weight rules
 
+Public property consumers use the published-only REST API at `/api/v1/properties`, not hard-coded frontend listings or GraphQL. Detail links use public slugs. Empty results, unavailable API responses, null images, null prices, sparse records, and missing optional sections must render safely without invented data. No data is seeded or imported without explicit approval.
+
 - Build only from current authoritative source; never package old ZIPs, extracted folders, stale `dist/`, or stale deployment mirrors.
 - Build for the Hostinger-ready workspace contract. Hostinger is not connected. The live site origin is `https://buyhomeforless.com`; the frontend API base, allowed origin, public upload URL, and Vite public base path must be production environment values, not local or root-relative assumptions.
 - The current GitHub Pages path `/Real-Estate-Test-site/` is not a Hostinger production base. Replace it with environment-driven Vite `base` handling before the next frontend deployment, and use `import.meta.env.BASE_URL` for application and asset links.

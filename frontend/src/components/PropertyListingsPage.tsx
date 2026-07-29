@@ -1,7 +1,7 @@
 import { ArrowUpDown, ChevronDown, ChevronUp, MapPin, Search, SlidersHorizontal, Undo2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { thaiProvinces } from "../data/thaiProvinces";
-import { propertyListings } from "../data/propertyListings";
+import { apiBaseUrl } from "../config/runtime";
 import type {
   ListingMode,
   ListingSpecialCategory,
@@ -92,7 +92,7 @@ const filterModeOptions = [
 ] as const;
 const SALE_MAX_PRICE_LIMIT = 500000000;
 const RENT_MAX_PRICE_LIMIT = 100000;
-const PHOTON_THAILAND_API_URL = "https://photon.komoot.io/api/";
+const PHOTON_THAILAND_API_URL = `${apiBaseUrl}/map/geocode`;
 const priceBars = [1, 2, 3, 4, 6, 8, 12, 16, 22, 28, 34, 31, 43, 36, 38, 37, 35, 32, 38, 34, 33, 31, 27, 26, 20, 18, 16, 16, 17, 15, 13, 12, 15, 10, 11, 9, 12, 8, 10, 7, 8, 6];
 
 function getBedroomOptionLabel(option: string) {
@@ -262,6 +262,7 @@ function getCompactSortLabel(value: (typeof sortOptions)[number]["value"]) {
 }
 
 export function PropertyListingsPage({
+  listings,
   initialMode = "sale",
   pageVariant = "sale",
   initialProvince,
@@ -273,6 +274,7 @@ export function PropertyListingsPage({
   initialMinPrice,
   initialMaxPrice,
 }: {
+  listings: PropertyListing[];
   initialMode?: ListingMode;
   pageVariant?: "buy" | "sale" | "rent" | "senior";
   initialProvince?: string;
@@ -296,7 +298,7 @@ export function PropertyListingsPage({
     if (!district) return "";
 
     const seniorDistrictOptions = buildDistrictOptions(
-      propertyListings.filter((listing) => listing.mode === initialMode && listing.listingChannel === "senior-home"),
+      listings.filter((listing) => listing.mode === initialMode && listing.listingChannel === "senior-home"),
     );
 
     return seniorDistrictOptions.some((option) => option.name === district) ? district : "";
@@ -494,7 +496,7 @@ export function PropertyListingsPage({
 
       try {
         const response = await fetch(
-          `${PHOTON_THAILAND_API_URL}?q=${encodeURIComponent(`${trimmedQuery} Thailand`)}&limit=6&lang=en`,
+          `${PHOTON_THAILAND_API_URL}?query=${encodeURIComponent(`${trimmedQuery} Thailand`)}`,
           { signal: controller.signal },
         );
 
@@ -502,9 +504,9 @@ export function PropertyListingsPage({
           throw new Error("Thailand location search failed");
         }
 
-        const payload = (await response.json()) as PhotonResponse;
-        const nextSuggestions = (payload.features ?? [])
-          .map((feature, index) => buildThailandLocationSuggestion(feature.properties ?? {}, index))
+        const payload = (await response.json()) as { items?: Array<{ label?: string; city?: string | null; province?: string | null }> };
+        const nextSuggestions = (payload.items ?? [])
+          .map((item, index) => item.label ? { id: `${item.label}-${index}`, label: item.label } : null)
           .filter((suggestion): suggestion is ThailandLocationSuggestion => Boolean(suggestion))
           .filter(
             (suggestion, index, collection) =>
@@ -533,14 +535,14 @@ export function PropertyListingsPage({
   }, [sanitizedQuery]);
 
   const modeListings = useMemo(() => {
-    const baseModeListings = propertyListings.filter((listing) => listing.mode === mode);
+    const baseModeListings = listings.filter((listing) => listing.mode === mode);
     if (isSeniorVariant) {
       return baseModeListings.filter((listing) => listing.listingChannel === "senior-home");
     }
     return baseModeListings.filter((listing) => listing.listingChannel !== "senior-home");
   }, [isSeniorVariant, mode]);
   const draftModeListings = useMemo(() => {
-    const baseModeListings = propertyListings.filter((listing) => listing.mode === draftMode);
+    const baseModeListings = listings.filter((listing) => listing.mode === draftMode);
     if (isSeniorVariant) {
       return baseModeListings.filter((listing) => listing.listingChannel === "senior-home");
     }

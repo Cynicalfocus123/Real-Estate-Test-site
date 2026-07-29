@@ -10,7 +10,7 @@ import { adminPropertyRoutes } from "./routes/adminPropertyRoutes";
 import { adminDashboardRoutes } from "./routes/adminDashboardRoutes";
 import { adminUserRoutes } from "./routes/adminUserRoutes";
 import { authRoutes } from "./routes/authRoutes";
-import { listingRoutes } from "./routes/listingRoutes";
+import { publicPropertyRoutes } from "./routes/publicPropertyRoutes";
 import { mapRoutes } from "./routes/mapRoutes";
 import { sellerApplicationAdminRoutes, sellerApplicationPublicRoutes } from "./routes/sellerApplicationRoutes";
 
@@ -38,7 +38,7 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/map", mapRoutes);
   app.use("/api/v1/seller-applications", sellerApplicationPublicRoutes);
-  app.use("/api/v1/listings", listingRoutes);
+  app.use("/api/v1", publicPropertyRoutes);
   app.use("/api/v1/admin", adminPropertyRoutes);
   app.use("/api/v1/admin", adminDashboardRoutes);
   app.use("/api/v1/admin", sellerApplicationAdminRoutes);

@@ -69,3 +69,10 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 - Empty image states use the checked-in property placeholder. Browser-visible media URLs use only `https://buyhomeforless.com/uploads`; server paths never enter API output.
 - Missing location and senior-home data are warnings, not publishing blockers. Senior details are retained when a channel is temporarily changed.
 - The active `/admin/properties` route family is the only property-authoring API. The legacy listing authoring routes and unused demo route are not part of the application or release.
+
+## Public property API rules
+
+- The only public property API is `/api/v1/properties`. It returns typed camelCase, published-only summaries and slug-based detail records; drafts, archives, deleted records, private paths, and raw SQL rows never enter public responses.
+- The public React application uses the REST property service and the configured `apiBaseUrl`. It does not import or seed `frontend/src/data/propertyListings.ts`; an empty authoritative database is a valid empty state.
+- Missing images use the checked-in placeholder and missing prices display “Price on request.” Imports or seeds require separate explicit approval and never run automatically.
+- Public geocoding uses `/api/v1/map/geocode` through the canonical API base. Hostinger remains unconnected; mirrors and ZIPs are local release artifacts only.

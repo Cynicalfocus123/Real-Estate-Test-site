@@ -41,12 +41,14 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 - Readiness: `GET /ready`
 - Register: `POST /api/v1/auth/register`
 - Login: `POST /api/v1/auth/login`
-- Public listings: `GET /api/v1/listings`
+- Public properties: `GET /api/v1/properties` and `GET /api/v1/properties/:slug`
 - Seller submit: `POST /api/v1/seller-applications`
 
 Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. The initial migration only creates the tracking table; the existing schema remains preserved in `database.sql`.
 
 Properties may be saved and published without images, price, SEO, an agent, or complete location/senior details. The frontend shows the approved placeholder for absent images and “Price on request” for absent price values. Database relation writes are transactional; optional image processing is intentionally outside that transaction so a saved property is never discarded after an image failure.
+
+Public property responses are frontend-ready camelCase DTOs and include only `PUBLISHED` records. The list route supports bounded pagination, ID lookup, filters, and sorting; detail responses include active public relations and related summaries. No automatic property import or seed exists: importing old frontend data requires separate explicit approval. The canonical geocoding route is `GET /api/v1/map/geocode`.
 
 ## Future manual deployment
 - Keep frontend build in `public_html`.

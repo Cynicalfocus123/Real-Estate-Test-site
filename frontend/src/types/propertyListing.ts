@@ -72,6 +72,7 @@ export type NearbyLocation = {
 
 export type PropertyListing = {
   id: string;
+  slug?: string;
   mode: ListingMode;
   listingChannel?: ListingChannel;
   title: string;

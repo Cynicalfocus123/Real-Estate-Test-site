@@ -65,7 +65,7 @@ export function PropertyListingCard({
       <div className="grid md:grid-cols-[310px_1fr] lg:grid-cols-[340px_1fr]">
         <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200 md:aspect-auto md:min-h-[250px]">
           <a
-            href={safeHref(propertyDetailHref(listing.id))}
+            href={safeHref(propertyDetailHref(listing.slug ?? listing.id))}
             aria-label={`View details for ${listing.title}`}
             className="absolute inset-0 z-10"
           />
@@ -145,7 +145,7 @@ export function PropertyListingCard({
         <div className="p-4 md:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <a href={safeHref(propertyDetailHref(listing.id))} className="inline-block">
+              <a href={safeHref(propertyDetailHref(listing.slug ?? listing.id))} className="inline-block">
                 <h3 className="line-clamp-2 text-lg font-black leading-snug text-brand-dark transition hover:text-brand-red md:text-xl">
                   {listing.title}
                 </h3>
@@ -197,7 +197,7 @@ export function PropertyListingCard({
               {listing.propertyTypeLabel}
             </p>
             <a
-              href={safeHref(propertyDetailHref(listing.id))}
+              href={safeHref(propertyDetailHref(listing.slug ?? listing.id))}
               className="text-sm font-black uppercase tracking-[0.16em] text-brand-red transition hover:text-brand-dark"
             >
               View Details

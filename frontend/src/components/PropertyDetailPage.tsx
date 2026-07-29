@@ -18,11 +18,11 @@ import {
 import maplibregl from "maplibre-gl";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { propertyListings } from "../data/propertyListings";
 import { useFavorites } from "../hooks/useFavorites";
 import { usePropertyCompare } from "../hooks/usePropertyCompare";
 import type { BackendReadyValue, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
+import { apiBaseUrl } from "../config/runtime";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref, safeMailtoHref, safeTelHref } from "../utils/security";
@@ -185,11 +185,11 @@ type GeocodedMapPoint = {
   label: string;
 };
 
-const OSMAND_SEARCH_URL = import.meta.env.VITE_OSMAND_SEARCH_URL?.trim() || "https://nominatim.openstreetmap.org/search";
-const OSMAND_PUBLIC_FALLBACK_URL = "https://nominatim.openstreetmap.org/search";
-const OSMAND_COUNTRY = import.meta.env.VITE_OSMAND_COUNTRY?.trim() || "th";
-const OSMAND_LANGUAGE = import.meta.env.VITE_OSMAND_LANGUAGE?.trim() || "en,th";
-const OSMAND_EMAIL = import.meta.env.VITE_OSMAND_EMAIL?.trim();
+const OSMAND_SEARCH_URL = `${apiBaseUrl}/map/geocode`;
+const OSMAND_PUBLIC_FALLBACK_URL = OSMAND_SEARCH_URL;
+const OSMAND_COUNTRY = "th";
+const OSMAND_LANGUAGE = "en,th";
+const OSMAND_EMAIL = "";
 const MAPLIBRE_STYLE_URL = import.meta.env.VITE_MAPLIBRE_STYLE_URL?.trim();
 const MAPLIBRE_FALLBACK_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -370,7 +370,7 @@ async function geocodeAddressQuery(query: string, signal: AbortSignal) {
 function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
   return (
     <a
-      href={safeHref(propertyDetailHref(listing.id))}
+      href={safeHref(propertyDetailHref(listing.slug ?? listing.id))}
       className="flex w-[78vw] max-w-[285px] shrink-0 snap-start flex-col overflow-hidden rounded-[22px] border border-[#e8e1db] bg-white shadow-[0_16px_35px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_42px_rgba(15,23,42,0.12)] md:w-[285px] md:rounded-[28px]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
@@ -404,7 +404,7 @@ function SimilarPropertyCard({ listing }: { listing: PropertyListing }) {
   );
 }
 
-export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
+export function PropertyDetailPage({ listing, availableListings = [] }: { listing: PropertyListing; availableListings?: PropertyListing[] }) {
   const contactWhatsapp = "+66-973924632";
   const contactWechat = "+66-973924632";
   const contactEmail = "Info@buyhomeforless.com";
@@ -518,7 +518,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   const comparedListings = useMemo(
     () =>
       compareIds
-        .map((id) => propertyListings.find((candidate) => candidate.id === id))
+        .map((id) => availableListings.find((candidate) => candidate.id === id))
         .filter((candidate): candidate is PropertyListing => Boolean(candidate)),
     [compareIds],
   );
@@ -655,7 +655,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
   }, [clearCompare, compareIds.length, comparedListings.length]);
 
   const similarProperties = useMemo(() => {
-    const sameProvince = propertyListings.filter(
+    const sameProvince = availableListings.filter(
       (candidate) =>
         candidate.id !== listing.id && candidate.mode === listing.mode && candidate.province === listing.province,
     );
@@ -664,7 +664,7 @@ export function PropertyDetailPage({ listing }: { listing: PropertyListing }) {
       return sameProvince.slice(0, 8);
     }
 
-    const fallbackListings = propertyListings.filter(
+    const fallbackListings = availableListings.filter(
       (candidate) => candidate.id !== listing.id && candidate.mode === listing.mode,
     );
 
