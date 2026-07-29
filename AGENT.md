@@ -2,7 +2,7 @@
 
 Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is the concise repository, security, Git, and delivery guide. Frontend and backend design plus production-weight rules live together in `design and weight.md`.
 
-## Step 1 operating rules
+## Current operating rules
 
 - Inspect before editing, reuse existing systems, make safe assumptions, verify, and report blockers honestly.
 - Keep output targeted and bounded; use `rg` and explicit reads. Context7 is only for a genuinely required current library question.
@@ -61,3 +61,11 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 - Git remote: `origin` points to `https://github.com/Cynicalfocus123/Real-Estate-Test-site.git`.
 - The active release structure and scripts described above are the required delivery contract; no external deployment is asserted by this document.
 - A pre-existing modification remains in the inactive duplicate backend at `Backend buyhomeforless/backend/src/routes/adminDemoRoutes.ts`; it is excluded from this documentation update.
+
+## Backend admin efficiency rules
+
+- Properties can be created, drafted, published, archived, restored, edited, or deleted without an image, cover image, price, agent, SEO, coordinates, or optional details.
+- The editor queues selected images before a property exists and uploads them from the same save or publish action. A property remains saved if optional image processing fails, so the selected files can be retried.
+- Empty image states use the checked-in property placeholder. Browser-visible media URLs use only `https://buyhomeforless.com/uploads`; server paths never enter API output.
+- Missing location and senior-home data are warnings, not publishing blockers. Senior details are retained when a channel is temporarily changed.
+- The active `/admin/properties` route family is the only property-authoring API. The legacy listing authoring routes and unused demo route are not part of the application or release.

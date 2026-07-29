@@ -4,7 +4,7 @@ import request from "supertest";
 import { createApp } from "../src/app";
 import { verifyAuthToken } from "../src/auth/jwt";
 import { migrationFiles } from "../src/db/migrate";
-import { propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
+import { propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
 
 test("health is safe", async () => {
   const response = await request(createApp({ dependencyCheck: async () => true })).get("/health");
@@ -39,4 +39,27 @@ test("property authoring validates transaction, channel and nearby options", () 
   assert.equal(valid.transactionMode, "SALE");
   assert.throws(() => propertyPayloadSchema.parse({ title: "Bad", transactionMode: "SELL", listingChannel: "STANDARD" }));
   assert.throws(() => propertyPayloadSchema.parse({ title: "Bad nearby", transactionMode: "RENT", listingChannel: "STANDARD", nearbyLocations: [{ locationType: "MADE_UP", name: "X", distanceLabel: "1 km" }] }));
+});
+
+test("property DTO supports no-image publishing, senior details, and a stable camelCase round trip", () => {
+  const property = propertyPayloadSchema.parse({
+    title: "Optional media home",
+    transactionMode: "SALE",
+    listingChannel: "SENIOR_HOME",
+    status: "PUBLISHED",
+    propertyCondition: "Renovated",
+    conditionLabel: "Move-in ready",
+    seniorDetails: { servicesIncluded: ["Care"], seniorPropertyFeatures: ["Lift"], communityAmenities: [] },
+    seo: { canonicalUrl: "https://buyhomeforless.com/properties/optional-media-home" },
+  });
+  assert.equal(property.status, "PUBLISHED");
+  assert.equal(property.propertyCondition, "Renovated");
+  assert.equal(property.seniorDetails?.servicesIncluded[0], "Care");
+  assert.equal("images" in property, false);
+});
+
+test("property price labels select sale, rent, or the optional-price fallback", () => {
+  assert.equal(propertyDisplayPrice({ transactionMode: "SALE", buyPrice: 1500000, currencyCode: "THB" }), "THB 1,500,000");
+  assert.equal(propertyDisplayPrice({ transactionMode: "RENT", rentMonthlyPrice: 18000, currencyCode: "THB" }), "THB 18,000");
+  assert.equal(propertyDisplayPrice({ transactionMode: "SALE", buyPrice: null, priceAmount: null, currencyCode: "THB" }), "Price on request");
 });

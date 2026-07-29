@@ -28,14 +28,14 @@ async function writeVariant(buffer: Buffer, target: string, width: number, heigh
 
 export async function saveListingImages(listingId: number, files: Express.Multer.File[]) {
   if (!files.length) {
-    throw new ApiError(400, "At least one image is required");
+    throw new ApiError(400, "Select at least one image to upload");
   }
   const listingRows = await queryRows<(RowDataPacket & { id: number })[]>(
-    "SELECT id FROM listings WHERE id = ? AND status <> 'DELETED' LIMIT 1",
+    "SELECT id FROM listings WHERE id = ? LIMIT 1",
     [listingId],
   );
   if (!listingRows.length) {
-    throw new ApiError(404, "Listing not found");
+    throw new ApiError(404, "Property not found");
   }
 
   const countRows = await queryRows<(RowDataPacket & { count: number })[]>(
@@ -51,6 +51,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
   await fs.mkdir(listingDir, { recursive: true });
 
   const created: unknown[] = [];
+  const createdFiles: string[] = [];
   for (let i = 0; i < files.length; i += 1) {
     const file = files[i];
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
@@ -65,11 +66,18 @@ export async function saveListingImages(listingId: number, files: Express.Multer
     const mobileName = `${base}-${stamp}-mobile.webp`;
     const galleryName = `${base}-${stamp}-gallery.webp`;
 
-    await writeVariant(file.buffer, path.join(listingDir, cardName), 640, 420);
-    await writeVariant(file.buffer, path.join(listingDir, bannerName), 1600, 500);
-    await writeVariant(file.buffer, path.join(listingDir, detailName), 1280, 860);
-    await writeVariant(file.buffer, path.join(listingDir, mobileName), 720, 540);
-    await writeVariant(file.buffer, path.join(listingDir, galleryName), 1600, 1200);
+    try {
+      const targets = [cardName, bannerName, detailName, mobileName, galleryName].map((name) => path.join(listingDir, name));
+      await writeVariant(file.buffer, targets[0], 640, 420);
+      await writeVariant(file.buffer, targets[1], 1600, 500);
+      await writeVariant(file.buffer, targets[2], 1280, 860);
+      await writeVariant(file.buffer, targets[3], 720, 540);
+      await writeVariant(file.buffer, targets[4], 1600, 1200);
+      createdFiles.push(...targets);
+    } catch (error) {
+      await Promise.all(createdFiles.map((filePath) => fs.unlink(filePath).catch(() => undefined)));
+      throw error;
+    }
 
     const relativeBase = path.join("listings", String(listingId));
     const cardUrl = publicUrl(path.join(relativeBase, cardName));

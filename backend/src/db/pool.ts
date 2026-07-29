@@ -1,5 +1,5 @@
 import mysql from "mysql2/promise";
-import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
+import type { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { env } from "../config/env";
 
 export const dbPool = mysql.createPool({
@@ -22,4 +22,20 @@ export async function queryRows<T extends RowDataPacket[]>(sql: string, params: 
 export async function executeSql(sql: string, params: unknown[] = []) {
   const [result] = await dbPool.query<ResultSetHeader>(sql, params);
   return result;
+}
+
+/** Keeps related authoring writes atomic without making filesystem work part of the DB transaction. */
+export async function withTransaction<T>(work: (connection: PoolConnection) => Promise<T>) {
+  const connection = await dbPool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await work(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }

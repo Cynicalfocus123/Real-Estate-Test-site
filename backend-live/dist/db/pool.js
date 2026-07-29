@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.dbPool = void 0;
 exports.queryRows = queryRows;
 exports.executeSql = executeSql;
+exports.withTransaction = withTransaction;
 const promise_1 = __importDefault(require("mysql2/promise"));
 const env_1 = require("../config/env");
 exports.dbPool = promise_1.default.createPool({
@@ -26,4 +27,21 @@ async function queryRows(sql, params = []) {
 async function executeSql(sql, params = []) {
     const [result] = await exports.dbPool.query(sql, params);
     return result;
+}
+/** Keeps related authoring writes atomic without making filesystem work part of the DB transaction. */
+async function withTransaction(work) {
+    const connection = await exports.dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const result = await work(connection);
+        await connection.commit();
+        return result;
+    }
+    catch (error) {
+        await connection.rollback();
+        throw error;
+    }
+    finally {
+        connection.release();
+    }
 }

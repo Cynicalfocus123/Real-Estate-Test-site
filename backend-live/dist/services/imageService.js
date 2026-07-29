@@ -29,11 +29,11 @@ async function writeVariant(buffer, target, width, height) {
 }
 async function saveListingImages(listingId, files) {
     if (!files.length) {
-        throw new errors_1.ApiError(400, "At least one image is required");
+        throw new errors_1.ApiError(400, "Select at least one image to upload");
     }
-    const listingRows = await (0, pool_1.queryRows)("SELECT id FROM listings WHERE id = ? AND status <> 'DELETED' LIMIT 1", [listingId]);
+    const listingRows = await (0, pool_1.queryRows)("SELECT id FROM listings WHERE id = ? LIMIT 1", [listingId]);
     if (!listingRows.length) {
-        throw new errors_1.ApiError(404, "Listing not found");
+        throw new errors_1.ApiError(404, "Property not found");
     }
     const countRows = await (0, pool_1.queryRows)("SELECT COUNT(*) AS count FROM listing_images WHERE listing_id = ?", [listingId]);
     const existingCount = countRows[0]?.count ?? 0;
@@ -43,6 +43,7 @@ async function saveListingImages(listingId, files) {
     const listingDir = node_path_1.default.join(env_1.env.UPLOAD_DIR_ABSOLUTE, "listings", String(listingId));
     await promises_1.default.mkdir(listingDir, { recursive: true });
     const created = [];
+    const createdFiles = [];
     for (let i = 0; i < files.length; i += 1) {
         const file = files[i];
         if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
@@ -55,11 +56,19 @@ async function saveListingImages(listingId, files) {
         const detailName = `${base}-${stamp}-detail.webp`;
         const mobileName = `${base}-${stamp}-mobile.webp`;
         const galleryName = `${base}-${stamp}-gallery.webp`;
-        await writeVariant(file.buffer, node_path_1.default.join(listingDir, cardName), 640, 420);
-        await writeVariant(file.buffer, node_path_1.default.join(listingDir, bannerName), 1600, 500);
-        await writeVariant(file.buffer, node_path_1.default.join(listingDir, detailName), 1280, 860);
-        await writeVariant(file.buffer, node_path_1.default.join(listingDir, mobileName), 720, 540);
-        await writeVariant(file.buffer, node_path_1.default.join(listingDir, galleryName), 1600, 1200);
+        try {
+            const targets = [cardName, bannerName, detailName, mobileName, galleryName].map((name) => node_path_1.default.join(listingDir, name));
+            await writeVariant(file.buffer, targets[0], 640, 420);
+            await writeVariant(file.buffer, targets[1], 1600, 500);
+            await writeVariant(file.buffer, targets[2], 1280, 860);
+            await writeVariant(file.buffer, targets[3], 720, 540);
+            await writeVariant(file.buffer, targets[4], 1600, 1200);
+            createdFiles.push(...targets);
+        }
+        catch (error) {
+            await Promise.all(createdFiles.map((filePath) => promises_1.default.unlink(filePath).catch(() => undefined)));
+            throw error;
+        }
         const relativeBase = node_path_1.default.join("listings", String(listingId));
         const cardUrl = publicUrl(node_path_1.default.join(relativeBase, cardName));
         const bannerUrl = publicUrl(node_path_1.default.join(relativeBase, bannerName));

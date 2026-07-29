@@ -2,7 +2,7 @@
 
 Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
 
-## Step 1 release contract
+## Release contract
 
 Use only the canonical production URLs (`https://buyhomeforless.com`, `/api/v1`, `/uploads`) in production output. Missing, placeholder, non-HTTPS, development, API-subdomain, and private-machine URLs must fail validation. The Express app is importable without listening; startup performs dependency checks and never changes schemas. Health and readiness responses are safe, migrations are explicit and repeatable, and no production migration is run by Codex. Verification uses in-process tests, typechecks, builds, audits, mirror parity, and paired root-level Deflate ZIP extraction; no local server or browser is launched.
 
@@ -19,6 +19,8 @@ Property and user-facing copy must be readable, direct, and safe. Do not reveal 
 The Express/MySQL backend remains the authority for authentication, staff roles, listings, listing FAQs and images, seller applications, users, and dashboard data. Maintain the existing role model (`HEAD_ADMIN`, `ADMIN`, and `EMPLOYEE`), validation, authentication, rate limiting, security headers, error normalization, and safe upload handling. Do not add a competing API, database schema, auth system, or media pipeline where an established path exists.
 
 Administration should remain task-focused and responsive: searchable/paginated list workspaces, explicit create/edit flows, clear confirmation/error feedback, and no raw server data or diagnostics in the UI. Listing inputs must preserve the established pricing, property details, location, media, SEO, section/category/status, and FAQ contracts. Validate all request data server-side, normalize safe plain text, restrict uploads by type and size, and return short safe errors.
+
+The property editor is one continuous workflow. Images and cover selection are optional at all statuses; queued images may be selected before create and uploaded during the same action. A failed optional upload must not roll back a saved property. Sale lists use sale price, rental lists use monthly rent, and properties without a price say “Price on request.” Published and archived records remain editable; deleting requires confirmation but never a prerequisite status change.
 
 ## Production weight rules
 
