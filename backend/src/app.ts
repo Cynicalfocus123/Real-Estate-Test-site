@@ -7,8 +7,8 @@ import { env } from "./config/env";
 import { dbPool } from "./db/pool";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { adminListingRoutes } from "./routes/adminListingRoutes";
+import { adminPropertyRoutes } from "./routes/adminPropertyRoutes";
 import { adminDashboardRoutes } from "./routes/adminDashboardRoutes";
-import { adminDemoRoutes } from "./routes/adminDemoRoutes";
 import { adminUserRoutes } from "./routes/adminUserRoutes";
 import { authRoutes } from "./routes/authRoutes";
 import { listingRoutes } from "./routes/listingRoutes";
@@ -34,7 +34,6 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.get("/health", (_request, response) => response.json({ status: "ok", service: "buy-home-for-less-backend", version: "0.3.0" }));
   app.get("/ready", async (_request, response) => { try { if (!(await dependencyCheck())) throw new Error("unavailable"); response.json({ status: "ready" }); } catch { response.status(503).json({ status: "unavailable" }); } });
   app.get("/", (_request, response) => response.json({ status: "ok", service: "buy-home-for-less-backend" }));
-  app.use("/admin-demo", adminDemoRoutes);
   app.use("/api/v1/auth/login", loginLimiter);
   app.use("/api/v1/admin/listings", uploadLimiter);
   app.use("/api/v1/auth", authRoutes);
@@ -42,6 +41,7 @@ export function createApp(dependencies: AppDependencies = {}) {
   app.use("/api/v1/seller-applications", sellerApplicationPublicRoutes);
   app.use("/api/v1/listings", listingRoutes);
   app.use("/api/v1/admin", adminListingRoutes);
+  app.use("/api/v1/admin", adminPropertyRoutes);
   app.use("/api/v1/admin", adminDashboardRoutes);
   app.use("/api/v1/admin", sellerApplicationAdminRoutes);
   app.use("/api/v1/admin", adminUserRoutes);

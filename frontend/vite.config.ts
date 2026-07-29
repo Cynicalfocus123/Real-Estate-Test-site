@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { resolve } from "node:path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -112,4 +113,12 @@ export default defineConfig(({ mode }) => ({
     return configured ? new URL(configured).pathname : "/";
   })(),
   plugins: [react(), createDeepLProxyPlugin(mode)],
+  build: {
+    rollupOptions: {
+      input: {
+        public: resolve(process.cwd(), "index.html"),
+        admin: resolve(process.cwd(), "admin.html"),
+      },
+    },
+  },
 }));

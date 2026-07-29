@@ -1,6 +1,6 @@
 # Buy Home For Less Backend (Express + MySQL)
 
-Simple cPanel/TMDHosting-friendly backend for the real estate project.
+Express/MySQL backend for the real estate project. Hostinger is not connected; deployment folders and ZIPs are workspace artifacts only.
 
 ## Stack
 - Node.js + Express + TypeScript
@@ -35,7 +35,7 @@ Simple cPanel/TMDHosting-friendly backend for the real estate project.
 3. Install deps: `npm install`
 4. Run: `npm run dev` only for local development. Production uses the hosting-assigned `PORT` and refuses incomplete or non-canonical production URLs.
 
-## Local URLs
+## API contract
 - Production API base: `https://buyhomeforless.com/api/v1`
 - Health: `GET /health`
 - Readiness: `GET /ready`
@@ -47,7 +47,7 @@ Simple cPanel/TMDHosting-friendly backend for the real estate project.
 
 Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. The initial migration only creates the tracking table; the existing schema remains preserved in `database.sql`.
 
-## cPanel / TMDHosting Notes
+## Future manual deployment
 - Keep frontend build in `public_html`.
 - Deploy backend as separate Node.js app root outside `public_html`.
-- Set Node app startup file to built output (`dist/server.js`) after running `npm run build`. `backend-live/` and the release ZIP are workspace deployment mirrors only; no Hostinger upload is implied.
+- `backend-live/` and the release ZIP are workspace deployment mirrors only. Verify through builds, tests, manifests, and extraction; no Hostinger upload or live deployment is implied.

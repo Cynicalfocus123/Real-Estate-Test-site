@@ -1,6 +1,6 @@
 # Buy Home For Less Agent Guide
 
-Last reviewed: 2026-07-27. Caveman mode: FULL. This is the concise repository, security, Git, and delivery guide. Frontend and backend design plus production-weight rules live together in `design and weight.md`.
+Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is the concise repository, security, Git, and delivery guide. Frontend and backend design plus production-weight rules live together in `design and weight.md`.
 
 ## Step 1 operating rules
 
@@ -26,15 +26,15 @@ Preserve existing public property, search, account, favorites, comparison, visa,
 
 All changes require a focused security pass appropriate to the edited area. At minimum check for unsafe HTML injection, `javascript:` URLs, unsafe `href`/`src`/image URLs, unsanitized input or URL parameters, missing `rel="noopener noreferrer"` on external new-tab links, validation gaps, exposed secrets, insecure headers, and vulnerable dependencies. Render untrusted content as text, validate API and asset URLs, and keep third-party embeds tightly controlled. Never expose API URLs, tokens, credentials, database details, raw responses, stack traces, server paths, or technical diagnostics in the public or admin interface.
 
-## Hostinger live-environment gate
+## Hostinger-ready workspace gate
 
-Hostinger is the production target. Before starting any feature that connects the frontend, backend, uploads, redirects, or database, confirm the actual hPanel application root, public domain, Node.js version, build/start commands, and environment-variable values. The canonical and only permitted public origin is `https://buyhomeforless.com`. The frontend, API, and public media must remain on this same origin. A separate API hostname or API subdomain is forbidden.
+Hostinger is not connected. The canonical and only permitted public origin is `https://buyhomeforless.com`. The frontend, API, and public media must remain on this same origin. A separate API hostname or API subdomain is forbidden. `frontend-live/` and `backend-live/` are workspace deployment mirrors; ZIPs are future manual-upload packages.
 
 - Production client requests must use the configured full HTTPS live base such as `https://buyhomeforless.com/api/v1`, never `localhost`, `127.0.0.1`, a development port, an unresolved placeholder, or a raw root-relative API value such as `/api`.
-- Set live origins through Hostinger environment variables, including the frontend public origin, API base URL, allowed frontend origin, and public upload base URL. Do not commit secrets or private filesystem paths. Vite-exposed variables are public configuration and must never contain credentials.
+- Track only safe production examples for the frontend public origin, API base URL, allowed frontend origin, and public upload base URL. Do not commit secrets or private filesystem paths. Vite-exposed variables are public configuration and must never contain credentials.
 - Do not hardcode `/`, `/Real-Estate-Test-site/`, `public_html`, a Windows path, or another assumed deployment location in application links. Configure Vite `base` from the verified Hostinger public base path and construct internal application/asset URLs from `import.meta.env.BASE_URL`. A root deployment may resolve to `/`, but source code must not assume it.
 - Server filesystem paths and public URLs are different contracts. Resolve private runtime/upload directories from the deployed application root; generate browser-visible upload URLs only from the configured live HTTPS origin.
-- Hostinger must serve SPA deep links through the frontend entry point while forwarding the chosen live API path to the Node application. A release is not valid until direct navigation and refresh work on representative nested routes and API/upload paths.
+- A future manual deployment must configure SPA deep links and API forwarding. Codex verifies builds, tests, filesystem output, manifests, and archive extraction only; it cannot verify Hostinger.
 - Production builds must fail validation if generated frontend files contain `localhost`, `127.0.0.1`, `/Real-Estate-Test-site/`, source-machine paths, or an unapproved API hostname. Do not begin the frontend/backend cutover until this live URL and path gate passes.
 
 ## Required matched release workflow

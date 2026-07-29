@@ -8,3 +8,11 @@ test("production frontend configuration has the canonical origin and no legacy b
   assert.match(source, /canonicalMedia = `\$\{canonicalOrigin\}\/uploads`/);
   assert.doesNotMatch(source, /localhost|127\.0\.0\.1|Real-Estate-Test-site/);
 });
+
+test("admin entry uses the configured API and has no mock fallback", () => {
+  const api = fs.readFileSync(new URL("../src/admin/api/adminApi.ts", import.meta.url), "utf8");
+  const app = fs.readFileSync(new URL("../src/admin/AdminApp.tsx", import.meta.url), "utf8");
+  assert.match(api, /apiBaseUrl/);
+  assert.doesNotMatch(api, /\/api\/admin|localhost|mock/i);
+  assert.doesNotMatch(app, /mock data|demo records/i);
+});

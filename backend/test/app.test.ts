@@ -4,6 +4,7 @@ import request from "supertest";
 import { createApp } from "../src/app";
 import { verifyAuthToken } from "../src/auth/jwt";
 import { migrationFiles } from "../src/db/migrate";
+import { propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
 
 test("health is safe", async () => {
   const response = await request(createApp({ dependencyCheck: async () => true })).get("/health");
@@ -31,4 +32,11 @@ test("invalid JWTs are rejected and migrations are ordered", async () => {
   const files = await migrationFiles();
   assert.deepEqual(files, [...files].sort());
   assert.ok(files.every((name) => /^\d+_[a-z0-9-]+\.sql$/i.test(name)));
+});
+
+test("property authoring validates transaction, channel and nearby options", () => {
+  const valid = propertyPayloadSchema.parse({ title: "Authoring test", transactionMode: "SALE", listingChannel: "STANDARD" });
+  assert.equal(valid.transactionMode, "SALE");
+  assert.throws(() => propertyPayloadSchema.parse({ title: "Bad", transactionMode: "SELL", listingChannel: "STANDARD" }));
+  assert.throws(() => propertyPayloadSchema.parse({ title: "Bad nearby", transactionMode: "RENT", listingChannel: "STANDARD", nearbyLocations: [{ locationType: "MADE_UP", name: "X", distanceLabel: "1 km" }] }));
 });

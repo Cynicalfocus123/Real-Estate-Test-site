@@ -1,6 +1,6 @@
 # Buy Home For Less Design and Weight Guide
 
-Last reviewed: 2026-07-27. Caveman mode: FULL. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
+Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is the single design and production-weight source for both frontend and backend. Repository, security, Git, and delivery workflow rules live in `AGENT.md`.
 
 ## Step 1 release contract
 
@@ -23,10 +23,10 @@ Administration should remain task-focused and responsive: searchable/paginated l
 ## Production weight rules
 
 - Build only from current authoritative source; never package old ZIPs, extracted folders, stale `dist/`, or stale deployment mirrors.
-- Build for the verified Hostinger public location. The live site origin is `https://buyhomeforless.com`; the frontend API base, allowed origin, public upload URL, and Vite public base path must be production environment values, not local or root-relative assumptions.
+- Build for the Hostinger-ready workspace contract. Hostinger is not connected. The live site origin is `https://buyhomeforless.com`; the frontend API base, allowed origin, public upload URL, and Vite public base path must be production environment values, not local or root-relative assumptions.
 - The current GitHub Pages path `/Real-Estate-Test-site/` is not a Hostinger production base. Replace it with environment-driven Vite `base` handling before the next frontend deployment, and use `import.meta.env.BASE_URL` for application and asset links.
 - Browser API calls must resolve to a full HTTPS live URL on the sole canonical origin `https://buyhomeforless.com`, not `localhost`, a development port, a separate API hostname or subdomain, or a literal `/api` fallback. Private server filesystem paths must never be used as public URLs.
-- Verify Hostinger SPA fallback/rewrite behavior, direct deep-link refreshes, API routing, upload URLs, CORS, HTTPS, and representative frontend-to-backend requests on the live domain before declaring a deployment complete.
+- Verify source through builds, tests, filesystem checks, manifests, and archive extraction. Never claim a real deployment, live-domain smoke test, or Hostinger verification.
 - `frontend-live/` must be byte-for-byte equivalent to the current `frontend/dist/` after each release.
 - `backend-live/` must be rebuilt from the active `backend/` and include a complete verified `SHA256SUMS` manifest. The inactive duplicate backend is never a release input.
 - Keep the frontend archive free of backend source, environment files, source maps unless explicitly needed, duplicate raster assets, unused videos, local logs, and development dependencies.

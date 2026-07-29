@@ -1,0 +1,8 @@
+import { useState } from "react";
+import { useAdminAuth } from "./AdminAuthProvider";
+
+export function AdminLoginPage() {
+  const { login, bootstrap, bootstrapRequired } = useAdminAuth(); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [fullName, setFullName] = useState(""); const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  async function submit(event: React.FormEvent) { event.preventDefault(); setBusy(true); setError(null); try { if (bootstrapRequired) await bootstrap(email, password, fullName); else await login(email, password); } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to sign in"); } finally { setBusy(false); } }
+  return <main className="admin-login"><form className="admin-login-card" onSubmit={submit}><p className="admin-kicker">BUY HOME FOR LESS</p><h1>{bootstrapRequired ? "Create Head Admin" : "Admin sign in"}</h1><p>Use your authorized staff account. No demo records or demo login exist.</p>{bootstrapRequired && <label>Full name<input required value={fullName} onChange={(event) => setFullName(event.target.value)} /></label>}<label>Email<input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label><label>Password<input required type="password" minLength={8} autoComplete={bootstrapRequired ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} /></label>{error && <p className="admin-error">{error}</p>}<button className="admin-button" disabled={busy}>{busy ? "Please wait" : bootstrapRequired ? "Create secure account" : "Sign in"}</button></form></main>;
+}

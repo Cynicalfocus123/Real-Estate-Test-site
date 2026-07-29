@@ -1,0 +1,21 @@
+export type AdminRole = "HEAD_ADMIN" | "ADMIN" | "EMPLOYEE";
+export type TransactionMode = "SALE" | "RENT";
+export type ListingChannel = "STANDARD" | "SENIOR_HOME";
+export type ListingStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED" | "DELETED";
+export type PropertyType = "VILLA" | "CONDO" | "APARTMENT" | "TOWNHOUSE" | "COMMERCIAL_BUILDING" | "RESORT" | "LAND" | "HOUSE" | "MULTI_FAMILY" | "SINGLE_DETACHED_HOUSE" | "SEMI_DETACHED_HOUSE";
+export type SpecialCategory = "DISTRESS_PROPERTY" | "FORECLOSURE" | "PRE_FORECLOSURE" | "FIXER_UPPER" | "URGENT_SALE" | "FEATURED" | "NEW_LISTING";
+export type ViewType = "BEACH" | "RURAL" | "MOUNTAIN" | "LAKE" | "WATERFALL" | "CITY";
+export type NearbyType = "HOSPITAL" | "SCHOOL" | "AIRPORT" | "SHOPPING_MALL" | "BEACH" | "TRANSPORTATION" | "CITY";
+
+export type AdminUser = { id: number; email: string; fullName: string; role: AdminRole; status?: "ACTIVE" | "DISABLED" };
+export type Pagination = { page: number; pageSize: number; total: number; totalPages: number };
+export type PropertySummary = { id: number; title: string; slug: string; transactionMode: TransactionMode; listingChannel: ListingChannel; publicStatusLabel: string | null; status: ListingStatus; normalizedPropertyType: PropertyType | null; specialCategory: SpecialCategory | null; province: string | null; city: string | null; priceAmount: number | null; currencyCode: string; thumbnailUrl: string | null; updatedAt: string };
+export type AdminImage = { id: number; originalName?: string; cardUrl: string; detailUrl?: string; galleryUrl?: string; altText: string | null; caption: string | null; sortOrder: number; isCover: boolean };
+export type AdminFaq = { id?: number; question: string; answer: string; isActive: boolean; sortOrder?: number };
+export type NearbyLocation = { id?: number; locationType: NearbyType; name: string; distanceLabel: string; distanceMeters?: number | null; sortOrder: number };
+export type SeniorDetails = { roomSize?: number | null; buildingSize?: number | null; caregiverIncluded?: boolean | null; caregiverNotes?: string | null; seniorCareService?: string | null; serviceDuration?: string | null; serviceDeposit?: number | null; monthlyServiceFee?: number | null; servicesIncluded: string[]; seniorPropertyFeatures: string[]; communityAmenities: string[] };
+export type Agent = { id: number; name: string; phone: string; email: string; agency: string | null; isActive: boolean; isVerified: boolean | null };
+export type PropertyDetail = PropertySummary & Record<string, unknown> & { description: string | null; highlights: string[]; amenities: string[]; features: string[]; propertyDetails: string[]; images: AdminImage[]; faqs: AdminFaq[]; nearbyLocations: NearbyLocation[]; seniorDetails: SeniorDetails | null; agent: Agent | null };
+export type PropertyPayload = Omit<PropertyDetail, "id" | "slug" | "thumbnailUrl" | "updatedAt" | "images" | "agent"> & { slug?: string; agentId?: number | null; seo?: Record<string, unknown>; location?: Record<string, unknown> };
+export type SellerApplication = { id: number; fullName: string; phone: string; email: string; propertyType: string | null; location: string; province: string | null; district: string | null; timeline: string | null; propertyDetails: string[]; message: string | null; status: string; createdAt: string };
+export type StaffMember = AdminUser & { createdAt: string };

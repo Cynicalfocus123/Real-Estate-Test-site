@@ -1,0 +1,4 @@
+import type { ReactNode } from "react";
+import { useAdminAuth } from "../auth/AdminAuthProvider";
+const links = [["#/dashboard", "Dashboard"], ["#/properties", "Properties"], ["#/sellers", "Seller applications"], ["#/staff", "Staff"], ["#/account", "My account"]] as const;
+export function AdminShell({ children }: { children: ReactNode }) { const { user, logout } = useAdminAuth(); return <div className="admin-shell"><aside className="admin-sidebar"><a className="admin-brand" href="#/dashboard">BUY HOME<br /><span>FOR LESS</span></a><nav>{links.filter(([, label]) => label !== "Staff" || user?.role === "HEAD_ADMIN").map(([href, label]) => <a key={href} href={href}>{label}</a>)}</nav><div className="admin-user"><strong>{user?.fullName}</strong><small>{user?.role}</small><button onClick={logout}>Log out</button></div></aside><section className="admin-main">{children}</section></div>; }
