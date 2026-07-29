@@ -22,7 +22,7 @@ Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is 
 
 ## Security and application boundaries
 
-Preserve existing public property, search, account, favorites, comparison, visa, senior-home, and administration workflows unless a task changes them. Keep the frontend API-ready and use the established GraphQL/REST contracts; do not create duplicate backend, storage, or deployment systems.
+Preserve existing public property, search, account, favorites, comparison, visa, senior-home, and administration workflows unless a task changes them. The active application uses the established REST contracts; do not add GraphQL or create duplicate backend, storage, authentication, or deployment systems.
 
 All changes require a focused security pass appropriate to the edited area. At minimum check for unsafe HTML injection, `javascript:` URLs, unsafe `href`/`src`/image URLs, unsanitized input or URL parameters, missing `rel="noopener noreferrer"` on external new-tab links, validation gaps, exposed secrets, insecure headers, and vulnerable dependencies. Render untrusted content as text, validate API and asset URLs, and keep third-party embeds tightly controlled. Never expose API URLs, tokens, credentials, database details, raw responses, stack traces, server paths, or technical diagnostics in the public or admin interface.
 
@@ -35,7 +35,7 @@ Hostinger is not connected. The canonical and only permitted public origin is `h
 - Do not hardcode `/`, `/Real-Estate-Test-site/`, `public_html`, a Windows path, or another assumed deployment location in application links. Configure Vite `base` from the verified Hostinger public base path and construct internal application/asset URLs from `import.meta.env.BASE_URL`. A root deployment may resolve to `/`, but source code must not assume it.
 - Server filesystem paths and public URLs are different contracts. Resolve private runtime/upload directories from the deployed application root; generate browser-visible upload URLs only from the configured live HTTPS origin.
 - A future manual deployment must configure SPA deep links and API forwarding. Codex verifies builds, tests, filesystem output, manifests, and archive extraction only; it cannot verify Hostinger.
-- Production builds must fail validation if generated frontend files contain `localhost`, `127.0.0.1`, `/Real-Estate-Test-site/`, source-machine paths, or an unapproved API hostname. Do not begin the frontend/backend cutover until this live URL and path gate passes.
+- Production builds must fail validation if generated frontend files contain `localhost`, `127.0.0.1`, `/Real-Estate-Test-site/`, source-machine paths, or an unapproved API hostname. The completed public-property cutover and all future work must continue to pass this gate.
 
 ## Required matched release workflow
 
@@ -45,8 +45,8 @@ Every completed source, configuration, content, documentation, security, fronten
 2. Run the relevant checks. Frontend changes require `npm run build` in `frontend/`; backend changes require `npm run typecheck` and `npm run build` in `backend/`. Run the focused security pass and relevant dependency audit before release.
 3. Rebuild `frontend/dist/`, then replace (never merge) `frontend-live/` with its exact contents. Verify path, size, and SHA-256 parity; exclude source maps unless deliberately required.
 4. Rebuild `backend/dist/`, then replace (never merge) `backend-live/` from the active `backend/` deployment input. Include the production package metadata and built runtime; exclude `.env`, `node_modules`, logs, runtime uploads, local caches, test-only files, and secrets. Generate and verify `backend-live/SHA256SUMS`.
-5. Verify the Hostinger production configuration contract and scan the generated output for forbidden development URLs and paths. Commit the authoritative source, both mirrors, the manifest, and documentation, then push. Confirm local `HEAD` equals the tracked remote branch before archiving.
-6. Regenerate both Live ZIPs together from the verified mirrors. ZIP entries must use portable `/` paths and place the deployable files at archive root, never inside an extra project folder. Verify archive listings and CRCs, reject duplicate/unsafe/backslash paths and forbidden content, and extract with both Windows and PHP tooling to prove full SHA-256 parity. Remove stale ZIPs and temporary release/extraction folders so only the two canonical archives remain.
+5. Regenerate both Live ZIPs together from the verified mirrors before committing. ZIP entries must use portable `/` paths and place the deployable files at archive root, never inside an extra project folder. Verify archive listings and CRCs, reject duplicate/unsafe/backslash paths and forbidden content, and extract with both Windows and PHP tooling to prove full SHA-256 parity. Remove stale ZIPs and temporary release/extraction folders so only the two canonical archives remain.
+6. Verify the Hostinger production configuration contract and scan the generated output for forbidden development URLs and paths. Commit the authoritative source, both mirrors, both ZIPs, the manifest, and documentation together, then push. Confirm local `HEAD` equals the tracked remote branch and the remote server branch.
 
 The mirrors and ZIPs are manual deployment artifacts only. Never claim that hosting, DNS, database migrations, environment changes, cache clearing, or production smoke tests occurred without direct evidence. A manual upload must preserve the live backend `.env`, installed dependencies, database, uploads/media, writable directories, logs, and runtime configuration.
 
@@ -73,6 +73,13 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 ## Public property API rules
 
 - The only public property API is `/api/v1/properties`. It returns typed camelCase, published-only summaries and slug-based detail records; drafts, archives, deleted records, private paths, and raw SQL rows never enter public responses.
-- The public React application uses the REST property service and the configured `apiBaseUrl`. It does not import or seed `frontend/src/data/propertyListings.ts`; an empty authoritative database is a valid empty state.
+- The public React application uses the REST property service and the configured `apiBaseUrl`. Production components do not import or seed `frontend/src/data/propertyListings.ts`; the file is legacy reference data only until deliberately removed or moved to test fixtures. It must never become a fallback after an API failure.
 - Missing images use the checked-in placeholder and missing prices display “Price on request.” Imports or seeds require separate explicit approval and never run automatically.
 - Public geocoding uses `/api/v1/map/geocode` through the canonical API base. Hostinger remains unconnected; mirrors and ZIPs are local release artifacts only.
+
+## Next approved task: real authentication
+
+- Task 5 replaces mock public login, signup, and OTP behavior with real customer registration, login, logout, persistent sessions, email verification, password recovery, profile security, and database-backed favorites.
+- Customer and administration identities remain separate. Public registration can never grant `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` access.
+- Administration keeps its separate login. Head Admin bootstrap is available only while no Head Admin exists; afterward, authorized administration controls staff creation and roles.
+- Authentication work must retain rate limits, password hashing, generic public errors, disabled-account handling, session expiry, authorization tests, and the canonical same-origin API contract. No demo or silent mock fallback may remain after cutover.

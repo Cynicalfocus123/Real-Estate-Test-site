@@ -24,11 +24,15 @@ The property editor is one continuous workflow. Images and cover selection are o
 
 ## Production weight rules
 
-Public property consumers use the published-only REST API at `/api/v1/properties`, not hard-coded frontend listings or GraphQL. Detail links use public slugs. Empty results, unavailable API responses, null images, null prices, sparse records, and missing optional sections must render safely without invented data. No data is seeded or imported without explicit approval.
+Public property consumers use the published-only REST API at `/api/v1/properties`, not hard-coded frontend listings or GraphQL. Detail links use public slugs. Empty results, unavailable API responses, null images, null prices, sparse records, and missing optional sections must render safely without invented data or a hidden static-data fallback. No data is seeded or imported without explicit approval.
+
+## Authentication design for Task 5
+
+Task 5 replaces public mock authentication with real customer registration and login while preserving a separate administration security boundary. Customer registration, login, logout, session restoration, email verification, password recovery, profile security, and saved-property ownership must use the authoritative backend. Public users can never select or inherit staff roles. Administration keeps its own login and one-time Head Admin bootstrap; later staff registration is controlled by authorized administration. Authentication interfaces require accessible validation, generic errors, disabled-account handling, session expiry, rate limiting, secure password storage, and no demo fallback.
 
 - Build only from current authoritative source; never package old ZIPs, extracted folders, stale `dist/`, or stale deployment mirrors.
 - Build for the Hostinger-ready workspace contract. Hostinger is not connected. The live site origin is `https://buyhomeforless.com`; the frontend API base, allowed origin, public upload URL, and Vite public base path must be production environment values, not local or root-relative assumptions.
-- The current GitHub Pages path `/Real-Estate-Test-site/` is not a Hostinger production base. Replace it with environment-driven Vite `base` handling before the next frontend deployment, and use `import.meta.env.BASE_URL` for application and asset links.
+- The legacy GitHub Pages path `/Real-Estate-Test-site/` is forbidden. Vite base handling is environment-driven, and application and asset links must continue to use `import.meta.env.BASE_URL`.
 - Browser API calls must resolve to a full HTTPS live URL on the sole canonical origin `https://buyhomeforless.com`, not `localhost`, a development port, a separate API hostname or subdomain, or a literal `/api` fallback. Private server filesystem paths must never be used as public URLs.
 - Verify source through builds, tests, filesystem checks, manifests, and archive extraction. Never claim a real deployment, live-domain smoke test, or Hostinger verification.
 - `frontend-live/` must be byte-for-byte equivalent to the current `frontend/dist/` after each release.

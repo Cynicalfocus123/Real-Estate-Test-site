@@ -10,7 +10,8 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 - multer + sharp image processing
 
 ## Core Coverage
-- Auth: first Head Admin bootstrap/register, login, current user (`/api/auth/me`).
+- Current staff auth: one-time first Head Admin bootstrap, authorized staff registration, login, and current user (`/api/v1/auth/me`).
+- Task 5 boundary: real public customer authentication will be separate from staff roles; public signup can never create `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` accounts.
 - Roles: `HEAD_ADMIN`, `ADMIN`, `EMPLOYEE`.
 - Dashboard overview metrics: listings by status, users, seller apps, employee accounts, recent items.
 - Property administration (`/api/v1/admin/properties`) with one typed camelCase contract:
@@ -24,31 +25,38 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 - Property image manager (max 12): queued upload on create, upload later, reorder, optional cover, metadata, and delete. A cover image is never required.
 - Agent management (`/api/v1/admin/agents`) and optional active-agent assignment.
 - Seller applications:
-  - frontend submit: `POST /api/seller-applications`
-  - admin list/update status: `GET /api/admin/seller-applications`, `PATCH /api/admin/seller-applications/:id/status`
+  - frontend submit: `POST /api/v1/seller-applications`
+  - admin list/update status: `GET /api/v1/admin/seller-applications`, `PATCH /api/v1/admin/seller-applications/:id/status`
   - statuses: `NEW`, `CONTACTED`, `IN_REVIEW`, `CLOSED`, `SPAM_REJECTED`
 - Registered users + employee account management APIs.
 
-## Setup
-1. Copy `.env.example` to `.env`.
-2. Create DB and import `database.sql` in phpMyAdmin.
-3. Install deps: `npm install`
-4. Run: `npm run dev` only for local development. Production uses the hosting-assigned `PORT` and refuses incomplete or non-canonical production URLs.
+## Future manual host setup
+1. Keep secrets in the private hosting environment; use `.env.production.example` only as a safe key template.
+2. Create the database, import `database.sql`, and apply pending explicit migrations through the migration command after review.
+3. Install the locked runtime dependencies in the private Node application root.
+4. Use the packaged `dist/server.js` as the hosting startup file and the hosting-assigned `PORT`.
+
+Codex verification does not start a local service or apply a production migration.
 
 ## API contract
 - Production API base: `https://buyhomeforless.com/api/v1`
 - Health: `GET /health`
 - Readiness: `GET /ready`
+- Head Admin bootstrap status: `GET /api/v1/auth/bootstrap-status`
 - Register: `POST /api/v1/auth/register`
 - Login: `POST /api/v1/auth/login`
+- Current user: `GET /api/v1/auth/me`
 - Public properties: `GET /api/v1/properties` and `GET /api/v1/properties/:slug`
+- Public geocoding: `GET /api/v1/map/geocode`
 - Seller submit: `POST /api/v1/seller-applications`
 
-Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. The initial migration only creates the tracking table; the existing schema remains preserved in `database.sql`.
+Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. `001_schema_migrations.sql` creates the tracking table and `002_property_authoring.sql` adds the current property-authoring schema. The baseline schema remains in `database.sql`.
 
 Properties may be saved and published without images, price, SEO, an agent, or complete location/senior details. The frontend shows the approved placeholder for absent images and “Price on request” for absent price values. Database relation writes are transactional; optional image processing is intentionally outside that transaction so a saved property is never discarded after an image failure.
 
 Public property responses are frontend-ready camelCase DTOs and include only `PUBLISHED` records. The list route supports bounded pagination, ID lookup, filters, and sorting; detail responses include active public relations and related summaries. No automatic property import or seed exists: importing old frontend data requires separate explicit approval. The canonical geocoding route is `GET /api/v1/map/geocode`.
+
+The production public frontend uses this REST API and has no static-property fallback. An empty authoritative database is a valid public empty state. The legacy frontend property-data file is not a production runtime source.
 
 ## Future manual deployment
 - Keep frontend build in `public_html`.
