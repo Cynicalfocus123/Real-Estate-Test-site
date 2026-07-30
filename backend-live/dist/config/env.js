@@ -27,12 +27,21 @@ const envSchema = zod_1.z.object({
     DB_USER: zod_1.z.string().min(1).default("root"),
     DB_PASSWORD: zod_1.z.string().default(""),
     DB_NAME: zod_1.z.string().min(1).default("buyhomeforless"),
+    DB_CONNECT_TIMEOUT_MS: zod_1.z.coerce.number().int().min(1_000).max(60_000).default(10_000),
+    DB_QUERY_TIMEOUT_MS: zod_1.z.coerce.number().int().min(1_000).max(120_000).default(20_000),
     UPLOAD_DIR: zod_1.z.string().min(1).default("uploads"),
     OSMAND_SEARCH_URL: zod_1.z.string().url().default("https://nominatim.openstreetmap.org/search"),
     OSMAND_LANGUAGE: zod_1.z.string().min(1).default("en,th"),
     OSMAND_COUNTRY_CODE: zod_1.z.string().min(2).max(10).default("th"),
     OSMAND_EMAIL: zod_1.z.string().email().optional(),
     GEOCODER_USER_AGENT: zod_1.z.string().min(4).default("buy-home-for-less-backend/1.0"),
+    OUTBOUND_REQUEST_TIMEOUT_MS: zod_1.z.coerce.number().int().min(1_000).max(60_000).default(8_000),
+    SMTP_HOST: zod_1.z.string().min(1).optional(),
+    SMTP_PORT: zod_1.z.coerce.number().int().min(1).max(65_535).default(587),
+    SMTP_SECURE: zod_1.z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+    SMTP_USER: zod_1.z.string().min(1).optional(),
+    SMTP_PASSWORD: zod_1.z.string().min(1).optional(),
+    SMTP_FROM: zod_1.z.string().email().optional(),
 });
 function validateProduction(data) {
     const errors = [];

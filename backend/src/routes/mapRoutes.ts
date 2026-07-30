@@ -35,6 +35,7 @@ mapRoutes.get("/geocode", async (request, response, next) => {
     }
 
     const upstream = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(env.OUTBOUND_REQUEST_TIMEOUT_MS),
       headers: {
         "User-Agent": env.GEOCODER_USER_AGENT,
         Accept: "application/json",
@@ -75,6 +76,7 @@ mapRoutes.get("/geocode", async (request, response, next) => {
 
     response.json({ total: items.length, items });
   } catch (error) {
+    if ((error as { name?: string }).name === "TimeoutError") return next(new ApiError(504, "Map geocode lookup timed out"));
     next(error);
   }
 });

@@ -78,6 +78,13 @@ CREATE TABLE IF NOT EXISTS listings (
   INDEX idx_listings_status_section (status, section),
   INDEX idx_listings_category (category),
   INDEX idx_listings_city_province (city, province),
+  INDEX idx_listings_public_updated (status, updated_at),
+  INDEX idx_listings_public_transaction_updated (status, transaction_mode, updated_at),
+  INDEX idx_listings_public_location (status, province, district),
+  INDEX idx_listings_public_type (status, normalized_property_type),
+  INDEX idx_listings_public_category_view (status, special_category, view_type),
+  INDEX idx_listings_public_sale_price (status, transaction_mode, buy_price),
+  INDEX idx_listings_public_rent_price (status, transaction_mode, rent_monthly_price),
   CONSTRAINT fk_listings_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

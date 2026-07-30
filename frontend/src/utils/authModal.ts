@@ -1,4 +1,4 @@
-export type AuthModalMode = "login" | "signup";
+export type AuthModalMode = "login" | "signup" | "forgot" | "resend";
 
 export const OPEN_AUTH_MODAL_EVENT = "bhfl:open-auth-modal";
 

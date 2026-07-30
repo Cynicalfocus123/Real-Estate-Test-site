@@ -6,6 +6,7 @@ const zod_1 = require("zod");
 const listing_1 = require("../constants/listing");
 const pool_1 = require("../db/pool");
 const auth_1 = require("../middleware/auth");
+const csrf_1 = require("../middleware/csrf");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
 const submitSchema = zod_1.z.object({
@@ -52,7 +53,7 @@ exports.sellerApplicationPublicRoutes.post("/", async (request, response, next) 
         next(error);
     }
 });
-exports.sellerApplicationAdminRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
+exports.sellerApplicationAdminRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]), csrf_1.requireSameOrigin);
 exports.sellerApplicationAdminRoutes.get("/seller-applications", async (request, response, next) => {
     try {
         const query = zod_1.z.object({ q: zod_1.z.string().max(120).optional(), status: zod_1.z.enum(listing_1.SELLER_APPLICATION_STATUSES).optional(), page: zod_1.z.coerce.number().int().min(1).default(1), pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(20) }).parse(request.query);

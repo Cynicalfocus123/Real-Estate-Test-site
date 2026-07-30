@@ -77,9 +77,9 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 - Missing images use the checked-in placeholder and missing prices display “Price on request.” Imports or seeds require separate explicit approval and never run automatically.
 - Public geocoding uses `/api/v1/map/geocode` through the canonical API base. Hostinger remains unconnected; mirrors and ZIPs are local release artifacts only.
 
-## Next approved task: real authentication
+## Customer authentication source state
 
 - Task 5 uses dedicated `customer_accounts` and hashed opaque customer sessions. Public registration cannot accept a role or grant staff access; customer and staff cookies use distinct names and do not cross-authorize.
-- Customer and administration identities remain separate. Public registration can never grant `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` access.
+- Customer and administration identities remain separate. Public registration can never grant `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` access. Customer verification, verification resend, password recovery, reset, and authenticated email change use hashed, single-use action tokens; the new email is verified before it replaces the account email.
 - Administration keeps its separate login. Head Admin bootstrap is available only while no Head Admin exists; afterward, authorized administration controls staff creation and roles.
-- Customer routes are `/api/v1/customer-auth` and `/api/v1/customer`; staff routes are `/api/v1/admin-auth`. Sessions are Secure, HttpOnly, SameSite=Lax, server-managed cookies; customer action tokens are hashed, single-use, and expiring. SMTP configuration is host-only, no SMS provider is approved, and no mock or localStorage fallback exists.
+- Customer routes are `/api/v1/customer-auth` and `/api/v1/customer`; staff routes are `/api/v1/admin-auth`. Sessions are Secure, HttpOnly, SameSite=Lax, server-managed cookies; customer action tokens are hashed, single-use, and expiring. SMTP configuration is host-only, no SMS provider is approved, and no mock or localStorage fallback exists. Authenticated Admin write routes enforce the same-origin CSRF check in addition to server-side role authorization.

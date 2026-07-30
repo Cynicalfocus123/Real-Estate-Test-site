@@ -10,6 +10,7 @@ const zod_1 = require("zod");
 const pool_1 = require("../db/pool");
 const sessions_1 = require("../auth/sessions");
 const auth_1 = require("../middleware/auth");
+const csrf_1 = require("../middleware/csrf");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
 const employeeCreateSchema = zod_1.z.object({
@@ -59,7 +60,7 @@ async function verifyCurrentPassword(userId, currentPassword) {
     return user;
 }
 exports.adminUserRoutes = (0, express_1.Router)();
-exports.adminUserRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
+exports.adminUserRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]), csrf_1.requireSameOrigin);
 exports.adminUserRoutes.get("/registered-users", async (_request, response, next) => {
     try {
         const rows = await (0, pool_1.queryRows)(`SELECT id, full_name, email, role, status, created_at

@@ -11,6 +11,7 @@ const multer_1 = __importDefault(require("multer"));
 const zod_1 = require("zod");
 const pool_1 = require("../db/pool");
 const auth_1 = require("../middleware/auth");
+const csrf_1 = require("../middleware/csrf");
 const imageService_1 = require("../services/imageService");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
@@ -89,7 +90,7 @@ else
     p.push(q.propertyType);
 } return { where, p }; }
 exports.adminPropertyRoutes = (0, express_1.Router)();
-exports.adminPropertyRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
+exports.adminPropertyRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]), csrf_1.requireSameOrigin);
 exports.adminPropertyRoutes.get("/properties", async (req, res, next) => { try {
     const q = exports.adminPropertyListQuerySchema.parse(req.query);
     const { where, p } = buildAdminPropertyFilters(q);

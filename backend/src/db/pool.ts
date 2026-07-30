@@ -10,17 +10,18 @@ export const dbPool = mysql.createPool({
   database: env.DB_NAME,
   connectionLimit: 10,
   waitForConnections: true,
-  queueLimit: 0,
+  queueLimit: 50,
+  connectTimeout: env.DB_CONNECT_TIMEOUT_MS,
   charset: "utf8mb4",
 });
 
 export async function queryRows<T extends RowDataPacket[]>(sql: string, params: unknown[] = []) {
-  const [rows] = await dbPool.query<T>(sql, params);
+  const [rows] = await dbPool.query<T>({ sql, timeout: env.DB_QUERY_TIMEOUT_MS }, params);
   return rows;
 }
 
 export async function executeSql(sql: string, params: unknown[] = []) {
-  const [result] = await dbPool.query<ResultSetHeader>(sql, params);
+  const [result] = await dbPool.query<ResultSetHeader>({ sql, timeout: env.DB_QUERY_TIMEOUT_MS }, params);
   return result;
 }
 

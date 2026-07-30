@@ -17,15 +17,16 @@ exports.dbPool = promise_1.default.createPool({
     database: env_1.env.DB_NAME,
     connectionLimit: 10,
     waitForConnections: true,
-    queueLimit: 0,
+    queueLimit: 50,
+    connectTimeout: env_1.env.DB_CONNECT_TIMEOUT_MS,
     charset: "utf8mb4",
 });
 async function queryRows(sql, params = []) {
-    const [rows] = await exports.dbPool.query(sql, params);
+    const [rows] = await exports.dbPool.query({ sql, timeout: env_1.env.DB_QUERY_TIMEOUT_MS }, params);
     return rows;
 }
 async function executeSql(sql, params = []) {
-    const [result] = await exports.dbPool.query(sql, params);
+    const [result] = await exports.dbPool.query({ sql, timeout: env_1.env.DB_QUERY_TIMEOUT_MS }, params);
     return result;
 }
 /** Keeps related authoring writes atomic without making filesystem work part of the DB transaction. */

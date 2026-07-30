@@ -33,6 +33,7 @@ exports.mapRoutes.get("/geocode", async (request, response, next) => {
             url.searchParams.set("email", env_1.env.OSMAND_EMAIL);
         }
         const upstream = await fetch(url.toString(), {
+            signal: AbortSignal.timeout(env_1.env.OUTBOUND_REQUEST_TIMEOUT_MS),
             headers: {
                 "User-Agent": env_1.env.GEOCODER_USER_AGENT,
                 Accept: "application/json",
@@ -65,6 +66,8 @@ exports.mapRoutes.get("/geocode", async (request, response, next) => {
         response.json({ total: items.length, items });
     }
     catch (error) {
+        if (error.name === "TimeoutError")
+            return next(new errors_1.ApiError(504, "Map geocode lookup timed out"));
         next(error);
     }
 });

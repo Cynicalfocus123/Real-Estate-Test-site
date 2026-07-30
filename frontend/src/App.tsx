@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AccountSettingsPage } from "./pages/AccountSettingsPage";
+import { CustomerAuthActionPage } from "./pages/CustomerAuthActionPage";
 import { FavoritesPage } from "./pages/FavoritesPage";
 import { AboutUsPage } from "./components/AboutUsPage";
 import { BecomeRealEstateAgentPage } from "./components/BecomeRealEstateAgentPage";
@@ -155,6 +156,9 @@ export function App() {
   const isFavoritesPage =
     currentPath.endsWith("/favorites") ||
     currentHash === "#/favorites";
+  const isVerifyEmailPage = currentPath.endsWith("/verify-email") || currentHash.startsWith("#/verify-email");
+  const isResetPasswordPage = currentPath.endsWith("/reset-password") || currentHash.startsWith("#/reset-password");
+  const isConfirmEmailChangePage = currentPath.endsWith("/confirm-email-change") || currentHash.startsWith("#/confirm-email-change");
 
   useEffect(() => {
     function syncPath() {
@@ -206,6 +210,10 @@ export function App() {
   if (isRealEstateLawsPage) {
     return <RealEstateLawsPage />;
   }
+
+  if (isVerifyEmailPage) return <CustomerAuthActionPage action="verify" />;
+  if (isResetPasswordPage) return <CustomerAuthActionPage action="reset" />;
+  if (isConfirmEmailChangePage) return <CustomerAuthActionPage action="confirm-email-change" />;
 
   if (isAboutUsPage) {
     return <AboutUsPage />;

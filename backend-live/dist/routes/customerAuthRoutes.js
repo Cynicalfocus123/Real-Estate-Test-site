@@ -23,6 +23,7 @@ const preferences = zod_1.z.object({ notificationFrequency: zod_1.z.enum(["realt
 const actionToken = zod_1.z.object({ token: zod_1.z.string().min(32).max(256) }).strict();
 const reset = zod_1.z.object({ token: zod_1.z.string().min(32).max(256), password }).strict();
 const changePassword = zod_1.z.object({ currentPassword: zod_1.z.string().min(1).max(128), newPassword: password }).strict();
+const changeEmail = zod_1.z.object({ currentPassword: zod_1.z.string().min(1).max(128), newEmail: zod_1.z.string().email().max(190) }).strict();
 const deleteAccount = zod_1.z.object({ currentPassword: zod_1.z.string().min(1).max(128), confirmation: zod_1.z.literal("DELETE") }).strict();
 const safeCustomer = (c) => ({ id: c.id, email: c.email, firstName: c.first_name, lastName: c.last_name, phone: c.phone, address: c.address, subdistrict: c.subdistrict, district: c.district, province: c.province, postalCode: c.postal_code, status: c.status, emailVerifiedAt: c.email_verified_at, lastLoginAt: c.last_login_at, notificationFrequency: c.notification_frequency, marketingPreference: Boolean(c.marketing_preference) });
 async function issueToken(connection, customerId, purpose, pendingEmail) { const raw = (0, sessions_1.randomToken)(); await connection.execute("UPDATE customer_action_tokens SET used_at=CURRENT_TIMESTAMP WHERE customer_id=? AND purpose=? AND used_at IS NULL", [customerId, purpose]); await connection.execute("INSERT INTO customer_action_tokens (customer_id,purpose,token_hash,pending_email,expires_at) VALUES (?,?,?,?,DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 MINUTE))", [customerId, purpose, (0, sessions_1.tokenHash)(raw), pendingEmail ?? null]); return raw; }
@@ -145,6 +146,31 @@ exports.customerAuthRoutes.post("/change-password", customerAuth_1.requireCustom
         throw new errors_1.ApiError(401, "Current password is incorrect"); if (await bcryptjs_1.default.compare(data.newPassword, user.password_hash))
         throw new errors_1.ApiError(400, "Choose a different password"); await c.execute("UPDATE customer_accounts SET password_hash=? WHERE id=?", [await bcryptjs_1.default.hash(data.newPassword, 12), user.id]); await (0, sessions_1.revokeSessions)(c, "customer", user.id); return (0, sessions_1.createSession)(c, "customer", user.id); });
     (0, sessions_1.setSessionCookie)(res, sessions_1.CUSTOMER_COOKIE, raw);
+    (0, sessions_1.noStore)(res);
+    res.json({ ok: true });
+}
+catch (e) {
+    next(e);
+} });
+exports.customerAuthRoutes.post("/change-email", customerAuth_1.requireCustomer, async (req, res, next) => { try {
+    const data = changeEmail.parse(req.body);
+    const newEmail = (0, sanitize_1.sanitizeEmail)(data.newEmail);
+    const token = await (0, pool_1.withTransaction)(async (c) => { const [rows] = await c.query("SELECT * FROM customer_accounts WHERE id=? FOR UPDATE", [req.customer.id]); const user = rows[0]; if (!user || !(await bcryptjs_1.default.compare(data.currentPassword, user.password_hash)))
+        throw new errors_1.ApiError(401, "Current password is incorrect"); if (user.email === newEmail)
+        throw new errors_1.ApiError(400, "Choose a different email address"); const [existing] = await c.query("SELECT id FROM customer_accounts WHERE email=? LIMIT 1 FOR UPDATE", [newEmail]); if (existing.length)
+        throw new errors_1.ApiError(400, "That email address is unavailable"); return issueToken(c, user.id, "EMAIL_CHANGE", newEmail); });
+    await tryMail(() => (0, mailService_1.sendEmailChangeEmail)(newEmail, token));
+    (0, sessions_1.noStore)(res);
+    res.json({ ok: true });
+}
+catch (e) {
+    next(e);
+} });
+exports.customerAuthRoutes.post("/confirm-email-change", async (req, res, next) => { try {
+    const data = actionToken.parse(req.body);
+    await (0, pool_1.withTransaction)(async (c) => { const token = await consumeToken(c, data.token, "EMAIL_CHANGE"); if (!token.pending_email)
+        throw new errors_1.ApiError(400, "This link is invalid or expired"); await c.execute("UPDATE customer_accounts SET email=?,email_verified_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?", [token.pending_email, token.customer_id]); await (0, sessions_1.revokeSessions)(c, "customer", token.customer_id); });
+    (0, sessions_1.clearSessionCookie)(res, sessions_1.CUSTOMER_COOKIE);
     (0, sessions_1.noStore)(res);
     res.json({ ok: true });
 }

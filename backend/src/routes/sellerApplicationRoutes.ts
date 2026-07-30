@@ -4,6 +4,7 @@ import { z } from "zod";
 import { SELLER_APPLICATION_STATUSES } from "../constants/listing";
 import { executeSql, queryRows } from "../db/pool";
 import { requireAuth, requireOneOfRoles } from "../middleware/auth";
+import { requireSameOrigin } from "../middleware/csrf";
 import { ApiError } from "../utils/errors";
 import { sanitizeEmail, sanitizePlainText } from "../utils/sanitize";
 
@@ -57,7 +58,7 @@ sellerApplicationPublicRoutes.post("/", async (request, response, next) => {
   }
 });
 
-sellerApplicationAdminRoutes.use(requireAuth, requireOneOfRoles(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
+sellerApplicationAdminRoutes.use(requireAuth, requireOneOfRoles(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]), requireSameOrigin);
 
 sellerApplicationAdminRoutes.get("/seller-applications", async (request, response, next) => {
   try {

@@ -6,6 +6,7 @@ const zod_1 = require("zod");
 const pool_1 = require("../db/pool");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
+const env_1 = require("../config/env");
 const modes = ["SALE", "RENT"];
 const channels = ["STANDARD", "SENIOR_HOME"];
 const sortValues = ["recommended", "newest", "price-low", "price-high", "size-low", "size-high"];
@@ -23,6 +24,16 @@ function summary(row) { return { id: Number(row.id), slug: String(row.slug), tit
 async function publicSummaryRows(whereSql, params, order = "l.updated_at DESC", limit, offset) { const suffix = limit === undefined ? "" : " LIMIT ? OFFSET ?"; return (0, pool_1.queryRows)(`SELECT l.*, (SELECT card_url FROM listing_images WHERE listing_id=l.id ORDER BY is_cover DESC,sort_order,id LIMIT 1) primary_image, (SELECT alt_text FROM listing_images WHERE listing_id=l.id ORDER BY is_cover DESC,sort_order,id LIMIT 1) image_alt_text FROM listings l ${whereSql} ORDER BY ${order}${suffix}`, limit === undefined ? params : [...params, limit, offset ?? 0]); }
 async function relatedFor(row) { return publicSummaryRows("WHERE l.status='PUBLISHED' AND l.id<>? AND l.transaction_mode=?", [row.id, row.transaction_mode], "(l.province <=> ?) DESC, l.updated_at DESC", 8, 0).catch(() => []); }
 exports.publicPropertyRoutes = (0, express_1.Router)();
+const xmlEscape = (value) => value.replace(/[<>&'\"]/g, (character) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" }[character] ?? character));
+exports.publicPropertyRoutes.get("/sitemap.xml", async (_request, response, next) => { try {
+    const rows = await (0, pool_1.queryRows)("SELECT slug,canonical_url,updated_at FROM listings WHERE status='PUBLISHED' AND index_status='index' ORDER BY updated_at DESC LIMIT 50000");
+    const origin = env_1.env.PUBLIC_SITE_ORIGIN.replace(/\/+$/, "");
+    const urls = rows.map((row) => `<url><loc>${xmlEscape(row.canonical_url || `${origin}/property/${encodeURIComponent(row.slug)}`)}</loc><lastmod>${new Date(row.updated_at).toISOString().slice(0, 10)}</lastmod></url>`).join("");
+    response.type("application/xml").set("Cache-Control", "public, max-age=300, stale-while-revalidate=900").send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
+}
+catch (error) {
+    next(error);
+} });
 exports.publicPropertyRoutes.get("/properties", async (request, response, next) => { try {
     const q = querySchema.parse(request.query);
     const where = ["l.status='PUBLISHED'"], params = [];

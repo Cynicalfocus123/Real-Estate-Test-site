@@ -11,6 +11,8 @@ async function start() {
     await promises_1.default.mkdir(env_1.env.UPLOAD_DIR_ABSOLUTE, { recursive: true });
     await pool_1.dbPool.query("SELECT 1");
     const server = app_1.app.listen(env_1.env.PORT, "0.0.0.0", () => console.log(`Buy Home For Less API listening on port ${env_1.env.PORT}`));
+    server.requestTimeout = env_1.env.DB_QUERY_TIMEOUT_MS + 5_000;
+    server.headersTimeout = 15_000;
     const shutdown = async () => { server.close(); await pool_1.dbPool.end(); };
     process.once("SIGTERM", shutdown);
     process.once("SIGINT", shutdown);

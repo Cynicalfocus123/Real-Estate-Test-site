@@ -3,7 +3,11 @@ import test from "node:test";
 import request from "supertest";
 import { createApp } from "../src/app";
 import { migrationFiles } from "../src/db/migrate";
+import { splitSqlStatements } from "../src/db/migrate";
 import { adminPropertyListQuerySchema, buildAdminPropertyFilters, propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
+import { resetMailTransportForTests, sendResetEmail, sendVerificationEmail, setMailTransportForTests, type MailMessage } from "../src/services/mailService";
+import { requireOneOfRoles } from "../src/middleware/auth";
+import { requireSameOrigin } from "../src/middleware/csrf";
 
 test("health is safe", async () => {
   const response = await request(createApp({ dependencyCheck: async () => true })).get("/health");
@@ -30,6 +34,33 @@ test("migrations are ordered", async () => {
   const files = await migrationFiles();
   assert.deepEqual(files, [...files].sort());
   assert.ok(files.every((name) => /^\d+_[a-z0-9-]+\.sql$/i.test(name)));
+});
+
+test("migration SQL is split safely without multi-statements", () => {
+  const statements = splitSqlStatements("CREATE TABLE example (value VARCHAR(20)); INSERT INTO example VALUES ('a; b'); -- comment;\nUPDATE example SET value='done';");
+  assert.deepEqual(statements, ["CREATE TABLE example (value VARCHAR(20))", "INSERT INTO example VALUES ('a; b')", "-- comment;\nUPDATE example SET value='done'"]);
+});
+
+test("verification, resend, and reset emails use an injected mail transport", async () => {
+  const delivered: MailMessage[] = [];
+  setMailTransportForTests({ send: async (message) => { delivered.push(message); } });
+  try {
+    await sendVerificationEmail("new@example.test", "verification-token");
+    await sendVerificationEmail("new@example.test", "resend-token");
+    await sendResetEmail("new@example.test", "reset-token");
+    assert.equal(delivered.length, 3);
+    assert.match(delivered[0].text, /verify-email\?token=verification-token/);
+    assert.match(delivered[1].text, /verify-email\?token=resend-token/);
+    assert.match(delivered[2].text, /reset-password\?token=reset-token/);
+  } finally { resetMailTransportForTests(); }
+});
+
+test("admin authorization and same-origin CSRF checks both reject unsafe writes", () => {
+  const forbidden: unknown[] = [];
+  requireOneOfRoles(["HEAD_ADMIN"])({ user: { id: 2, email: "staff@example.test", fullName: "Staff", role: "EMPLOYEE", status: "ACTIVE" } } as any, {} as any, (error?: unknown) => forbidden.push(error));
+  assert.equal((forbidden[0] as { statusCode?: number }).statusCode, 403);
+  requireSameOrigin({ method: "POST", header: () => "https://attacker.example" } as any, {} as any, (error?: unknown) => forbidden.push(error));
+  assert.equal((forbidden[1] as { statusCode?: number }).statusCode, 403);
 });
 
 test("property authoring validates transaction, channel and nearby options", () => {

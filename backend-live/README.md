@@ -43,23 +43,23 @@ Codex verification does not start a local service or apply a production migratio
 - Admin UI: `https://buyhomeforless.com/admin` (the Hostinger package rewrites this clean URL to the admin entry file)
 - Health: `GET /health`
 - Readiness: `GET /ready`
-- Customer auth: `/api/v1/customer-auth/register`, `login`, `logout`, `logout-all`, `session`, `verify-email`, `resend-verification`, `forgot-password`, `reset-password`, and `change-password`.
+- Customer auth: `/api/v1/customer-auth/register`, `login`, `logout`, `logout-all`, `session`, `verify-email`, `resend-verification`, `forgot-password`, `reset-password`, `change-password`, `change-email`, and `confirm-email-change`.
 - Customer account: `/api/v1/customer/profile`, `/preferences`, `/account`, and `/favorites`.
 - Staff auth: `/api/v1/admin-auth/bootstrap-status`, `bootstrap`, `login`, `logout`, `logout-all`, `session`, and `change-password`. Bootstrap is atomic and only available while no Head Admin exists.
 - State-changing cookie requests require the canonical same-origin `Origin` header. Authentication and account responses are `Cache-Control: no-store`.
-- Email verification and reset tokens are random, single-use, short-lived, and hashed at rest. SMTP is provider-neutral; set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in the host environment. No SMTP delivery is asserted by this workspace.
+- Email verification, reset, and email-change tokens are random, single-use, short-lived, and hashed at rest. SMTP is provider-neutral; configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, optional `SMTP_USER`/`SMTP_PASSWORD`, and `SMTP_FROM` in the host environment. No SMTP delivery is asserted by this workspace.
 - Phone OTP/SMS login is not implemented until a provider is explicitly approved; no mock fallback or customer import exists.
 - Public properties: `GET /api/v1/properties` and `GET /api/v1/properties/:slug`
 - Public geocoding: `GET /api/v1/map/geocode`
 - Seller submit: `POST /api/v1/seller-applications`
 
-Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. `001_schema_migrations.sql` creates the tracking table and `002_property_authoring.sql` adds the current property-authoring schema. The baseline schema remains in `database.sql`.
+Migrations are explicit (`npm run migrate:status`, `npm run migrate`) and never run during startup. They execute one SQL statement at a time on a normal MySQL connection and record a migration only after its statements succeed. `004_public_listing_query_indexes.sql` adds indexes for the existing public-listing filters. The baseline schema remains in `database.sql`.
 
 Properties may be saved and published without images, price, SEO, an agent, or complete location/senior details. The frontend shows the approved placeholder for absent images and “Price on request” for absent price values. Database relation writes are transactional; optional image processing is intentionally outside that transaction so a saved property is never discarded after an image failure.
 
 Public property responses are frontend-ready camelCase DTOs and include only `PUBLISHED` records. The list route supports bounded pagination, ID lookup, filters, and sorting; detail responses include active public relations and related summaries. No automatic property import or seed exists: importing old frontend data requires separate explicit approval. The canonical geocoding route is `GET /api/v1/map/geocode`.
 
-The production public frontend uses this REST API and has no static-property fallback. An empty authoritative database is a valid public empty state. The legacy frontend property-data file is not a production runtime source.
+The production public frontend uses this REST API and has no static-property fallback. An empty authoritative database is a valid public empty state. The legacy frontend property-data file is not a production runtime source. `GET /api/v1/sitemap.xml` emits published, indexable listing URLs; `robots.txt` advertises that sitemap.
 
 ## Future manual deployment
 - Keep frontend build in `public_html`.

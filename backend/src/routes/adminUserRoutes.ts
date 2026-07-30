@@ -5,6 +5,7 @@ import { z } from "zod";
 import { executeSql, queryRows, withTransaction } from "../db/pool";
 import { revokeSessions } from "../auth/sessions";
 import { requireAuth, requireOneOfRoles, requireRole } from "../middleware/auth";
+import { requireSameOrigin } from "../middleware/csrf";
 import { ApiError } from "../utils/errors";
 import { sanitizeEmail, sanitizePlainText } from "../utils/sanitize";
 
@@ -65,7 +66,7 @@ async function verifyCurrentPassword(userId: number, currentPassword: string) {
 }
 
 export const adminUserRoutes = Router();
-adminUserRoutes.use(requireAuth, requireOneOfRoles(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
+adminUserRoutes.use(requireAuth, requireOneOfRoles(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]), requireSameOrigin);
 
 adminUserRoutes.get("/registered-users", async (_request, response, next) => {
   try {

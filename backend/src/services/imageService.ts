@@ -1,13 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { RowDataPacket } from "mysql2/promise";
-import sharp from "sharp";
+import sharp, { type Metadata } from "sharp";
 import { env } from "../config/env";
 import { executeSql, queryRows } from "../db/pool";
 import { ApiError } from "../utils/errors";
 import { sanitizePlainText } from "../utils/sanitize";
 
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+export const MAX_IMAGE_DIMENSION = 12_000;
+export const MAX_IMAGE_PIXELS = 40_000_000;
 
 function safeBaseName(input: string) {
   const clean = sanitizePlainText(input, 80).replace(/[^a-zA-Z0-9._-]/g, "-");
@@ -19,11 +21,23 @@ function publicUrl(relativePath: string) {
 }
 
 async function writeVariant(buffer: Buffer, target: string, width: number, height: number) {
-  await sharp(buffer)
+  await sharp(buffer, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: "error" })
     .rotate()
     .resize(width, height, { fit: "cover", position: "centre" })
     .webp({ quality: 84 })
     .toFile(target);
+}
+
+export async function validateListingImage(file: Express.Multer.File) {
+  if (!ALLOWED_MIME_TYPES.has(file.mimetype)) throw new ApiError(400, `Unsupported image type: ${file.mimetype}`);
+  let metadata: Metadata;
+  try { metadata = await sharp(file.buffer, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: "error" }).metadata(); }
+  catch { throw new ApiError(400, "Image file is invalid or unsafe"); }
+  const width = metadata.width ?? 0;
+  const height = metadata.height ?? 0;
+  if (!width || !height || width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION || width * height > MAX_IMAGE_PIXELS) {
+    throw new ApiError(400, "Image dimensions are too large");
+  }
 }
 
 export async function saveListingImages(listingId: number, files: Express.Multer.File[]) {
@@ -54,9 +68,7 @@ export async function saveListingImages(listingId: number, files: Express.Multer
   const createdFiles: string[] = [];
   for (let i = 0; i < files.length; i += 1) {
     const file = files[i];
-    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-      throw new ApiError(400, `Unsupported image type: ${file.mimetype}`);
-    }
+    await validateListingImage(file);
     const base = safeBaseName(path.parse(file.originalname).name);
     const stamp = `${Date.now()}-${i + 1}`;
 

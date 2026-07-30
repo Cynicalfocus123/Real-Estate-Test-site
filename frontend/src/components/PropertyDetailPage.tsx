@@ -23,6 +23,7 @@ import { usePropertyCompare } from "../hooks/usePropertyCompare";
 import type { BackendReadyValue, PropertyListing } from "../types/propertyListing";
 import { assetPath } from "../utils/assets";
 import { apiBaseUrl } from "../config/runtime";
+import { siteOrigin } from "../config/runtime";
 import { getPropertyBadgeClasses } from "../utils/propertyBadges";
 import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref, safeMailtoHref, safeTelHref } from "../utils/security";
@@ -59,6 +60,22 @@ function getCompareDepositMonths(listing: PropertyListing) {
   if (!listing.depositMonths) return "Not specified";
   const unitLabel = listing.depositMonths === 1 ? "month" : "months";
   return `${listing.depositMonths} ${unitLabel}`;
+}
+
+function ListingMetadata({ listing }: { listing: PropertyListing }) {
+  useEffect(() => {
+    const canonical = listing.seo?.canonicalUrl || `${siteOrigin}/property/${encodeURIComponent(listing.slug ?? listing.id)}`;
+    const title = listing.seo?.title || `${listing.title} | Buy Home For Less`;
+    const description = listing.seo?.metaDescription || listing.description.slice(0, 300) || `${listing.title} in ${listing.province || "Thailand"}.`;
+    const robots = `${listing.seo?.indexStatus === "noindex" ? "noindex" : "index"},${listing.seo?.followStatus === "nofollow" ? "nofollow" : "follow"}`;
+    const metadata: Array<[string, string, string]> = [["name", "description", description], ["name", "robots", robots], ["property", "og:title", listing.seo?.ogTitle || title], ["property", "og:description", listing.seo?.ogDescription || description], ["property", "og:url", canonical], ["property", "og:image", listing.seo?.ogImage || listing.image]];
+    document.title = title;
+    const nodes = metadata.map(([attribute, key, content]) => { const node = document.createElement("meta"); node.dataset.bhflSeo = "listing"; node.setAttribute(attribute, key); node.content = content; document.head.append(node); return node; });
+    const canonicalNode = document.createElement("link"); canonicalNode.dataset.bhflSeo = "listing"; canonicalNode.rel = "canonical"; canonicalNode.href = canonical; document.head.append(canonicalNode);
+    const schema = document.createElement("script"); schema.dataset.bhflSeo = "listing"; schema.type = "application/ld+json"; schema.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": listing.seo?.schemaType || "RealEstateListing", name: listing.title, url: canonical, image: listing.image, description, address: { "@type": "PostalAddress", addressLocality: listing.city || undefined, addressRegion: listing.province || undefined, addressCountry: "TH" } }); document.head.append(schema);
+    return () => { document.title = "Buy Home For Less"; [...nodes, canonicalNode, schema].forEach((node) => node.remove()); };
+  }, [listing]);
+  return null;
 }
 
 function isSeniorHomeListing(listing: PropertyListing) {
@@ -803,6 +820,7 @@ export function PropertyDetailPage({ listing, availableListings = [] }: { listin
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#f8f5f2] text-brand-dark">
+      <ListingMetadata listing={listing} />
       <Header logoClassName="h-20 w-auto object-contain sm:h-24 md:h-20" />
       <main className="overflow-x-hidden pb-16 md:pb-20">
         {surfaceNotice ? (

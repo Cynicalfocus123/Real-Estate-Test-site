@@ -3,6 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.MAX_IMAGE_PIXELS = exports.MAX_IMAGE_DIMENSION = void 0;
+exports.validateListingImage = validateListingImage;
 exports.saveListingImages = saveListingImages;
 exports.deleteListingImageFiles = deleteListingImageFiles;
 const promises_1 = __importDefault(require("node:fs/promises"));
@@ -13,6 +15,8 @@ const pool_1 = require("../db/pool");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+exports.MAX_IMAGE_DIMENSION = 12_000;
+exports.MAX_IMAGE_PIXELS = 40_000_000;
 function safeBaseName(input) {
     const clean = (0, sanitize_1.sanitizePlainText)(input, 80).replace(/[^a-zA-Z0-9._-]/g, "-");
     return clean || "listing-image";
@@ -21,11 +25,27 @@ function publicUrl(relativePath) {
     return `${env_1.env.PUBLIC_UPLOAD_BASE_URL.replace(/\/+$/, "")}/${relativePath.replace(/\\/g, "/")}`;
 }
 async function writeVariant(buffer, target, width, height) {
-    await (0, sharp_1.default)(buffer)
+    await (0, sharp_1.default)(buffer, { limitInputPixels: exports.MAX_IMAGE_PIXELS, failOn: "error" })
         .rotate()
         .resize(width, height, { fit: "cover", position: "centre" })
         .webp({ quality: 84 })
         .toFile(target);
+}
+async function validateListingImage(file) {
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype))
+        throw new errors_1.ApiError(400, `Unsupported image type: ${file.mimetype}`);
+    let metadata;
+    try {
+        metadata = await (0, sharp_1.default)(file.buffer, { limitInputPixels: exports.MAX_IMAGE_PIXELS, failOn: "error" }).metadata();
+    }
+    catch {
+        throw new errors_1.ApiError(400, "Image file is invalid or unsafe");
+    }
+    const width = metadata.width ?? 0;
+    const height = metadata.height ?? 0;
+    if (!width || !height || width > exports.MAX_IMAGE_DIMENSION || height > exports.MAX_IMAGE_DIMENSION || width * height > exports.MAX_IMAGE_PIXELS) {
+        throw new errors_1.ApiError(400, "Image dimensions are too large");
+    }
 }
 async function saveListingImages(listingId, files) {
     if (!files.length) {
@@ -46,9 +66,7 @@ async function saveListingImages(listingId, files) {
     const createdFiles = [];
     for (let i = 0; i < files.length; i += 1) {
         const file = files[i];
-        if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-            throw new errors_1.ApiError(400, `Unsupported image type: ${file.mimetype}`);
-        }
+        await validateListingImage(file);
         const base = safeBaseName(node_path_1.default.parse(file.originalname).name);
         const stamp = `${Date.now()}-${i + 1}`;
         const cardName = `${base}-${stamp}-card.webp`;

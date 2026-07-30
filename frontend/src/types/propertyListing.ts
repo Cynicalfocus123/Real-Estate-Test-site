@@ -120,4 +120,5 @@ export type PropertyListing = {
   servicesIncluded?: string[];
   propertyFeatureItems?: string[];
   communityAmenityItems?: string[];
+  seo?: { title?: string | null; metaDescription?: string | null; canonicalUrl?: string | null; indexStatus?: "index" | "noindex"; followStatus?: "follow" | "nofollow"; ogTitle?: string | null; ogDescription?: string | null; ogImage?: string | null; schemaType?: string | null };
 };
