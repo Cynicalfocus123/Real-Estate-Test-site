@@ -40,6 +40,7 @@ Codex verification does not start a local service or apply a production migratio
 
 ## API contract
 - Production API base: `https://buyhomeforless.com/api/v1`
+- Admin UI: `https://buyhomeforless.com/admin` (the Hostinger package rewrites this clean URL to the admin entry file)
 - Health: `GET /health`
 - Readiness: `GET /ready`
 - Customer auth: `/api/v1/customer-auth/register`, `login`, `logout`, `logout-all`, `session`, `verify-email`, `resend-verification`, `forgot-password`, `reset-password`, and `change-password`.

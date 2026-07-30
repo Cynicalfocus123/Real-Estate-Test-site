@@ -1,0 +1,5 @@
+Options -MultiViews
+RewriteEngine On
+
+# Keep the admin URL clean. Hostinger serves the real Vite entry file internally.
+RewriteRule ^admin/?$ admin.html [END]
