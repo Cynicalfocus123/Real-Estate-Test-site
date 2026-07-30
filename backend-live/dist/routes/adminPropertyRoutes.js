@@ -13,6 +13,7 @@ const pool_1 = require("../db/pool");
 const auth_1 = require("../middleware/auth");
 const csrf_1 = require("../middleware/csrf");
 const imageService_1 = require("../services/imageService");
+const env_1 = require("../config/env");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
 exports.PROPERTY_TYPES = ["VILLA", "CONDO", "APARTMENT", "TOWNHOUSE", "COMMERCIAL_BUILDING", "RESORT", "LAND", "HOUSE", "MULTI_FAMILY", "SINGLE_DETACHED_HOUSE", "SEMI_DETACHED_HOUSE"];
@@ -43,10 +44,10 @@ catch {
 } };
 const text = (value, max) => value ? (0, sanitize_1.sanitizePlainText)(value, max) : null;
 function safeCanonical(value) { if (!value)
-    return null; const result = (0, sanitize_1.sanitizeHttpUrl)(value, 500); if (!result || !result.startsWith("https://buyhomeforless.com/"))
+    return null; const result = (0, sanitize_1.sanitizeHttpUrl)(value, 500); if (!result || !result.startsWith(`${env_1.env.PUBLIC_SITE_ORIGIN}/`))
     throw new errors_1.ApiError(400, "Canonical URL must use the approved public origin"); return result; }
 function safeImageRef(value) { if (!value)
-    return null; const result = (0, sanitize_1.sanitizeHttpUrl)(value, 500); if (!result || !result.startsWith("https://buyhomeforless.com/uploads/"))
+    return null; const result = (0, sanitize_1.sanitizeHttpUrl)(value, 500); if (!result || !result.startsWith(`${env_1.env.PUBLIC_UPLOAD_BASE_URL}/`))
     throw new errors_1.ApiError(400, "Image URL must use the approved upload origin"); return result; }
 function propertyDisplayPrice(property) { const amount = property.transactionMode === "RENT" ? property.rentMonthlyPrice : property.buyPrice ?? property.priceAmount; return amount === null || amount === undefined ? "Price on request" : `${property.currencyCode ?? "THB"} ${Number(amount).toLocaleString()}`; }
 function summary(row) { return { id: Number(row.id), title: String(row.title), slug: String(row.slug), transactionMode: row.transaction_mode, listingChannel: row.listing_channel, publicStatusLabel: row.public_status_label, status: row.status, normalizedPropertyType: row.normalized_property_type, specialCategory: row.special_category, province: row.province, city: row.city, priceAmount: num(row.price_amount), buyPrice: num(row.buy_price), rentMonthlyPrice: num(row.rent_monthly_price), currencyCode: String(row.currency_code), thumbnailUrl: row.thumbnail_url ?? null, updatedAt: row.updated_at, displayPrice: propertyDisplayPrice({ transactionMode: row.transaction_mode, buyPrice: num(row.buy_price), rentMonthlyPrice: num(row.rent_monthly_price), priceAmount: num(row.price_amount), currencyCode: String(row.currency_code) }) }; }

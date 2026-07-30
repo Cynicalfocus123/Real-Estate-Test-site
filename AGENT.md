@@ -8,7 +8,7 @@ Last reviewed: 2026-07-29. Caveman mode on full every time from now on. This is 
 - Keep output targeted and bounded; use `rg` and explicit reads. Context7 is only for a genuinely required current library question.
 - Do not start local servers, Vite dev/preview, browser automation, or production smoke tests during verification.
 - Hostinger is not connected. Workspace mirrors and ZIPs are Hostinger-ready artifacts only; never claim an upload or live deployment.
-- The sole approved public origin is `https://buyhomeforless.com`; API is `https://buyhomeforless.com/api/v1`; media is `https://buyhomeforless.com/uploads`. API hosts/subdomains and GitHub Pages paths are forbidden.
+- The approved public website origin is `https://www.buyhomeforless.com`; API is `https://api.buyhomeforless.com/api/v1`; media is `https://api.buyhomeforless.com/uploads`. The naked domain is allowed only as a CORS-compatible redirect origin, never as the canonical public URL.
 - `Foodonline desktop version` is read-only and must never enter this repository, mirrors, ZIPs, or commits.
 - Keep source (`frontend/`, `backend/`), mirrors (`frontend-live/`, `backend-live/`), canonical ZIPs, Git, and manifests synchronized.
 
@@ -28,13 +28,13 @@ All changes require a focused security pass appropriate to the edited area. At m
 
 ## Hostinger-ready workspace gate
 
-Hostinger is not connected. The canonical and only permitted public origin is `https://buyhomeforless.com`. The frontend, API, and public media must remain on this same origin. A separate API hostname or API subdomain is forbidden. `frontend-live/` and `backend-live/` are workspace deployment mirrors; ZIPs are future manual-upload packages.
+Hostinger is not connected. The canonical public website is `https://www.buyhomeforless.com`; the separate managed Node.js API is `https://api.buyhomeforless.com/api/v1`, with browser-visible media at `https://api.buyhomeforless.com/uploads`. `frontend-live/` is the static `public_html` package and `backend-live/` is the managed Node.js Web App package; ZIPs are future manual-upload packages.
 
-- Production client requests must use the configured full HTTPS live base such as `https://buyhomeforless.com/api/v1`, never `localhost`, `127.0.0.1`, a development port, an unresolved placeholder, or a raw root-relative API value such as `/api`.
+- Production client requests must use the configured full HTTPS live base `https://api.buyhomeforless.com/api/v1`, never `localhost`, `127.0.0.1`, a development port, an unresolved placeholder, or a raw root-relative API value such as `/api`.
 - Track only safe production examples for the frontend public origin, API base URL, allowed frontend origin, and public upload base URL. Do not commit secrets or private filesystem paths. Vite-exposed variables are public configuration and must never contain credentials.
 - Do not hardcode `/`, `/Real-Estate-Test-site/`, `public_html`, a Windows path, or another assumed deployment location in application links. Configure Vite `base` from the verified Hostinger public base path and construct internal application/asset URLs from `import.meta.env.BASE_URL`. A root deployment may resolve to `/`, but source code must not assume it.
 - Server filesystem paths and public URLs are different contracts. Resolve private runtime/upload directories from the deployed application root; generate browser-visible upload URLs only from the configured live HTTPS origin.
-- A future manual deployment must configure SPA deep links and API forwarding. Codex verifies builds, tests, filesystem output, manifests, and archive extraction only; it cannot verify Hostinger.
+- A future manual deployment must configure SPA deep links in `public_html`, deploy the API ZIP through Hostinger's managed Node.js Web App flow, and attach `api.buyhomeforless.com` to that app. Codex verifies builds, tests, filesystem output, manifests, and archive extraction only; it cannot verify Hostinger.
 - Production builds must fail validation if generated frontend files contain `localhost`, `127.0.0.1`, `/Real-Estate-Test-site/`, source-machine paths, or an unapproved API hostname. The completed public-property cutover and all future work must continue to pass this gate.
 
 ## Required matched release workflow
@@ -66,7 +66,7 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 
 - Properties can be created, drafted, published, archived, restored, edited, or deleted without an image, cover image, price, agent, SEO, coordinates, or optional details.
 - The editor queues selected images before a property exists and uploads them from the same save or publish action. A property remains saved if optional image processing fails, so the selected files can be retried.
-- Empty image states use the checked-in property placeholder. Browser-visible media URLs use only `https://buyhomeforless.com/uploads`; server paths never enter API output.
+- Empty image states use the checked-in property placeholder. Browser-visible media URLs use only `https://api.buyhomeforless.com/uploads`; server paths never enter API output.
 - Missing location and senior-home data are warnings, not publishing blockers. Senior details are retained when a channel is temporarily changed.
 - The active `/admin/properties` route family is the only property-authoring API. The legacy listing authoring routes and unused demo route are not part of the application or release.
 

@@ -7,7 +7,7 @@ function requireSameOrigin(request, _response, next) {
     if (["GET", "HEAD", "OPTIONS"].includes(request.method))
         return next();
     const origin = request.header("origin");
-    if (origin !== env_1.env.PUBLIC_SITE_ORIGIN)
+    if (!origin || !env_1.frontendOrigins.has(origin))
         return next(new errors_1.ApiError(403, "Request origin is not allowed"));
     return next();
 }

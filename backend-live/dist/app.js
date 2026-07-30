@@ -27,8 +27,8 @@ function createApp(dependencies = {}) {
     app.disable("x-powered-by");
     app.set("trust proxy", 1);
     app.use((request, response, next) => { const id = request.header("x-request-id") || node_crypto_1.default.randomUUID(); response.setHeader("x-request-id", id); next(); });
-    app.use((0, helmet_1.default)({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], baseUri: ["'self'"], objectSrc: ["'none'"], frameAncestors: ["'self'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "https:", "blob:"], connectSrc: ["'self'", "https://buyhomeforless.com"] } }, crossOriginResourcePolicy: { policy: "cross-origin" } }));
-    app.use((0, cors_1.default)({ origin: env_1.env.FRONTEND_ORIGIN, credentials: true, methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] }));
+    app.use((0, helmet_1.default)({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], baseUri: ["'self'"], objectSrc: ["'none'"], frameAncestors: ["'self'"], scriptSrc: ["'self'"], imgSrc: ["'self'", "data:", "https:", "blob:"], connectSrc: ["'self'", "https://www.buyhomeforless.com", "https://buyhomeforless.com"] } }, crossOriginResourcePolicy: { policy: "cross-origin" } }));
+    app.use((0, cors_1.default)({ origin: (origin, callback) => callback(null, !origin || env_1.frontendOrigins.has(origin) ? origin ?? false : false), credentials: true, methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] }));
     app.use(express_1.default.json({ limit: "1mb" }));
     app.use(express_1.default.urlencoded({ extended: false, limit: "1mb" }));
     app.use((0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 500, standardHeaders: true, legacyHeaders: false }));

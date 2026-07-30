@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS buyhomeforless CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE buyhomeforless;
-
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL UNIQUE,
@@ -164,3 +161,15 @@ CREATE TABLE IF NOT EXISTS customer_favorites (
   CONSTRAINT fk_customer_favorites_customer FOREIGN KEY (customer_id) REFERENCES customer_accounts(id) ON DELETE CASCADE,
   CONSTRAINT fk_customer_favorites_listing FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  migration_name VARCHAR(190) NOT NULL UNIQUE,
+  applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO schema_migrations (migration_name) VALUES
+  ('001_schema_migrations.sql'),
+  ('002_property_authoring.sql'),
+  ('003_customer_and_session_auth.sql'),
+  ('004_public_listing_query_indexes.sql');

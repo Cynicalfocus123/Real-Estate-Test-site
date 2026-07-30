@@ -4,8 +4,8 @@ RewriteEngine On
 # Keep the admin URL clean. Hostinger serves the real Vite entry file internally.
 RewriteRule ^admin/?$ admin.html [END]
 
-# Never send API or uploaded-media requests to the SPA. Their same-origin routing
-# is a Hostinger/server responsibility; this frontend rule cannot configure it.
+# API and uploaded media are served only by api.buyhomeforless.com. Never send
+# accidental requests for those paths on the public site to the SPA.
 RewriteRule ^(?:api/v1|uploads)(?:/|$) - [END]
 
 # Preserve real files and directories, then serve the public SPA for its

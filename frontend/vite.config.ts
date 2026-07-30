@@ -106,9 +106,9 @@ function createDeepLProxyPlugin(mode: string): Plugin {
 
 export default defineConfig(({ mode }) => ({
   base: (() => {
-    const configured = loadEnv(mode, process.cwd(), "").VITE_PUBLIC_BASE_URL || "https://buyhomeforless.com/";
-    if (mode === "production" && configured !== "https://buyhomeforless.com/") {
-      throw new Error("VITE_PUBLIC_BASE_URL must be https://buyhomeforless.com/ for production builds");
+    const configured = loadEnv(mode, process.cwd(), "").VITE_PUBLIC_BASE_URL || "https://www.buyhomeforless.com/";
+    if (mode === "production" && configured !== "https://www.buyhomeforless.com/") {
+      throw new Error("VITE_PUBLIC_BASE_URL must be https://www.buyhomeforless.com/ for production builds");
     }
     return configured ? new URL(configured).pathname : "/";
   })(),

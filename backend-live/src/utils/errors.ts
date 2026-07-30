@@ -1,0 +1,15 @@
+export class ApiError extends Error {
+  public readonly statusCode: number;
+  public readonly details?: unknown;
+
+  constructor(statusCode: number, message: string, details?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.details = details;
+  }
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError;
+}

@@ -21,10 +21,12 @@ test("readiness reports dependency failure without details", async () => {
   assert.deepEqual(response.body, { status: "unavailable" });
 });
 
-test("approved origin gets CORS and unknown routes are safe", async () => {
+test("approved www and naked frontend origins get CORS and unknown routes are safe", async () => {
   const app = createApp({ dependencyCheck: async () => true });
-  const cors = await request(app).get("/health").set("Origin", "https://buyhomeforless.com");
-  assert.equal(cors.headers["access-control-allow-origin"], "https://buyhomeforless.com");
+  for (const origin of ["https://www.buyhomeforless.com", "https://buyhomeforless.com"]) {
+    const cors = await request(app).get("/health").set("Origin", origin);
+    assert.equal(cors.headers["access-control-allow-origin"], origin);
+  }
   const notFound = await request(app).get("/private-nope");
   assert.equal(notFound.status, 404);
   assert.deepEqual(notFound.body, { error: "Route not found" });
@@ -66,7 +68,7 @@ test("registration mail and optional admin notification use the injected transpo
     assert.equal(delivered.length, 2);
     assert.equal(delivered[1].to, "operations@example.test");
     assert.match(delivered[1].text, /Customer: New Customer/);
-    assert.match(delivered[1].text, /Admin: https:\/\/buyhomeforless\.com\/admin/);
+    assert.match(delivered[1].text, /Admin: https:\/\/www\.buyhomeforless\.com\/admin/);
     assert.doesNotMatch(delivered.map((message) => message.text).join("\n"), /password|session|hash/i);
   } finally { resetMailTransportForTests(); }
 });
@@ -95,7 +97,7 @@ test("property DTO supports no-image publishing, senior details, and a stable ca
     propertyCondition: "Renovated",
     conditionLabel: "Move-in ready",
     seniorDetails: { servicesIncluded: ["Care"], seniorPropertyFeatures: ["Lift"], communityAmenities: [] },
-    seo: { canonicalUrl: "https://buyhomeforless.com/properties/optional-media-home" },
+    seo: { canonicalUrl: "https://www.buyhomeforless.com/properties/optional-media-home" },
   });
   assert.equal(property.status, "PUBLISHED");
   assert.equal(property.propertyCondition, "Renovated");

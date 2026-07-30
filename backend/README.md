@@ -31,22 +31,22 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 - Registered users + employee account management APIs.
 
 ## Future manual host setup
-1. Keep secrets in the private hosting environment; use `.env.production.example` only as a safe key template.
-2. Create the database, import `database.sql`, and apply pending explicit migrations through the migration command after review.
-3. Install the locked runtime dependencies in the private Node application root.
-4. Use the packaged `dist/server.js` as the hosting startup file and the hosting-assigned `PORT`.
+1. Create the database in Hostinger, select it in phpMyAdmin, and import `database.sql`. It is a complete current baseline and records the included migrations as applied.
+2. In Hostinger, deploy `BuyHomeForLess_Backend_Live.zip` using **Deploy Web App** with the Express preset and Node.js 22.x. The ZIP root contains `package.json`, source, migrations, and the compiled `dist/server.js` entrypoint.
+3. Use `npm run hostinger:build` as the build command and `npm start` as the production start command. It installs locked dependencies, compiles TypeScript, removes build-only dependencies, and applies only unrecorded migrations after the baseline import.
+4. Set production values in Hostinger Environment Variables; never upload an `.env` file. The server listens on Hostinger's assigned `PORT` and binds to `0.0.0.0`.
 
 Codex verification does not start a local service or apply a production migration.
 
 ## API contract
-- Production API base: `https://buyhomeforless.com/api/v1`
-- Admin UI: `https://buyhomeforless.com/admin` (the Hostinger package rewrites this clean URL to the admin entry file)
+- Public website and admin UI: `https://www.buyhomeforless.com` and `https://www.buyhomeforless.com/admin` (the static frontend package rewrites this clean URL to the admin entry file)
+- Production API base: `https://api.buyhomeforless.com/api/v1`
 - Health: `GET /health`
 - Readiness: `GET /ready`
 - Customer auth: `/api/v1/customer-auth/register`, `login`, `logout`, `logout-all`, `session`, `verify-email`, `resend-verification`, `forgot-password`, `reset-password`, `change-password`, `change-email`, and `confirm-email-change`.
 - Customer account: `/api/v1/customer/profile`, `/preferences`, `/account`, and `/favorites`.
 - Staff auth: `/api/v1/admin-auth/bootstrap-status`, `bootstrap`, `login`, `logout`, `logout-all`, `session`, and `change-password`. Bootstrap is atomic and only available while no Head Admin exists.
-- State-changing cookie requests require the canonical same-origin `Origin` header. Authentication and account responses are `Cache-Control: no-store`.
+- State-changing requests accept only `https://www.buyhomeforless.com` and the naked-domain redirect origin; CORS never uses a wildcard with credentials. API-hosted session cookies are Secure, HttpOnly, SameSite=Lax, and host-only, so they are sent only to `api.buyhomeforless.com`.
 - Email verification, reset, and email-change tokens are random, single-use, short-lived, and hashed at rest. SMTP is provider-neutral; configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, optional `SMTP_USER`/`SMTP_PASSWORD`, and `SMTP_FROM` in the host environment. No SMTP delivery is asserted by this workspace.
 - Phone OTP/SMS login is not implemented until a provider is explicitly approved; no mock fallback or customer import exists.
 - Public properties: `GET /api/v1/properties` and `GET /api/v1/properties/:slug`
@@ -62,7 +62,7 @@ Public property responses are frontend-ready camelCase DTOs and include only `PU
 The production public frontend uses this REST API and has no static-property fallback. An empty authoritative database is a valid public empty state. The legacy frontend property-data file is not a production runtime source. `GET /api/v1/sitemap.xml` emits published, indexable listing URLs; `robots.txt` advertises that sitemap.
 
 ## Future manual deployment
-- Keep frontend build in `public_html`.
-- Deploy backend as separate Node.js app root outside `public_html`.
-- Configure Hostinger so same-origin `https://buyhomeforless.com/api/v1/*` reaches that Node backend and `https://buyhomeforless.com/uploads/*` reaches its public media. The frontend `.htaccess` deliberately does not guess or configure this unknown hosting mapping.
+- Extract the frontend ZIP directly into the website's `public_html`; its root contains `index.html`, `admin.html`, assets, images, and `.htaccess`.
+- Deploy the backend ZIP as a separate Hostinger Node.js Web App attached to `api.buyhomeforless.com`; never extract it into `public_html`.
+- The static frontend calls `https://api.buyhomeforless.com/api/v1` and receives uploaded media from `https://api.buyhomeforless.com/uploads`.
 - `backend-live/` and the release ZIP are workspace deployment mirrors only. Verify through builds, tests, manifests, and extraction; no Hostinger upload or live deployment is implied.

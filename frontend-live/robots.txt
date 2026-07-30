@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/v1/admin
-Sitemap: https://buyhomeforless.com/api/v1/sitemap.xml
+Sitemap: https://api.buyhomeforless.com/api/v1/sitemap.xml
