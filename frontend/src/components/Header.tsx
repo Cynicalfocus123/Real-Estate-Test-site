@@ -35,8 +35,8 @@ export function Header({ logoClassName = "h-16 w-auto object-contain sm:h-20" }:
     try {
       if (mode === "login") { await login(email, password); close(); window.location.assign(safeHref(`${import.meta.env.BASE_URL}dashboard`)); return; }
       if (mode === "signup") { await register({ email, password, firstName, lastName }); setMessage("Account created. Check your inbox to verify your email before signing in."); return; }
-      if (mode === "forgot") { await customerAuthApi.forgotPassword(email); setMessage("If that address has an active account, a password reset link has been sent."); return; }
-      await customerAuthApi.resendVerification(email); setMessage("If that address needs verification, a new verification link has been sent.");
+      if (mode === "forgot") { const result = await customerAuthApi.forgotPassword(email); setMessage(result.deliveryAvailable ? "If that address has an active account, a password reset link has been sent." : "Email service is temporarily unavailable. Please try again later."); return; }
+      const result = await customerAuthApi.resendVerification(email); setMessage(result.deliveryAvailable ? "If that address needs verification, a new verification link has been sent." : "Email service is temporarily unavailable. Please try again later.");
     } catch { setError("This request could not be completed. Please try again."); } finally { setBusy(false); }
   }
   const title = mode === "login" ? "Welcome back" : mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset your password" : "Resend verification";

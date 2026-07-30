@@ -80,7 +80,7 @@ export function PropertySpecifiedDetailsPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/property-specified-details.png")}
+            src={assetPath("images/page-banners/property-specified-details.avif")}
             alt="How can I ensure that the property I receive matches the specified details"
             className="mx-auto h-auto w-full max-w-5xl"
           />

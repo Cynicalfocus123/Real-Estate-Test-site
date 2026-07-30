@@ -13,7 +13,7 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 - Customer and staff authentication are separate security domains. Customer records live in `customer_accounts` and have no role field; public signup can never create `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` accounts.
 - Customer state is `PENDING_VERIFICATION`, `ACTIVE`, `DISABLED`, or `DELETED`. Customer and staff sessions use separate Secure, HttpOnly, SameSite=Lax cookies, with only SHA-256 token hashes stored in MySQL.
 - Roles: `HEAD_ADMIN`, `ADMIN`, `EMPLOYEE`.
-- Dashboard overview metrics: listings by status, users, seller apps, employee accounts, recent items.
+- Dashboard overview metrics: listings by status, customer registrations, seller apps, staff accounts, and recent items.
 - Property administration (`/api/v1/admin/properties`) with one typed camelCase contract:
   - pricing (`priceAmount`, `currencyCode`, `buyPrice`, `rentMonthlyPrice`, `depositAmount`, `priceUnitLabel`)
   - content (`title`, `description`, `highlights`, `amenities`, `features`, `propertyDetails`)
@@ -64,4 +64,5 @@ The production public frontend uses this REST API and has no static-property fal
 ## Future manual deployment
 - Keep frontend build in `public_html`.
 - Deploy backend as separate Node.js app root outside `public_html`.
+- Configure Hostinger so same-origin `https://buyhomeforless.com/api/v1/*` reaches that Node backend and `https://buyhomeforless.com/uploads/*` reaches its public media. The frontend `.htaccess` deliberately does not guess or configure this unknown hosting mapping.
 - `backend-live/` and the release ZIP are workspace deployment mirrors only. Verify through builds, tests, manifests, and extraction; no Hostinger upload or live deployment is implied.

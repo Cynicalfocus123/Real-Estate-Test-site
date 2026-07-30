@@ -71,7 +71,7 @@ export function CostOfLivingThailandPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/cost-of-living-thailand.png")}
+            src={assetPath("images/page-banners/cost-of-living-thailand.avif")}
             alt="Cost of Living in Thailand"
             className="mx-auto h-auto w-full max-w-5xl"
           />

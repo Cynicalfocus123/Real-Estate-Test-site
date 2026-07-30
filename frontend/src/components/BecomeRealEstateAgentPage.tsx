@@ -27,7 +27,7 @@ export function BecomeRealEstateAgentPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/become-real-estate-agent.png")}
+            src={assetPath("images/page-banners/become-real-estate-agent.avif")}
             alt="Become a real estate partner with us"
             className="mx-auto h-auto w-full max-w-5xl rounded-[18px] object-cover"
           />

@@ -31,7 +31,7 @@ export function MortgageFinancingForeignersPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/mortgage-financing-foreigners-thailand.png")}
+            src={assetPath("images/page-banners/mortgage-financing-foreigners-thailand.avif")}
             alt="Is mortgage financing available to foreigners"
             className="mx-auto h-auto w-full max-w-5xl"
           />

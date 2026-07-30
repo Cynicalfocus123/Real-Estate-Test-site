@@ -110,7 +110,7 @@ export function WhyRetireInThailandPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/why-retire-in-thailand.png")}
+            src={assetPath("images/page-banners/why-retire-in-thailand.avif")}
             alt="Why retire in Thailand"
             className="mx-auto h-auto w-full max-w-5xl"
           />
@@ -162,7 +162,7 @@ export function WhyRetireInThailandPage() {
           </div>
 
           <img
-            src={assetPath("images/page-banners/why-thailand-leading-nursing-home-facility-asia.png")}
+            src={assetPath("images/page-banners/why-thailand-leading-nursing-home-facility-asia.avif")}
             alt="Why Thailand is the leading nursing home facility in Asia"
             className="mt-8 h-auto w-full"
           />

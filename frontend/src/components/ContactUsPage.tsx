@@ -25,7 +25,7 @@ export function ContactUsPage() {
           <div className="mx-auto max-w-6xl overflow-hidden rounded-[28px] border border-brand-line bg-white shadow-[0_18px_44px_rgba(15,23,42,0.12)]">
             <div className="relative">
               <img
-                src={assetPath("images/page-banners/contact-us-banner.jfif")}
+                src={assetPath("images/page-banners/contact-us-banner.avif")}
                 alt="Contact Buy Home For Less"
                 className="h-[230px] w-full object-cover sm:h-[300px] lg:h-[360px]"
               />

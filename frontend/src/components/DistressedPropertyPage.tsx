@@ -34,7 +34,7 @@ export function DistressedPropertyPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/distressed-property.png")}
+            src={assetPath("images/page-banners/distressed-property.avif")}
             alt="Distressed property"
             className="mx-auto h-auto w-full max-w-4xl"
           />

@@ -26,16 +26,11 @@ adminDashboardRoutes.get("/dashboard/overview", async (_request, response, next)
        FROM listings`,
     );
 
-    const userCounts = await queryRows<
-      (RowDataPacket & {
-        total_registered_users: number;
-        total_employee_accounts: number;
-      })[]
-    >(
-      `SELECT
-         COUNT(*) AS total_registered_users,
-         SUM(CASE WHEN role IN ('HEAD_ADMIN', 'ADMIN', 'EMPLOYEE') THEN 1 ELSE 0 END) AS total_employee_accounts
-       FROM users`,
+    const employeeCounts = await queryRows<(RowDataPacket & { total_employee_accounts: number })[]>(
+      "SELECT COUNT(*) AS total_employee_accounts FROM users WHERE role IN ('HEAD_ADMIN', 'ADMIN', 'EMPLOYEE')",
+    );
+    const customerCounts = await queryRows<(RowDataPacket & { total_customer_registrations: number })[]>(
+      "SELECT COUNT(*) AS total_customer_registrations FROM customer_accounts",
     );
 
     const sellerCounts = await queryRows<(RowDataPacket & { total_seller_applications: number })[]>(
@@ -80,9 +75,9 @@ adminDashboardRoutes.get("/dashboard/overview", async (_request, response, next)
       draftListings: listingCounts[0]?.draft_listings ?? 0,
       archivedListings: listingCounts[0]?.archived_listings ?? 0,
       deletedListings: listingCounts[0]?.deleted_listings ?? 0,
-      totalRegisteredUsers: userCounts[0]?.total_registered_users ?? 0,
+      totalCustomerRegistrations: customerCounts[0]?.total_customer_registrations ?? 0,
       totalSellerApplications: sellerCounts[0]?.total_seller_applications ?? 0,
-      totalEmployeeAccounts: userCounts[0]?.total_employee_accounts ?? 0,
+      totalEmployeeAccounts: employeeCounts[0]?.total_employee_accounts ?? 0,
       recentListings,
       recentSellerApplications,
     });

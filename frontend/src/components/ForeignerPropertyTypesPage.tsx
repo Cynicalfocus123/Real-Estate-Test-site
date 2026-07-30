@@ -22,7 +22,7 @@ export function ForeignerPropertyTypesPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/foreigner-property-types-thailand.png")}
+            src={assetPath("images/page-banners/foreigner-property-types-thailand.avif")}
             alt="What types of property can foreigners own in Thailand"
             className="mx-auto h-auto w-full max-w-5xl"
           />

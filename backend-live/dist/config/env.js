@@ -42,6 +42,7 @@ const envSchema = zod_1.z.object({
     SMTP_USER: zod_1.z.string().min(1).optional(),
     SMTP_PASSWORD: zod_1.z.string().min(1).optional(),
     SMTP_FROM: zod_1.z.string().email().optional(),
+    ADMIN_NOTIFICATION_EMAIL: zod_1.z.string().email().optional(),
 });
 function validateProduction(data) {
     const errors = [];

@@ -32,7 +32,7 @@ export function LeaseToOwnPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/lease-to-own.png")}
+            src={assetPath("images/page-banners/lease-to-own.avif")}
             alt="Lease to own"
             className="mx-auto h-auto w-full max-w-5xl"
           />
@@ -96,7 +96,7 @@ export function LeaseToOwnPage() {
 
         <section className="mx-auto max-w-5xl border-t border-brand-line px-4 py-14 lg:px-8">
           <img
-            src={assetPath("images/page-banners/what-is-lease-to-own.png")}
+            src={assetPath("images/page-banners/what-is-lease-to-own.avif")}
             alt="What is lease to own"
             className="h-auto w-full"
           />

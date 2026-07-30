@@ -21,3 +21,4 @@ export type PropertyPayload = Omit<PropertyDetail, "id" | "thumbnailUrl" | "upda
 export type SellerApplication = { id: number; fullName: string; phone: string; email: string; propertyType: string | null; location: string; province: string | null; district: string | null; timeline: string | null; propertyDetails: string[]; message: string | null; status: string; createdAt: string };
 export type StaffMember = AdminUser & { createdAt: string };
 export type CustomerRecord = { id:number; email:string; firstName:string; lastName:string; status:"PENDING_VERIFICATION"|"ACTIVE"|"DISABLED"|"DELETED"; emailVerifiedAt:string|null; createdAt:string; lastLoginAt:string|null; favoriteCount:number };
+export type CustomerDetail = CustomerRecord & { phone:string|null; address:string|null; subdistrict:string|null; district:string|null; province:string|null; postalCode:string|null; notificationFrequency:"realtime"|"daily"|"none"; marketingPreference:boolean };

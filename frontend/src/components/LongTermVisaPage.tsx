@@ -60,7 +60,7 @@ export function LongTermVisaPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/long-term-visa.png")}
+            src={assetPath("images/page-banners/long-term-visa.avif")}
             alt="Long-term visa"
             className="mx-auto h-auto w-full max-w-5xl"
           />

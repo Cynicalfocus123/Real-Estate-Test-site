@@ -29,7 +29,7 @@ export function ForeignerOwnPropertyPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/foreigner-own-property-thailand.png")}
+            src={assetPath("images/page-banners/foreigner-own-property-thailand.avif")}
             alt="Is it possible for a foreigner to own property in Thailand"
             className="mx-auto h-auto w-full max-w-5xl"
           />

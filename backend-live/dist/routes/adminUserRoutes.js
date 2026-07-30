@@ -148,7 +148,7 @@ exports.adminUserRoutes.patch("/employees/:id", (0, auth_1.requireRole)("HEAD_AD
         next(error);
     }
 });
-exports.adminUserRoutes.get("/customers", async (request, response, next) => {
+exports.adminUserRoutes.get("/customers", (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
     try {
         const query = zod_1.z.object({ page: zod_1.z.coerce.number().int().min(1).default(1), pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(25), status: zod_1.z.enum(["PENDING_VERIFICATION", "ACTIVE", "DISABLED", "DELETED"]).optional(), q: zod_1.z.string().max(190).optional() }).parse(request.query);
         const filters = [];
@@ -165,7 +165,22 @@ exports.adminUserRoutes.get("/customers", async (request, response, next) => {
         const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
         const rows = await (0, pool_1.queryRows)(`SELECT c.id,c.email,c.first_name,c.last_name,c.status,c.email_verified_at,c.created_at,c.last_login_at,COUNT(f.listing_id) AS favorite_count FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id ${where} GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?`, [...values, query.pageSize, (query.page - 1) * query.pageSize]);
         const count = await (0, pool_1.queryRows)(`SELECT COUNT(*) AS total FROM customer_accounts c ${where}`, values);
-        response.json({ items: rows.map((row) => ({ id: row.id, email: row.email, firstName: row.first_name, lastName: row.last_name, status: row.status, emailVerifiedAt: row.email_verified_at, createdAt: row.created_at, lastLoginAt: row.last_login_at, favoriteCount: Number(row.favorite_count) })), pagination: { page: query.page, pageSize: query.pageSize, total: Number(count[0]?.total ?? 0) } });
+        const total = Number(count[0]?.total ?? 0);
+        response.json({ items: rows.map((row) => ({ id: row.id, email: row.email, firstName: row.first_name, lastName: row.last_name, status: row.status, emailVerifiedAt: row.email_verified_at, createdAt: row.created_at, lastLoginAt: row.last_login_at, favoriteCount: Number(row.favorite_count) })), pagination: { page: query.page, pageSize: query.pageSize, total, totalPages: Math.max(1, Math.ceil(total / query.pageSize)) } });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.adminUserRoutes.get("/customers/:id", (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
+    try {
+        const id = zod_1.z.coerce.number().int().positive().parse(request.params.id);
+        const rows = await (0, pool_1.queryRows)(`SELECT c.id,c.email,c.first_name,c.last_name,c.phone,c.address,c.subdistrict,c.district,c.province,c.postal_code,c.status,c.email_verified_at,c.created_at,c.last_login_at,c.notification_frequency,c.marketing_preference,COUNT(f.listing_id) AS favorite_count
+       FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id WHERE c.id=? GROUP BY c.id LIMIT 1`, [id]);
+        const customer = rows[0];
+        if (!customer)
+            throw new errors_1.ApiError(404, "Customer not found");
+        response.json({ customer: { id: customer.id, email: customer.email, firstName: customer.first_name, lastName: customer.last_name, phone: customer.phone, address: customer.address, subdistrict: customer.subdistrict, district: customer.district, province: customer.province, postalCode: customer.postal_code, status: customer.status, emailVerifiedAt: customer.email_verified_at, createdAt: customer.created_at, lastLoginAt: customer.last_login_at, notificationFrequency: customer.notification_frequency, marketingPreference: Boolean(customer.marketing_preference), favoriteCount: Number(customer.favorite_count) } });
     }
     catch (error) {
         next(error);

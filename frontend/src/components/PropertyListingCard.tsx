@@ -16,12 +16,12 @@ import { propertyDetailHref } from "../utils/propertyLinks";
 import { safeHref } from "../utils/security";
 
 const listingSlideImages = [
-  "images/province-banners/bangkok.png",
-  "images/province-banners/phuket.png",
-  "images/province-banners/chiang-mai.png",
-  "images/province-banners/pattaya-chonburi.png",
-  "images/province-banners/hua-hin-prachuap-khiri-khan.png",
-  "images/province-banners/kanchanaburi.png",
+  "images/province-banners/bangkok.avif",
+  "images/province-banners/phuket.avif",
+  "images/province-banners/chiang-mai.avif",
+  "images/province-banners/pattaya-chonburi.avif",
+  "images/province-banners/hua-hin-prachuap-khiri-khan.avif",
+  "images/province-banners/kanchanaburi.avif",
 ];
 
 function getBedroomLabel(beds: number) {

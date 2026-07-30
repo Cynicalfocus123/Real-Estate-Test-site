@@ -12,10 +12,10 @@ function requiredUrl(name: string, value: unknown, expectedOrigin?: string) {
   return value.replace(/\/+$/, "");
 }
 
-export const siteOrigin = requiredUrl("VITE_PUBLIC_SITE_URL", import.meta.env.VITE_PUBLIC_SITE_URL, canonicalOrigin);
-export const apiBaseUrl = requiredUrl("VITE_API_BASE_URL", import.meta.env.VITE_API_BASE_URL, canonicalOrigin);
-export const mediaBaseUrl = requiredUrl("VITE_PUBLIC_UPLOAD_BASE_URL", import.meta.env.VITE_PUBLIC_UPLOAD_BASE_URL, canonicalOrigin);
-export const applicationBaseUrl = requiredUrl("VITE_PUBLIC_BASE_URL", import.meta.env.VITE_PUBLIC_BASE_URL, canonicalOrigin) + "/";
+export const siteOrigin = requiredUrl("VITE_PUBLIC_SITE_URL", import.meta.env.VITE_PUBLIC_SITE_URL ?? canonicalOrigin, canonicalOrigin);
+export const apiBaseUrl = requiredUrl("VITE_API_BASE_URL", import.meta.env.VITE_API_BASE_URL ?? canonicalApi, canonicalOrigin);
+export const mediaBaseUrl = requiredUrl("VITE_PUBLIC_UPLOAD_BASE_URL", import.meta.env.VITE_PUBLIC_UPLOAD_BASE_URL ?? canonicalMedia, canonicalOrigin);
+export const applicationBaseUrl = requiredUrl("VITE_PUBLIC_BASE_URL", import.meta.env.VITE_PUBLIC_BASE_URL ?? `${canonicalOrigin}/`, canonicalOrigin) + "/";
 
 if (apiBaseUrl !== canonicalApi || mediaBaseUrl !== canonicalMedia) throw new Error("Frontend production URLs do not match the approved contract");
 

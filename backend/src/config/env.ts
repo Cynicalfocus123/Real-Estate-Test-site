@@ -36,6 +36,7 @@ const envSchema = z.object({
   SMTP_USER: z.string().min(1).optional(),
   SMTP_PASSWORD: z.string().min(1).optional(),
   SMTP_FROM: z.string().email().optional(),
+  ADMIN_NOTIFICATION_EMAIL: z.string().email().optional(),
 });
 
 function validateProduction(data: z.infer<typeof envSchema>) {

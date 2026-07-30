@@ -16,13 +16,13 @@ const financingCards: FaqCard[] = [
   {
     title: "Financing for Foreigners",
     minutes: "7 min read",
-    image: "images/page-banners/financing-for-foreigners.png",
+    image: "images/page-banners/financing-for-foreigners.avif",
     href: `${import.meta.env.BASE_URL}financing-for-foreigners`,
   },
   {
     title: "Own Property in Thailand",
     minutes: "9 min read",
-    image: "images/page-banners/own-property-in-thailand.png",
+    image: "images/page-banners/own-property-in-thailand.avif",
     href: `${import.meta.env.BASE_URL}own-property-in-thailand`,
   },
 ];
@@ -31,49 +31,49 @@ const foreignerFaqCards: FaqCard[] = [
   {
     title: "Is it possible for a foreigner to own property in Thailand?",
     minutes: "5 min read",
-    image: "images/page-banners/foreigner-own-property-thailand.png",
+    image: "images/page-banners/foreigner-own-property-thailand.avif",
     href: `${import.meta.env.BASE_URL}foreigner-own-property-thailand`,
   },
   {
     title: "What type of property can foreigners own in Thailand?",
     minutes: "5 min read",
-    image: "images/page-banners/foreigner-property-types-thailand.png",
+    image: "images/page-banners/foreigner-property-types-thailand.avif",
     href: `${import.meta.env.BASE_URL}foreigner-property-types-thailand`,
   },
   {
     title: "Can I obtain a long-term visa after renting property in Thailand?",
     minutes: "6 min read",
-    image: "images/page-banners/long-term-visa-after-property-thailand.png",
+    image: "images/page-banners/long-term-visa-after-property-thailand.avif",
     href: `${import.meta.env.BASE_URL}long-term-visa-after-property-thailand`,
   },
   {
     title: "Is mortgage financing available to foreigners?",
     minutes: "6 min read",
-    image: "images/page-banners/mortgage-financing-foreigners-thailand.png",
+    image: "images/page-banners/mortgage-financing-foreigners-thailand.avif",
     href: `${import.meta.env.BASE_URL}mortgage-financing-foreigners-thailand`,
   },
   {
     title: "Am I allowed to build a custom home in Thailand as a non-Thai national?",
     minutes: "6 min read",
-    image: "images/page-banners/custom-home-non-thai-national.png",
+    image: "images/page-banners/custom-home-non-thai-national.avif",
     href: `${import.meta.env.BASE_URL}custom-home-non-thai-national`,
   },
   {
     title: "How can I ensure that the property I receive matches the specified details?",
     minutes: "5 min read",
-    image: "images/page-banners/property-specified-details.png",
+    image: "images/page-banners/property-specified-details.avif",
     href: `${import.meta.env.BASE_URL}property-specified-details`,
   },
   {
     title: "What is the duration of the home warranty provided to homeowners?",
     minutes: "4 min read",
-    image: "images/page-banners/home-warranty-duration-thailand.png",
+    image: "images/page-banners/home-warranty-duration-thailand.avif",
     href: `${import.meta.env.BASE_URL}home-warranty-duration`,
   },
   {
     title: "Cost of living in Thailand",
     minutes: "5 min read",
-    image: "images/page-banners/cost-of-living-thailand.png",
+    image: "images/page-banners/cost-of-living-thailand.avif",
     href: `${import.meta.env.BASE_URL}cost-of-living-thailand`,
   },
 ];
@@ -82,7 +82,7 @@ const rentCards: FaqCard[] = [
   {
     title: "Rent Requirement",
     minutes: "5 min read",
-    image: "images/page-banners/rent-requirement.png",
+    image: "images/page-banners/rent-requirement.avif",
     href: "#rent",
   },
 ];
@@ -91,31 +91,31 @@ const forSaleCards: FaqCard[] = [
   {
     title: "Distress Property",
     minutes: "8 min read",
-    image: "images/page-banners/distressed-property.png",
+    image: "images/page-banners/distressed-property.avif",
     href: `${import.meta.env.BASE_URL}distress-property`,
   },
   {
     title: "Foreclosure",
     minutes: "6 min read",
-    image: "images/page-banners/foreclosure.png",
+    image: "images/page-banners/foreclosure.avif",
     href: `${import.meta.env.BASE_URL}foreclosure`,
   },
   {
     title: "Pre-Foreclosure",
     minutes: "6 min read",
-    image: "images/page-banners/pre-foreclosure.png",
+    image: "images/page-banners/pre-foreclosure.avif",
     href: `${import.meta.env.BASE_URL}pre-foreclosure`,
   },
   {
     title: "Fixer Upper",
     minutes: "5 min read",
-    image: "images/page-banners/fixer-upper.png",
+    image: "images/page-banners/fixer-upper.avif",
     href: `${import.meta.env.BASE_URL}fixer-upper`,
   },
   {
     title: "Urgent Sale",
     minutes: "5 min read",
-    image: "images/page-banners/urgent-sale.png",
+    image: "images/page-banners/urgent-sale.avif",
     href: `${import.meta.env.BASE_URL}urgent-sale`,
   },
 ];
@@ -124,7 +124,7 @@ const leaseToOwnCards: FaqCard[] = [
   {
     title: "Lease to Own",
     minutes: "6 min read",
-    image: "images/page-banners/lease-to-own.png",
+    image: "images/page-banners/lease-to-own.avif",
     href: `${import.meta.env.BASE_URL}lease-to-own`,
   },
 ];
@@ -133,13 +133,13 @@ const retirementCards: FaqCard[] = [
   {
     title: "Why Retire in Thailand",
     minutes: "8 min read",
-    image: "images/page-banners/why-retire-in-thailand.png",
+    image: "images/page-banners/why-retire-in-thailand.avif",
     href: `${import.meta.env.BASE_URL}why-retire-in-thailand`,
   },
   {
     title: "Why Seniorcare.net?",
     minutes: "7 min read",
-    image: "images/page-banners/why-seniorcare-net-best-choice-thailand.png",
+    image: "images/page-banners/why-seniorcare-net-best-choice-thailand.avif",
     href: `${import.meta.env.BASE_URL}why-seniorcare-net`,
   },
 ];

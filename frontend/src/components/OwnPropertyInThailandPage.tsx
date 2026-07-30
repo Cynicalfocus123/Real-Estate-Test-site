@@ -43,7 +43,7 @@ export function OwnPropertyInThailandPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/own-property-in-thailand.png")}
+            src={assetPath("images/page-banners/own-property-in-thailand.avif")}
             alt="Own property in Thailand"
             className="mx-auto h-auto w-full max-w-5xl"
           />

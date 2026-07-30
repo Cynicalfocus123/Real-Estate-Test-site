@@ -30,7 +30,7 @@ export function NursingHomeFacilityPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/nursing-home-facility.png")}
+            src={assetPath("images/page-banners/nursing-home-facility.avif")}
             alt="Nursing home facility"
             className="mx-auto h-auto w-full max-w-5xl"
           />

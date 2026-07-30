@@ -35,7 +35,7 @@ export function FixerUpperPage() {
       <main>
         <section className="px-4 py-6 lg:px-8">
           <img
-            src={assetPath("images/page-banners/fixer-upper.png")}
+            src={assetPath("images/page-banners/fixer-upper.avif")}
             alt="Fixer-upper"
             className="mx-auto h-auto w-full max-w-5xl"
           />

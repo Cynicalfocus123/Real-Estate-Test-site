@@ -49,6 +49,7 @@ export const adminApi = {
   updateStaff: (id: number, payload: Partial<{ email: string; password: string; fullName: string; role: "ADMIN" | "EMPLOYEE"; status: "ACTIVE" | "DISABLED" }>) => request<{ ok: boolean }>(`/admin/employees/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   deleteStaff: (id: number) => request<{ ok: boolean }>(`/admin/employees/${id}`, { method: "DELETE" }),
   customers: (query: string) => request<{ items: import("./adminTypes").CustomerRecord[]; pagination: Pagination }>(`/admin/customers${query}`),
+  customer: (id:number) => request<{ customer: import("./adminTypes").CustomerDetail }>(`/admin/customers/${id}`),
   updateCustomer: (id:number, payload: Record<string, unknown>) => request<{ok:boolean}>(`/admin/customers/${id}`, { method:"PATCH", body:JSON.stringify(payload) }),
   deleteCustomer: (id:number) => request<{ok:boolean}>(`/admin/customers/${id}`, { method:"DELETE" }),
   revokeCustomerSessions: (id:number) => request<{ok:boolean}>(`/admin/customers/${id}/revoke-sessions`, { method:"POST" }),

@@ -5,7 +5,7 @@ import { createApp } from "../src/app";
 import { migrationFiles } from "../src/db/migrate";
 import { splitSqlStatements } from "../src/db/migrate";
 import { adminPropertyListQuerySchema, buildAdminPropertyFilters, propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
-import { resetMailTransportForTests, sendResetEmail, sendVerificationEmail, setMailTransportForTests, type MailMessage } from "../src/services/mailService";
+import { resetMailTransportForTests, sendRegistrationNotification, sendResetEmail, sendVerificationEmail, setAdminNotificationEmailForTests, setMailTransportForTests, type MailMessage } from "../src/services/mailService";
 import { requireOneOfRoles } from "../src/middleware/auth";
 import { requireSameOrigin } from "../src/middleware/csrf";
 
@@ -52,6 +52,22 @@ test("verification, resend, and reset emails use an injected mail transport", as
     assert.match(delivered[0].text, /verify-email\?token=verification-token/);
     assert.match(delivered[1].text, /verify-email\?token=resend-token/);
     assert.match(delivered[2].text, /reset-password\?token=reset-token/);
+  } finally { resetMailTransportForTests(); }
+});
+
+test("registration mail and optional admin notification use the injected transport without secrets", async () => {
+  const delivered: MailMessage[] = [];
+  setMailTransportForTests({ send: async (message) => { delivered.push(message); } });
+  setAdminNotificationEmailForTests("operations@example.test");
+  try {
+    await sendVerificationEmail("new@example.test", "verification-token");
+    await sendRegistrationNotification({ firstName: "New", lastName: "Customer", email: "new@example.test", registeredAt: "2026-07-29T00:00:00.000Z", status: "PENDING_VERIFICATION" });
+    assert.match(delivered[0].text, /verify-email\?token=verification-token/);
+    assert.equal(delivered.length, 2);
+    assert.equal(delivered[1].to, "operations@example.test");
+    assert.match(delivered[1].text, /Customer: New Customer/);
+    assert.match(delivered[1].text, /Admin: https:\/\/buyhomeforless\.com\/admin/);
+    assert.doesNotMatch(delivered.map((message) => message.text).join("\n"), /password|session|hash/i);
   } finally { resetMailTransportForTests(); }
 });
 

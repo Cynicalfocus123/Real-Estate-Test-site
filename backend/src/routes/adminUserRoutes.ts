@@ -185,7 +185,7 @@ adminUserRoutes.patch("/employees/:id", requireRole("HEAD_ADMIN"), async (reques
   }
 });
 
-adminUserRoutes.get("/customers", async (request, response, next) => {
+adminUserRoutes.get("/customers", requireOneOfRoles(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
   try {
     const query = z.object({ page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(25), status: z.enum(["PENDING_VERIFICATION", "ACTIVE", "DISABLED", "DELETED"]).optional(), q: z.string().max(190).optional() }).parse(request.query);
     const filters: string[] = []; const values: (string | number)[] = [];
@@ -194,7 +194,20 @@ adminUserRoutes.get("/customers", async (request, response, next) => {
     const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
     const rows = await queryRows<(RowDataPacket & { id:number; email:string; first_name:string; last_name:string; status:string; email_verified_at:string|null; created_at:string; last_login_at:string|null; favorite_count:number })[]>(`SELECT c.id,c.email,c.first_name,c.last_name,c.status,c.email_verified_at,c.created_at,c.last_login_at,COUNT(f.listing_id) AS favorite_count FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id ${where} GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?`, [...values, query.pageSize, (query.page - 1) * query.pageSize]);
     const count = await queryRows<(RowDataPacket & { total:number })[]>(`SELECT COUNT(*) AS total FROM customer_accounts c ${where}`, values);
-    response.json({ items: rows.map((row) => ({ id:row.id,email:row.email,firstName:row.first_name,lastName:row.last_name,status:row.status,emailVerifiedAt:row.email_verified_at,createdAt:row.created_at,lastLoginAt:row.last_login_at,favoriteCount:Number(row.favorite_count) })), pagination:{page:query.page,pageSize:query.pageSize,total:Number(count[0]?.total ?? 0)} });
+    const total = Number(count[0]?.total ?? 0);
+    response.json({ items: rows.map((row) => ({ id:row.id,email:row.email,firstName:row.first_name,lastName:row.last_name,status:row.status,emailVerifiedAt:row.email_verified_at,createdAt:row.created_at,lastLoginAt:row.last_login_at,favoriteCount:Number(row.favorite_count) })), pagination:{page:query.page,pageSize:query.pageSize,total,totalPages:Math.max(1, Math.ceil(total / query.pageSize))} });
+  } catch (error) { next(error); }
+});
+
+adminUserRoutes.get("/customers/:id", requireOneOfRoles(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
+  try {
+    const id = z.coerce.number().int().positive().parse(request.params.id);
+    const rows = await queryRows<(RowDataPacket & { id:number; email:string; first_name:string; last_name:string; phone:string|null; address:string|null; subdistrict:string|null; district:string|null; province:string|null; postal_code:string|null; status:string; email_verified_at:string|null; created_at:string; last_login_at:string|null; notification_frequency:string; marketing_preference:number; favorite_count:number })[]>(
+      `SELECT c.id,c.email,c.first_name,c.last_name,c.phone,c.address,c.subdistrict,c.district,c.province,c.postal_code,c.status,c.email_verified_at,c.created_at,c.last_login_at,c.notification_frequency,c.marketing_preference,COUNT(f.listing_id) AS favorite_count
+       FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id WHERE c.id=? GROUP BY c.id LIMIT 1`, [id]);
+    const customer = rows[0];
+    if (!customer) throw new ApiError(404, "Customer not found");
+    response.json({ customer: { id:customer.id, email:customer.email, firstName:customer.first_name, lastName:customer.last_name, phone:customer.phone, address:customer.address, subdistrict:customer.subdistrict, district:customer.district, province:customer.province, postalCode:customer.postal_code, status:customer.status, emailVerifiedAt:customer.email_verified_at, createdAt:customer.created_at, lastLoginAt:customer.last_login_at, notificationFrequency:customer.notification_frequency, marketingPreference:Boolean(customer.marketing_preference), favoriteCount:Number(customer.favorite_count) } });
   } catch (error) { next(error); }
 });
 

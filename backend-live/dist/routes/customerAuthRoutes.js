@@ -7,6 +7,7 @@ exports.customerRoutes = exports.customerAuthRoutes = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_1 = require("express");
 const zod_1 = require("zod");
+const env_1 = require("../config/env");
 const sessions_1 = require("../auth/sessions");
 const pool_1 = require("../db/pool");
 const customerAuth_1 = require("../middleware/customerAuth");
@@ -29,16 +30,27 @@ const safeCustomer = (c) => ({ id: c.id, email: c.email, firstName: c.first_name
 async function issueToken(connection, customerId, purpose, pendingEmail) { const raw = (0, sessions_1.randomToken)(); await connection.execute("UPDATE customer_action_tokens SET used_at=CURRENT_TIMESTAMP WHERE customer_id=? AND purpose=? AND used_at IS NULL", [customerId, purpose]); await connection.execute("INSERT INTO customer_action_tokens (customer_id,purpose,token_hash,pending_email,expires_at) VALUES (?,?,?,?,DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 30 MINUTE))", [customerId, purpose, (0, sessions_1.tokenHash)(raw), pendingEmail ?? null]); return raw; }
 async function consumeToken(connection, raw, purpose) { const [rows] = await connection.query("SELECT id,customer_id,pending_email FROM customer_action_tokens WHERE token_hash=? AND purpose=? AND used_at IS NULL AND expires_at>CURRENT_TIMESTAMP FOR UPDATE", [(0, sessions_1.tokenHash)(raw), purpose]); const row = rows[0]; if (!row)
     throw new errors_1.ApiError(400, "This link is invalid or expired"); await connection.execute("UPDATE customer_action_tokens SET used_at=CURRENT_TIMESTAMP WHERE id=?", [row.id]); return row; }
+function requireCustomerMail() { if (env_1.env.NODE_ENV === "production" && !(0, mailService_1.isMailConfigured)())
+    throw new errors_1.ApiError(503, "Email service is temporarily unavailable. Please try again later."); }
 async function tryMail(send) { try {
     await send();
+    return true;
 }
-catch { /* account flows remain safe when a host has not configured mail */ } }
+catch {
+    return false;
+} }
 exports.customerAuthRoutes = (0, express_1.Router)();
 exports.customerAuthRoutes.use(csrf_1.requireSameOrigin);
 exports.customerAuthRoutes.post("/register", async (req, res, next) => { try {
+    requireCustomerMail();
     const data = registration.parse(req.body);
-    const c = await (0, pool_1.withTransaction)(async (connection) => { const hash = await bcryptjs_1.default.hash(data.password, 12); const [result] = await connection.execute("INSERT INTO customer_accounts (email,password_hash,first_name,last_name,phone,status) VALUES (?,?,?,?,?,'PENDING_VERIFICATION')", [(0, sanitize_1.sanitizeEmail)(data.email), hash, (0, sanitize_1.sanitizePlainText)(data.firstName, 80), (0, sanitize_1.sanitizePlainText)(data.lastName, 80), data.phone ? (0, sanitize_1.sanitizePlainText)(data.phone, 40) : null]); const id = Number(result.insertId); const raw = await issueToken(connection, id, "EMAIL_VERIFICATION"); return { id, raw }; });
-    await tryMail(() => (0, mailService_1.sendVerificationEmail)((0, sanitize_1.sanitizeEmail)(data.email), c.raw));
+    const email = (0, sanitize_1.sanitizeEmail)(data.email);
+    const firstName = (0, sanitize_1.sanitizePlainText)(data.firstName, 80);
+    const lastName = (0, sanitize_1.sanitizePlainText)(data.lastName, 80);
+    const c = await (0, pool_1.withTransaction)(async (connection) => { const hash = await bcryptjs_1.default.hash(data.password, 12); const [result] = await connection.execute("INSERT INTO customer_accounts (email,password_hash,first_name,last_name,phone,status) VALUES (?,?,?,?,?,'PENDING_VERIFICATION')", [email, hash, firstName, lastName, data.phone ? (0, sanitize_1.sanitizePlainText)(data.phone, 40) : null]); const id = Number(result.insertId); const raw = await issueToken(connection, id, "EMAIL_VERIFICATION"); return { id, raw }; });
+    if (!await tryMail(() => (0, mailService_1.sendVerificationEmail)(email, c.raw)))
+        throw new errors_1.ApiError(503, "Email service is temporarily unavailable. Please try again later.");
+    void tryMail(() => (0, mailService_1.sendRegistrationNotification)({ firstName, lastName, email, registeredAt: new Date().toISOString(), status: "PENDING_VERIFICATION" }));
     (0, sessions_1.noStore)(res);
     res.status(201).json({ verificationRequired: true });
 }
@@ -106,12 +118,13 @@ exports.customerAuthRoutes.post("/resend-verification", async (req, res, next) =
     const data = zod_1.z.object({ email: zod_1.z.string().email().max(190) }).strict().parse(req.body);
     const rows = await (0, pool_1.queryRows)("SELECT * FROM customer_accounts WHERE email=? AND status='PENDING_VERIFICATION' LIMIT 1", [(0, sanitize_1.sanitizeEmail)(data.email)]);
     const c = rows[0];
-    if (c) {
+    let delivered = (0, mailService_1.isMailConfigured)();
+    if (c && delivered) {
         const raw = await (0, pool_1.withTransaction)(conn => issueToken(conn, c.id, "EMAIL_VERIFICATION"));
-        await tryMail(() => (0, mailService_1.sendVerificationEmail)(c.email, raw));
+        delivered = await tryMail(() => (0, mailService_1.sendVerificationEmail)(c.email, raw));
     }
     (0, sessions_1.noStore)(res);
-    res.json({ ok: true });
+    res.json({ ok: true, deliveryAvailable: delivered });
 }
 catch (e) {
     next(e);
@@ -120,12 +133,13 @@ exports.customerAuthRoutes.post("/forgot-password", async (req, res, next) => { 
     const data = zod_1.z.object({ email: zod_1.z.string().email().max(190) }).strict().parse(req.body);
     const rows = await (0, pool_1.queryRows)("SELECT * FROM customer_accounts WHERE email=? AND status='ACTIVE' LIMIT 1", [(0, sanitize_1.sanitizeEmail)(data.email)]);
     const c = rows[0];
-    if (c) {
+    let delivered = (0, mailService_1.isMailConfigured)();
+    if (c && delivered) {
         const raw = await (0, pool_1.withTransaction)(conn => issueToken(conn, c.id, "PASSWORD_RESET"));
-        await tryMail(() => (0, mailService_1.sendResetEmail)(c.email, raw));
+        delivered = await tryMail(() => (0, mailService_1.sendResetEmail)(c.email, raw));
     }
     (0, sessions_1.noStore)(res);
-    res.json({ ok: true });
+    res.json({ ok: true, deliveryAvailable: delivered });
 }
 catch (e) {
     next(e);

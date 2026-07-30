@@ -2,35 +2,35 @@ import { assetPath } from "../utils/assets";
 
 const services = [
   {
-    icon: "images/service-icons/1.png",
+    icon: "images/service-icons/1.avif",
     title: "Global Reach",
   },
   {
-    icon: "images/service-icons/2.png",
+    icon: "images/service-icons/2.avif",
     title: "Expert Guidance",
   },
   {
-    icon: "images/service-icons/3.png",
+    icon: "images/service-icons/3.avif",
     title: "Specializing in Distressed Properties",
   },
   {
-    icon: "images/service-icons/4.png",
+    icon: "images/service-icons/4.avif",
     title: "Escrow",
   },
   {
-    icon: "images/service-icons/5.png",
+    icon: "images/service-icons/5.avif",
     title: "Guarantee Property Condition",
   },
   {
-    icon: "images/service-icons/6.png",
+    icon: "images/service-icons/6.avif",
     title: "1-Year Home Warranty",
   },
   {
-    icon: "images/service-icons/7.png",
+    icon: "images/service-icons/7.avif",
     title: "Free or Deeply Discounted Long-Term Stay Visa",
   },
   {
-    icon: "images/service-icons/8.png",
+    icon: "images/service-icons/8.avif",
     title: "Global Financing for Foreign Buyers",
   },
 ];
