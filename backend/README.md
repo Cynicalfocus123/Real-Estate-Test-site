@@ -5,13 +5,13 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
 ## Stack
 - Node.js + Express + TypeScript
 - MySQL (`mysql2`)
-- JWT auth
+- Secure, server-managed opaque sessions in HttpOnly cookies
 - bcrypt password hashing
 - multer + sharp image processing
 
 ## Core Coverage
-- Current staff auth: one-time first Head Admin bootstrap, authorized staff registration, login, and current user (`/api/v1/auth/me`).
-- Task 5 boundary: real public customer authentication will be separate from staff roles; public signup can never create `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` accounts.
+- Customer and staff authentication are separate security domains. Customer records live in `customer_accounts` and have no role field; public signup can never create `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` accounts.
+- Customer state is `PENDING_VERIFICATION`, `ACTIVE`, `DISABLED`, or `DELETED`. Customer and staff sessions use separate Secure, HttpOnly, SameSite=Lax cookies, with only SHA-256 token hashes stored in MySQL.
 - Roles: `HEAD_ADMIN`, `ADMIN`, `EMPLOYEE`.
 - Dashboard overview metrics: listings by status, users, seller apps, employee accounts, recent items.
 - Property administration (`/api/v1/admin/properties`) with one typed camelCase contract:
@@ -42,10 +42,12 @@ Codex verification does not start a local service or apply a production migratio
 - Production API base: `https://buyhomeforless.com/api/v1`
 - Health: `GET /health`
 - Readiness: `GET /ready`
-- Head Admin bootstrap status: `GET /api/v1/auth/bootstrap-status`
-- Register: `POST /api/v1/auth/register`
-- Login: `POST /api/v1/auth/login`
-- Current user: `GET /api/v1/auth/me`
+- Customer auth: `/api/v1/customer-auth/register`, `login`, `logout`, `logout-all`, `session`, `verify-email`, `resend-verification`, `forgot-password`, `reset-password`, and `change-password`.
+- Customer account: `/api/v1/customer/profile`, `/preferences`, `/account`, and `/favorites`.
+- Staff auth: `/api/v1/admin-auth/bootstrap-status`, `bootstrap`, `login`, `logout`, `logout-all`, `session`, and `change-password`. Bootstrap is atomic and only available while no Head Admin exists.
+- State-changing cookie requests require the canonical same-origin `Origin` header. Authentication and account responses are `Cache-Control: no-store`.
+- Email verification and reset tokens are random, single-use, short-lived, and hashed at rest. SMTP is provider-neutral; set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` in the host environment. No SMTP delivery is asserted by this workspace.
+- Phone OTP/SMS login is not implemented until a provider is explicitly approved; no mock fallback or customer import exists.
 - Public properties: `GET /api/v1/properties` and `GET /api/v1/properties/:slug`
 - Public geocoding: `GET /api/v1/map/geocode`
 - Seller submit: `POST /api/v1/seller-applications`

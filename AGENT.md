@@ -79,7 +79,7 @@ Keep tool output bounded: use `rg` for searches when available and targeted Powe
 
 ## Next approved task: real authentication
 
-- Task 5 replaces mock public login, signup, and OTP behavior with real customer registration, login, logout, persistent sessions, email verification, password recovery, profile security, and database-backed favorites.
+- Task 5 uses dedicated `customer_accounts` and hashed opaque customer sessions. Public registration cannot accept a role or grant staff access; customer and staff cookies use distinct names and do not cross-authorize.
 - Customer and administration identities remain separate. Public registration can never grant `HEAD_ADMIN`, `ADMIN`, or `EMPLOYEE` access.
 - Administration keeps its separate login. Head Admin bootstrap is available only while no Head Admin exists; afterward, authorized administration controls staff creation and roles.
-- Authentication work must retain rate limits, password hashing, generic public errors, disabled-account handling, session expiry, authorization tests, and the canonical same-origin API contract. No demo or silent mock fallback may remain after cutover.
+- Customer routes are `/api/v1/customer-auth` and `/api/v1/customer`; staff routes are `/api/v1/admin-auth`. Sessions are Secure, HttpOnly, SameSite=Lax, server-managed cookies; customer action tokens are hashed, single-use, and expiring. SMTP configuration is host-only, no SMS provider is approved, and no mock or localStorage fallback exists.

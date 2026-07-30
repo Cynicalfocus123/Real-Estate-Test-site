@@ -52,18 +52,6 @@ export function safeMailtoHref(email: string) {
   return `mailto:${normalized}`;
 }
 
-export function safeGraphqlEndpoint(endpoint: string | undefined) {
-  if (!endpoint) throw new Error("GraphQL endpoint is not configured");
-
-  try {
-    const url = new URL(endpoint);
-    if (url.protocol !== "https:" || url.origin !== "https://buyhomeforless.com") throw new Error("GraphQL endpoint must use the approved HTTPS origin");
-    return url.toString();
-  } catch {
-    throw new Error("Invalid GraphQL endpoint");
-  }
-}
-
 export function cleanSearchText(value: FormDataEntryValue | null, maxLength = 80) {
   if (typeof value !== "string") return "";
 

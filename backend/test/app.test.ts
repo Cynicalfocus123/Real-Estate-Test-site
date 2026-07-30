@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import request from "supertest";
 import { createApp } from "../src/app";
-import { verifyAuthToken } from "../src/auth/jwt";
 import { migrationFiles } from "../src/db/migrate";
 import { propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
 
@@ -27,8 +26,7 @@ test("approved origin gets CORS and unknown routes are safe", async () => {
   assert.deepEqual(notFound.body, { error: "Route not found" });
 });
 
-test("invalid JWTs are rejected and migrations are ordered", async () => {
-  assert.throws(() => verifyAuthToken("not-a-token"));
+test("migrations are ordered", async () => {
   const files = await migrationFiles();
   assert.deepEqual(files, [...files].sort());
   assert.ok(files.every((name) => /^\d+_[a-z0-9-]+\.sql$/i.test(name)));

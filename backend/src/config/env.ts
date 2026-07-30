@@ -1,5 +1,4 @@
 import path from "node:path";
-import crypto from "node:crypto";
 import dotenv from "dotenv";
 import { z } from "zod";
 
@@ -22,11 +21,6 @@ const envSchema = z.object({
   DB_USER: z.string().min(1).default("root"),
   DB_PASSWORD: z.string().default(""),
   DB_NAME: z.string().min(1).default("buyhomeforless"),
-  JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters").optional(),
-  JWT_EXPIRES_IN: z.string().default("7d"),
-  HEAD_ADMIN_EMAIL: z.string().email().optional(),
-  HEAD_ADMIN_PASSWORD: z.string().min(8).optional(),
-  HEAD_ADMIN_NAME: z.string().min(1).max(80).optional(),
   UPLOAD_DIR: z.string().min(1).default("uploads"),
   OSMAND_SEARCH_URL: z.string().url().default("https://nominatim.openstreetmap.org/search"),
   OSMAND_LANGUAGE: z.string().min(1).default("en,th"),
@@ -44,7 +38,6 @@ function validateProduction(data: z.infer<typeof envSchema>) {
     if (!value.startsWith("https://")) errors.push(`${name} must use HTTPS`);
     if (/[{}<>]/.test(value) || forbiddenValuePattern.test(value)) errors.push(`${name} contains a placeholder or development host`);
   }
-  if (!data.JWT_SECRET || data.JWT_SECRET.length < 32) errors.push("JWT_SECRET must be a strong production secret");
   for (const name of ["DB_HOST", "DB_USER", "DB_NAME"]) if (!data[name as "DB_HOST" | "DB_USER" | "DB_NAME"].trim()) errors.push(`${name} is required in production`);
   if (errors.length) throw new Error(`Invalid production environment: ${errors.join("; ")}`);
 }
@@ -52,12 +45,12 @@ function validateProduction(data: z.infer<typeof envSchema>) {
 const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) throw new Error(`Invalid environment: ${parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`).join("; ")}`);
 if (parsed.data.NODE_ENV === "production") {
-  const required = ["PUBLIC_SITE_ORIGIN", "FRONTEND_ORIGIN", "PUBLIC_API_BASE_URL", "PUBLIC_UPLOAD_BASE_URL", "DB_HOST", "DB_USER", "DB_NAME", "JWT_SECRET"];
+  const required = ["PUBLIC_SITE_ORIGIN", "FRONTEND_ORIGIN", "PUBLIC_API_BASE_URL", "PUBLIC_UPLOAD_BASE_URL", "DB_HOST", "DB_USER", "DB_NAME"];
   const missing = required.filter((name) => !process.env[name]?.trim());
   if (missing.length) throw new Error(`Invalid production environment: missing ${missing.join(", ")}`);
 }
 if (parsed.data.NODE_ENV === "production") validateProduction(parsed.data);
 
 const envData = parsed.data;
-export const env = { ...envData, JWT_SECRET: envData.JWT_SECRET ?? crypto.randomBytes(32).toString("hex"), UPLOAD_DIR_ABSOLUTE: path.resolve(process.cwd(), envData.UPLOAD_DIR) } as const;
+export const env = { ...envData, UPLOAD_DIR_ABSOLUTE: path.resolve(process.cwd(), envData.UPLOAD_DIR) } as const;
 export { canonicalOrigin, canonicalApi, canonicalUploads };

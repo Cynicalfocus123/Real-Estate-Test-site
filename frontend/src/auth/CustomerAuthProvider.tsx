@@ -1,0 +1,7 @@
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { customerAuthApi, type Customer } from "../services/customerAuthService";
+
+type CustomerAuthState={customer:Customer|null;loading:boolean;login:(email:string,password:string)=>Promise<void>;register:(input:{email:string;password:string;firstName:string;lastName:string;phone?:string})=>Promise<void>;logout:()=>Promise<void>;refresh:()=>Promise<void>};
+const CustomerAuthContext=createContext<CustomerAuthState|null>(null);
+export function CustomerAuthProvider({children}:{children:ReactNode}){const [customer,setCustomer]=useState<Customer|null>(null);const[loading,setLoading]=useState(true);const refresh=async()=>{try{const result=await customerAuthApi.session();setCustomer(result.customer);}catch{setCustomer(null);}};useEffect(()=>{void refresh().finally(()=>setLoading(false));},[]);const value=useMemo<CustomerAuthState>(()=>({customer,loading,refresh,async login(email,password){const r=await customerAuthApi.login(email,password);setCustomer(r.customer);},async register(input){await customerAuthApi.register(input);},async logout(){try{await customerAuthApi.logout();}finally{setCustomer(null);}}}),[customer,loading]);return <CustomerAuthContext.Provider value={value}>{children}</CustomerAuthContext.Provider>}
+export function useCustomerAuth(){const value=useContext(CustomerAuthContext);if(!value)throw new Error("CustomerAuthProvider missing");return value;}

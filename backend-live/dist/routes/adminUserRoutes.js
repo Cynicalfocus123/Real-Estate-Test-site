@@ -8,6 +8,7 @@ const express_1 = require("express");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const zod_1 = require("zod");
 const pool_1 = require("../db/pool");
+const sessions_1 = require("../auth/sessions");
 const auth_1 = require("../middleware/auth");
 const errors_1 = require("../utils/errors");
 const sanitize_1 = require("../utils/sanitize");
@@ -135,13 +136,88 @@ exports.adminUserRoutes.patch("/employees/:id", (0, auth_1.requireRole)("HEAD_AD
             throw new errors_1.ApiError(400, "No update fields provided");
         }
         values.push(employeeId);
-        await (0, pool_1.executeSql)(`UPDATE users SET ${sets.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role <> 'HEAD_ADMIN'`, values);
+        await (0, pool_1.withTransaction)(async (connection) => {
+            await connection.execute(`UPDATE users SET ${sets.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role <> 'HEAD_ADMIN'`, values);
+            if (data.status === "DISABLED" || data.password)
+                await (0, sessions_1.revokeSessions)(connection, "staff", employeeId);
+        });
         response.json({ ok: true });
     }
     catch (error) {
         next(error);
     }
 });
+exports.adminUserRoutes.get("/customers", async (request, response, next) => {
+    try {
+        const query = zod_1.z.object({ page: zod_1.z.coerce.number().int().min(1).default(1), pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(25), status: zod_1.z.enum(["PENDING_VERIFICATION", "ACTIVE", "DISABLED", "DELETED"]).optional(), q: zod_1.z.string().max(190).optional() }).parse(request.query);
+        const filters = [];
+        const values = [];
+        if (query.status) {
+            filters.push("c.status = ?");
+            values.push(query.status);
+        }
+        if (query.q?.trim()) {
+            filters.push("(c.email LIKE ? OR c.first_name LIKE ? OR c.last_name LIKE ?)");
+            const term = `%${(0, sanitize_1.sanitizePlainText)(query.q, 190)}%`;
+            values.push(term, term, term);
+        }
+        const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+        const rows = await (0, pool_1.queryRows)(`SELECT c.id,c.email,c.first_name,c.last_name,c.status,c.email_verified_at,c.created_at,c.last_login_at,COUNT(f.listing_id) AS favorite_count FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id ${where} GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?`, [...values, query.pageSize, (query.page - 1) * query.pageSize]);
+        const count = await (0, pool_1.queryRows)(`SELECT COUNT(*) AS total FROM customer_accounts c ${where}`, values);
+        response.json({ items: rows.map((row) => ({ id: row.id, email: row.email, firstName: row.first_name, lastName: row.last_name, status: row.status, emailVerifiedAt: row.email_verified_at, createdAt: row.created_at, lastLoginAt: row.last_login_at, favoriteCount: Number(row.favorite_count) })), pagination: { page: query.page, pageSize: query.pageSize, total: Number(count[0]?.total ?? 0) } });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.adminUserRoutes.patch("/customers/:id", (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
+    try {
+        const id = zod_1.z.coerce.number().int().positive().parse(request.params.id);
+        const data = zod_1.z.object({ firstName: zod_1.z.string().min(1).max(80).optional(), lastName: zod_1.z.string().min(1).max(80).optional(), phone: zod_1.z.string().max(40).nullable().optional(), status: zod_1.z.enum(["ACTIVE", "DISABLED"]).optional() }).strict().parse(request.body);
+        const sets = [];
+        const values = [];
+        if (data.firstName !== undefined) {
+            sets.push("first_name=?");
+            values.push((0, sanitize_1.sanitizePlainText)(data.firstName, 80));
+        }
+        if (data.lastName !== undefined) {
+            sets.push("last_name=?");
+            values.push((0, sanitize_1.sanitizePlainText)(data.lastName, 80));
+        }
+        if (data.phone !== undefined) {
+            sets.push("phone=?");
+            values.push(data.phone === null ? null : (0, sanitize_1.sanitizePlainText)(data.phone, 40));
+        }
+        if (data.status !== undefined) {
+            sets.push("status=?");
+            values.push(data.status);
+        }
+        if (!sets.length)
+            throw new errors_1.ApiError(400, "No customer changes supplied");
+        await (0, pool_1.withTransaction)(async (connection) => { await connection.execute(`UPDATE customer_accounts SET ${sets.join(",")},updated_at=CURRENT_TIMESTAMP WHERE id=?`, [...values, id]); if (data.status === "DISABLED")
+            await (0, sessions_1.revokeSessions)(connection, "customer", id); });
+        response.json({ ok: true });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.adminUserRoutes.post("/customers/:id/revoke-sessions", (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => { try {
+    const id = zod_1.z.coerce.number().int().positive().parse(request.params.id);
+    await (0, pool_1.withTransaction)(connection => (0, sessions_1.revokeSessions)(connection, "customer", id));
+    response.json({ ok: true });
+}
+catch (error) {
+    next(error);
+} });
+exports.adminUserRoutes.delete("/customers/:id", (0, auth_1.requireRole)("HEAD_ADMIN"), async (request, response, next) => { try {
+    const id = zod_1.z.coerce.number().int().positive().parse(request.params.id);
+    await (0, pool_1.executeSql)("UPDATE customer_accounts SET status='DELETED',email=CONCAT('deleted-',id,'-',email),password_hash='' WHERE id=?", [id]);
+    response.json({ ok: true });
+}
+catch (error) {
+    next(error);
+} });
 exports.adminUserRoutes.delete("/employees/:id", (0, auth_1.requireRole)("HEAD_ADMIN"), async (request, response, next) => {
     try {
         const employeeId = Number.parseInt(request.params.id, 10);

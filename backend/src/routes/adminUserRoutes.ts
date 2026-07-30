@@ -2,7 +2,8 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import type { RowDataPacket } from "mysql2/promise";
 import { z } from "zod";
-import { executeSql, queryRows } from "../db/pool";
+import { executeSql, queryRows, withTransaction } from "../db/pool";
+import { revokeSessions } from "../auth/sessions";
 import { requireAuth, requireOneOfRoles, requireRole } from "../middleware/auth";
 import { ApiError } from "../utils/errors";
 import { sanitizeEmail, sanitizePlainText } from "../utils/sanitize";
@@ -145,7 +146,7 @@ adminUserRoutes.patch("/employees/:id", requireRole("HEAD_ADMIN"), async (reques
 
     const data = parsed.data;
     const sets: string[] = [];
-    const values: unknown[] = [];
+    const values: (string | number)[] = [];
 
     if (data.email) {
       sets.push("email = ?");
@@ -173,12 +174,39 @@ adminUserRoutes.patch("/employees/:id", requireRole("HEAD_ADMIN"), async (reques
     }
 
     values.push(employeeId);
-    await executeSql(`UPDATE users SET ${sets.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role <> 'HEAD_ADMIN'`, values);
+    await withTransaction(async (connection) => {
+      await connection.execute(`UPDATE users SET ${sets.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role <> 'HEAD_ADMIN'`, values);
+      if (data.status === "DISABLED" || data.password) await revokeSessions(connection, "staff", employeeId);
+    });
     response.json({ ok: true });
   } catch (error) {
     next(error);
   }
 });
+
+adminUserRoutes.get("/customers", async (request, response, next) => {
+  try {
+    const query = z.object({ page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(25), status: z.enum(["PENDING_VERIFICATION", "ACTIVE", "DISABLED", "DELETED"]).optional(), q: z.string().max(190).optional() }).parse(request.query);
+    const filters: string[] = []; const values: (string | number)[] = [];
+    if (query.status) { filters.push("c.status = ?"); values.push(query.status); }
+    if (query.q?.trim()) { filters.push("(c.email LIKE ? OR c.first_name LIKE ? OR c.last_name LIKE ?)"); const term = `%${sanitizePlainText(query.q, 190)}%`; values.push(term, term, term); }
+    const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+    const rows = await queryRows<(RowDataPacket & { id:number; email:string; first_name:string; last_name:string; status:string; email_verified_at:string|null; created_at:string; last_login_at:string|null; favorite_count:number })[]>(`SELECT c.id,c.email,c.first_name,c.last_name,c.status,c.email_verified_at,c.created_at,c.last_login_at,COUNT(f.listing_id) AS favorite_count FROM customer_accounts c LEFT JOIN customer_favorites f ON f.customer_id=c.id ${where} GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?`, [...values, query.pageSize, (query.page - 1) * query.pageSize]);
+    const count = await queryRows<(RowDataPacket & { total:number })[]>(`SELECT COUNT(*) AS total FROM customer_accounts c ${where}`, values);
+    response.json({ items: rows.map((row) => ({ id:row.id,email:row.email,firstName:row.first_name,lastName:row.last_name,status:row.status,emailVerifiedAt:row.email_verified_at,createdAt:row.created_at,lastLoginAt:row.last_login_at,favoriteCount:Number(row.favorite_count) })), pagination:{page:query.page,pageSize:query.pageSize,total:Number(count[0]?.total ?? 0)} });
+  } catch (error) { next(error); }
+});
+
+adminUserRoutes.patch("/customers/:id", requireOneOfRoles(["HEAD_ADMIN", "ADMIN"]), async (request, response, next) => {
+  try {
+    const id = z.coerce.number().int().positive().parse(request.params.id); const data = z.object({ firstName:z.string().min(1).max(80).optional(), lastName:z.string().min(1).max(80).optional(), phone:z.string().max(40).nullable().optional(), status:z.enum(["ACTIVE","DISABLED"]).optional() }).strict().parse(request.body);
+    const sets:string[]=[]; const values:(string|number|null)[]=[]; if(data.firstName!==undefined){sets.push("first_name=?");values.push(sanitizePlainText(data.firstName,80));} if(data.lastName!==undefined){sets.push("last_name=?");values.push(sanitizePlainText(data.lastName,80));} if(data.phone!==undefined){sets.push("phone=?");values.push(data.phone===null?null:sanitizePlainText(data.phone,40));} if(data.status!==undefined){sets.push("status=?");values.push(data.status);} if(!sets.length) throw new ApiError(400,"No customer changes supplied");
+    await withTransaction(async(connection)=>{await connection.execute(`UPDATE customer_accounts SET ${sets.join(",")},updated_at=CURRENT_TIMESTAMP WHERE id=?`,[...values,id]);if(data.status==="DISABLED")await revokeSessions(connection,"customer",id);}); response.json({ok:true});
+  } catch (error) { next(error); }
+});
+
+adminUserRoutes.post("/customers/:id/revoke-sessions", requireOneOfRoles(["HEAD_ADMIN", "ADMIN"]), async (request,response,next)=>{try{const id=z.coerce.number().int().positive().parse(request.params.id);await withTransaction(connection=>revokeSessions(connection,"customer",id));response.json({ok:true});}catch(error){next(error);}});
+adminUserRoutes.delete("/customers/:id", requireRole("HEAD_ADMIN"), async (request,response,next)=>{try{const id=z.coerce.number().int().positive().parse(request.params.id);await executeSql("UPDATE customer_accounts SET status='DELETED',email=CONCAT('deleted-',id,'-',email),password_hash='' WHERE id=?",[id]);response.json({ok:true});}catch(error){next(error);}});
 
 adminUserRoutes.delete("/employees/:id", requireRole("HEAD_ADMIN"), async (request, response, next) => {
   try {

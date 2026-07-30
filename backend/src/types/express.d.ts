@@ -10,6 +10,7 @@ declare global {
         role: AdminRole;
         status: "ACTIVE" | "DISABLED";
       };
+      customer?: { id: number; email: string; firstName: string; lastName: string; status: "PENDING_VERIFICATION" | "ACTIVE" | "DISABLED" | "DELETED" };
     }
   }
 }
