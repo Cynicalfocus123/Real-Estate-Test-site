@@ -48,8 +48,10 @@ exports.customerAuthRoutes.post("/register", async (req, res, next) => { try {
     const firstName = (0, sanitize_1.sanitizePlainText)(data.firstName, 80);
     const lastName = (0, sanitize_1.sanitizePlainText)(data.lastName, 80);
     const c = await (0, pool_1.withTransaction)(async (connection) => { const hash = await bcryptjs_1.default.hash(data.password, 12); const [result] = await connection.execute("INSERT INTO customer_accounts (email,password_hash,first_name,last_name,phone,status) VALUES (?,?,?,?,?,'PENDING_VERIFICATION')", [email, hash, firstName, lastName, data.phone ? (0, sanitize_1.sanitizePlainText)(data.phone, 40) : null]); const id = Number(result.insertId); const raw = await issueToken(connection, id, "EMAIL_VERIFICATION"); return { id, raw }; });
-    if (!await tryMail(() => (0, mailService_1.sendVerificationEmail)(email, c.raw)))
+    if (!await tryMail(() => (0, mailService_1.sendVerificationEmail)(email, c.raw))) {
+        await (0, pool_1.withTransaction)(connection => connection.execute("DELETE FROM customer_accounts WHERE id=? AND status='PENDING_VERIFICATION'", [c.id]).then(() => undefined));
         throw new errors_1.ApiError(503, "Email service is temporarily unavailable. Please try again later.");
+    }
     void tryMail(() => (0, mailService_1.sendRegistrationNotification)({ firstName, lastName, email, registeredAt: new Date().toISOString(), status: "PENDING_VERIFICATION" }));
     (0, sessions_1.noStore)(res);
     res.status(201).json({ verificationRequired: true });
