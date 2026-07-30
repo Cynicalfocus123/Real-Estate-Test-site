@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminPropertyRoutes = exports.propertyPayloadSchema = exports.LISTING_STATUSES = exports.SPECIAL_CATEGORIES = exports.NEARBY_TYPES = exports.VIEW_TYPES = exports.PROPERTY_TYPES = void 0;
+exports.adminPropertyRoutes = exports.adminPropertyListQuerySchema = exports.propertyPayloadSchema = exports.LISTING_STATUSES = exports.SPECIAL_CATEGORIES = exports.NEARBY_TYPES = exports.VIEW_TYPES = exports.PROPERTY_TYPES = void 0;
 exports.propertyDisplayPrice = propertyDisplayPrice;
+exports.buildAdminPropertyFilters = buildAdminPropertyFilters;
 const express_1 = require("express");
 const multer_1 = __importDefault(require("multer"));
 const zod_1 = require("zod");
@@ -67,30 +68,31 @@ function values(data) { const x = data.seo; return [text(data.title, 180), (0, s
 const columns = "title=?,slug=?,section=?,transaction_mode=?,listing_channel=?,public_status_label=?,normalized_property_type=?,special_category=?,property_condition=?,condition_label=?,view_type=?,status=?,category=?,price_amount=?,buy_price=?,rent_monthly_price=?,deposit_amount=?,deposit_months=?,down_payment_amount=?,mortgage_term=?,mortgage_interest_rate=?,estimated_monthly_mortgage=?,currency_code=?,price_unit_label=?,description=?,highlights=?,amenities=?,features=?,property_details=?,furnishing_status=?,has_air_conditioner=?,has_kitchen=?,bedrooms=?,bathrooms=?,land_size=?,interior_size_sqm=?,built_year=?,floor_count=?,garage_spaces=?,street_address=?,village=?,soi=?,tambon=?,amphoe=?,district=?,city=?,province=?,postal_code=?,country=?,latitude=?,longitude=?,map_search_label=?,seo_title=?,meta_description=?,canonical_url=?,index_status=?,follow_status=?,og_title=?,og_description=?,og_image=?,twitter_title=?,twitter_description=?,twitter_image=?,schema_type=?,updated_at=CURRENT_TIMESTAMP";
 async function uniqueSlug(connection, slug, except) { const [rows] = await connection.query(`SELECT id FROM listings WHERE slug=?${except ? " AND id<>?" : ""} LIMIT 1`, except ? [slug, except] : [slug]); if (rows.length)
     throw new errors_1.ApiError(409, "This slug is already in use"); }
+exports.adminPropertyListQuerySchema = zod_1.z.object({ q: zod_1.z.string().max(120).optional(), status: zod_1.z.enum(exports.LISTING_STATUSES).optional(), transactionMode: zod_1.z.enum(["SALE", "RENT"]).optional(), listingChannel: zod_1.z.enum(["STANDARD", "SENIOR_HOME"]).optional(), propertyType: zod_1.z.enum(exports.PROPERTY_TYPES).optional(), page: zod_1.z.coerce.number().int().min(1).default(1), pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(20) });
+function buildAdminPropertyFilters(q) { const where = ["1=1"], p = []; if (q.q) {
+    where.push("(l.title LIKE ? OR l.slug LIKE ? OR l.province LIKE ? OR l.city LIKE ?)");
+    const s = `%${q.q}%`;
+    p.push(s, s, s, s);
+} if (q.status) {
+    where.push("l.status=?");
+    p.push(q.status);
+}
+else
+    where.push("l.status<>'DELETED'"); if (q.transactionMode) {
+    where.push("l.transaction_mode=?");
+    p.push(q.transactionMode);
+} if (q.listingChannel) {
+    where.push("l.listing_channel=?");
+    p.push(q.listingChannel);
+} if (q.propertyType) {
+    where.push("l.normalized_property_type=?");
+    p.push(q.propertyType);
+} return { where, p }; }
 exports.adminPropertyRoutes = (0, express_1.Router)();
 exports.adminPropertyRoutes.use(auth_1.requireAuth, (0, auth_1.requireOneOfRoles)(["HEAD_ADMIN", "ADMIN", "EMPLOYEE"]));
 exports.adminPropertyRoutes.get("/properties", async (req, res, next) => { try {
-    const q = zod_1.z.object({ q: zod_1.z.string().max(120).optional(), status: zod_1.z.enum(exports.LISTING_STATUSES).optional(), transactionMode: zod_1.z.enum(["SALE", "RENT"]).optional(), listingChannel: zod_1.z.enum(["STANDARD", "SENIOR_HOME"]).optional(), page: zod_1.z.coerce.number().int().min(1).default(1), pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(20) }).parse(req.query);
-    const where = ["1=1"], p = [];
-    if (q.q) {
-        where.push("(l.title LIKE ? OR l.slug LIKE ? OR l.province LIKE ? OR l.city LIKE ?)");
-        const s = `%${q.q}%`;
-        p.push(s, s, s, s);
-    }
-    if (q.status) {
-        where.push("l.status=?");
-        p.push(q.status);
-    }
-    else
-        where.push("l.status<>'DELETED'");
-    if (q.transactionMode) {
-        where.push("l.transaction_mode=?");
-        p.push(q.transactionMode);
-    }
-    if (q.listingChannel) {
-        where.push("l.listing_channel=?");
-        p.push(q.listingChannel);
-    }
+    const q = exports.adminPropertyListQuerySchema.parse(req.query);
+    const { where, p } = buildAdminPropertyFilters(q);
     const count = await (0, pool_1.queryRows)(`SELECT COUNT(*) total FROM listings l WHERE ${where.join(" AND ")}`, p), rows = await (0, pool_1.queryRows)(`SELECT l.*, (SELECT card_url FROM listing_images WHERE listing_id=l.id ORDER BY is_cover DESC,sort_order,id LIMIT 1) thumbnail_url FROM listings l WHERE ${where.join(" AND ")} ORDER BY l.updated_at DESC LIMIT ? OFFSET ?`, [...p, q.pageSize, (q.page - 1) * q.pageSize]);
     res.json({ items: rows.map(summary), pagination: { page: q.page, pageSize: q.pageSize, total: num(count[0]?.total) ?? 0, totalPages: Math.max(1, Math.ceil((num(count[0]?.total) ?? 0) / q.pageSize)) } });
 }

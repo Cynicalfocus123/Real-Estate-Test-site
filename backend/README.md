@@ -20,7 +20,7 @@ Express/MySQL backend for the real estate project. Hostinger is not connected; d
   - feature toggles (`furnishingStatus`, `hasAirConditioner`, `hasKitchen`)
   - property attributes (`propertyType`, beds/baths, land/interior size, built year)
   - location (`streetAddress`, district/subdistrict, city/province, postal code, country, latitude/longitude, `mapSearchLabel`)
-  - enums: section (`BUY`, `RENT`, `SELL`, `SENIOR_HOME`), category (`FORECLOSURE`, `PRE_FORECLOSURE`, `DISTRESS_PROPERTY`, `FIXER_UPPER`, `URGENT_SALE`, `FEATURED`, `NEW_LISTING`), status (`DRAFT`, `PUBLISHED`, `ARCHIVED`, `DELETED`)
+  - listing mode enums: `transactionMode` (`SALE`, `RENT`) and `listingChannel` (`STANDARD`, `SENIOR_HOME`); status remains `DRAFT`, `PUBLISHED`, `ARCHIVED`, or `DELETED`
 - Per-property FAQ and nearby-location management is part of the property save transaction.
 - Property image manager (max 12): queued upload on create, upload later, reorder, optional cover, metadata, and delete. A cover image is never required.
 - Agent management (`/api/v1/admin/agents`) and optional active-agent assignment.

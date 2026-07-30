@@ -3,7 +3,7 @@ import test from "node:test";
 import request from "supertest";
 import { createApp } from "../src/app";
 import { migrationFiles } from "../src/db/migrate";
-import { propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
+import { adminPropertyListQuerySchema, buildAdminPropertyFilters, propertyDisplayPrice, propertyPayloadSchema } from "../src/routes/adminPropertyRoutes";
 
 test("health is safe", async () => {
   const response = await request(createApp({ dependencyCheck: async () => true })).get("/health");
@@ -60,4 +60,12 @@ test("property price labels select sale, rent, or the optional-price fallback", 
   assert.equal(propertyDisplayPrice({ transactionMode: "SALE", buyPrice: 1500000, currencyCode: "THB" }), "THB 1,500,000");
   assert.equal(propertyDisplayPrice({ transactionMode: "RENT", rentMonthlyPrice: 18000, currencyCode: "THB" }), "THB 18,000");
   assert.equal(propertyDisplayPrice({ transactionMode: "SALE", buyPrice: null, priceAmount: null, currencyCode: "THB" }), "Price on request");
+});
+
+test("admin property filters validate and apply normalized property type", () => {
+  const query = adminPropertyListQuerySchema.parse({ propertyType: "VILLA" });
+  const filters = buildAdminPropertyFilters(query);
+  assert.ok(filters.where.includes("l.normalized_property_type=?"));
+  assert.ok(filters.p.includes("VILLA"));
+  assert.throws(() => adminPropertyListQuerySchema.parse({ propertyType: "NOT_A_PROPERTY" }));
 });
